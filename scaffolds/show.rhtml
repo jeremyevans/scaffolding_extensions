@@ -1,0 +1,12 @@
+<% entry = instance_variable_get("@#{@scaffold_singular_name}") %>
+<h1>Showing <%= entry.scaffold_name %></h1>
+
+<table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class :show %>">
+<thead><tr><th>Key</th><th>Value</th></tr></thead>
+<tbody>
+<% for column in @scaffold_class.scaffold_fields %>
+  <tr><td><%= column.humanize %></td><td><%= entry.send(column).methods.include?('scaffold_name') ? entry.send(column).scaffold_name : entry.send(column) %></td></tr>
+<% end %>
+</tbody></table>
+<br />
+<%= link_to("Manage #{@scaffold_plural_name.humanize}", :action => "manage#{@scaffold_suffix}") if @scaffold_methods.include?(:manage) %>

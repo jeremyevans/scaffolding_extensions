@@ -1,0 +1,10 @@
+<h1>Search for <%= @scaffold_singular_name.gsub('_', ' ') %></h1>
+
+<%= form(@scaffold_singular_name, :action => "results" + @scaffold_suffix) do |form|
+  form << "<table class='#{@scaffold_class.scaffold_table_class :form}'></tbody>"
+  form << "<tr><td>Null Fields:</td><td>#{select('null', nil, @scaffold_nullable_fields, {}, :multiple=>true)}</td></tr>\n"
+  form << "<tr><td>Not Null Fields:</td><td>#{select('notnull', nil, @scaffold_nullable_fields, {}, :multiple=>true)}</td></tr>\n"
+  form << '</tbody></table>'
+end %>
+
+<%= link_to("Manage #{@scaffold_plural_name.humanize}", :action => "manage#{@scaffold_suffix}") if @scaffold_methods.include?(:manage) %>

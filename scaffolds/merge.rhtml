@@ -1,0 +1,7 @@
+<h1>Merge two <%= @scaffold_plural_name.humanize %></h1>
+<form action="<%= url_for(:action=>"merge_update#{@scaffold_suffix}") %>" method="post">
+<p>Merge: <select name="from"><option value=''>&nbsp;</option><%= options_from_collection_for_select(instance_variable_get("@#{@scaffold_plural_name}"), :id, :scaffold_name) %></select></p>
+<p>into: <select name="to"><option value=''>&nbsp;</option><%= options_from_collection_for_select(instance_variable_get("@#{@scaffold_plural_name}"), :id, :scaffold_name) %></select></p>
+<input type="submit" value="Merge Records" />
+</form>
+<%= link_to("Manage #{@scaffold_plural_name.humanize}", :action => "manage#{@scaffold_suffix}") if @scaffold_methods.include?(:manage) %>

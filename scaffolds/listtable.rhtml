@@ -1,0 +1,26 @@
+<h1>Listing <%= @scaffold_plural_name %></h1>
+
+<table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class :list %>">
+  <tr>
+  <% for column in @scaffold_class.scaffold_fields -%>
+    <th><%= column %></th>
+  <% end %>
+  <%= content_tag(:th, 'Show') if @scaffold_methods.include?(:show) %>
+  <%= content_tag(:th, 'Edit') if @scaffold_methods.include?(:edit) %>
+  <%= content_tag(:th, 'Destroy') if @scaffold_methods.include?(:destroy) %>
+  </tr>
+  
+<% for entry in instance_variable_get("@#{@scaffold_plural_name}") %>
+  <tr>
+  <% for column in @scaffold_class.scaffold_fields %>
+    <td><%= entry.send(column).methods.include?('scaffold_name') ? entry.send(column).scaffold_name : entry.send(column) %></td>
+  <% end %>
+  <%= content_tag(:td, button_to('Show', :action=>"show#{@scaffold_suffix}", :id=>entry.id)) if @scaffold_methods.include?(:show) %>
+  <%= content_tag(:td, button_to('Edit', :action=>"edit#{@scaffold_suffix}", :id=>entry.id)) if @scaffold_methods.include?(:edit) %>
+  <%= content_tag(:td, button_to('Destroy', :action=>"destroy#{@scaffold_suffix}", :id=>entry.id)) if @scaffold_methods.include?(:destroy) %>
+  </tr>
+<% end %>
+</table>
+<br />
+
+<%= link_to("Manage #{@scaffold_plural_name.humanize}", :action => "manage#{@scaffold_suffix}") if @scaffold_methods.include?(:manage) %>

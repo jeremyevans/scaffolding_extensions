@@ -1,0 +1,9 @@
+ScaffoldingExtensions
+=====================
+
+TODO:
+scaffold_includes - symbols to include when scaffolding (so scaffold name doesn't generate extra queries)
+scaffold - add :except and :only options, for specifying only certain actions being added
+scaffold_search, scaffold_merge, scaffold_habtm - Take symbols instead of classes
+render_*_scaffold - Use common code instead of having different functions
+scaffold_search, scaffold_merge = combine into scaffold?
