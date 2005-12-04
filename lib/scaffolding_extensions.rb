@@ -2,9 +2,14 @@
 module ActiveRecord
   class Base
     @@scaffold_convert_text_to_string = false
-    cattr_accessor :scaffold_convert_text_to_string
+    @@scaffold_table_classes = {:form=>'formtable', :list=>'sortable', :show=>'sortable'}
+    @@scaffold_column_types = {'password'=>:password}
+    @@scaffold_column_options = {}
+    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options
     
     class << self
+      attr_accessor :scaffold_select_order, :scaffold_include
+      
       def merge_records(from, to)
         reflect_on_all_associations.each{|reflection| reflection_merge(reflection, from, to)}
         destroy(from)
@@ -26,21 +31,13 @@ module ActiveRecord
         @scaffold_fields ||= column_names
       end
       
-      def scaffold_select_order
-        @scaffold_select_order
-      end
-      
-      def scaffold_include
-        @scaffold_include
-      end
-      
       def scaffold_table_class(type)
-        @scaffold_table_classes ||= {:form=>'formtable', :list=>'sortable', :show=>'sortable'}
+        @scaffold_table_classes ||= @@scaffold_table_classes
         @scaffold_table_classes[type]
       end
       
       def scaffold_column_type(column_name)
-        @scaffold_column_types ||= {'password'=>:password}
+        @scaffold_column_types ||= @@scaffold_column_types
         if @scaffold_column_types[column_name]
           @scaffold_column_types[column_name]
         elsif columns_hash.include?(column_name)
@@ -51,7 +48,7 @@ module ActiveRecord
       end
       
       def scaffold_column_options(column_name)
-        @scaffold_column_options ||= {}
+        @scaffold_column_options ||= @@scaffold_column_options
         @scaffold_column_options[column_name]
       end
     end
@@ -163,10 +160,18 @@ end
 module ActionController
   class Base
     @@scaffold_template_dir = "#{File.dirname(__FILE__)}/../scaffolds"
-    cattr_accessor :scaffold_template_dir
-    
     @@default_scaffold_methods = [:manage, :show, :destroy, :edit, :new, :search, :merge]
-    cattr_accessor :default_scaffold_methods
+    cattr_accessor = :scaffold_template_dir, :default_scaffold_methods
+    
+    class << self
+      def scaffold_template_dir
+        @scaffold_template_dir ||= @@scaffold_template_dir
+      end
+      
+      def default_scaffold_methods
+        @default_scaffold_methods ||= @@default_scaffold_methods
+      end
+    end
     
     private
     def render_habtm_scaffold(action = "habtm")
