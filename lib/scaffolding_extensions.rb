@@ -86,7 +86,7 @@ module ActionView
         Proc.new do |record, column| 
           if column.class.name =~ /Reflection/
             if column.macro == :belongs_to
-              "<tr><td>#{column.klass.name}:</td><td>#{input(record, column.name)}</td></tr>\n"
+              "<tr><td>#{column.name.to_s.humanize}:</td><td>#{input(record, column.name)}</td></tr>\n"
             end
           else
             "<tr><td>#{column.human_name}:</td><td>#{input(record, column.name)}</td></tr>\n"
@@ -332,7 +332,7 @@ module ActionController
               @scaffold_fields = @#{singular_name}.class.scaffold_fields
               @scaffold_nullable_fields = @#{singular_name}.class.scaffold_fields.collect do |field|
                 reflection = @#{singular_name}.class.reflect_on_association(field.to_sym)
-                reflection ? (reflection.options[:foreign_key] || singular_class.table_name.classify.foreign_key) : field
+                reflection ? (reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key) : field
               end
               render#{suffix}_scaffold('search#{suffix}')
             end
@@ -346,7 +346,7 @@ module ActionController
                   reflection = #{class_name}.reflect_on_association(field.to_sym)
                   if reflection
                     includes << field.to_sym
-                    field = reflection.options[:foreign_key].to_s
+                    field = (reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key).to_s
                   end
                   next if (@params['null'] and @params['null'].include?(field)) or (@params['notnull'] and @params['notnull'].include?(field))
                   scaffold_search_add_condition(conditions, record, field) if @params[:#{singular_name}][field] and @params[:#{singular_name}][field].length > 0
