@@ -183,7 +183,7 @@ module ActionController
     end
   
     def scaffold_path(template_name)
-      File.join(@@scaffold_template_dir, template_name+'.rhtml')
+      File.join(self.class.scaffold_template_dir, template_name+'.rhtml')
     end
   
     def multiple_select_ids(arr)
