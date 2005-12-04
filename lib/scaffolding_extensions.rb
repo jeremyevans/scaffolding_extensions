@@ -1,56 +1,59 @@
 # ScaffoldingExtensions
 module ActiveRecord
   class Base
-    def self.merge_records(from, to)
-      reflect_on_all_associations.each{|reflection| reflection_merge(reflection, from, to)}
-      destroy(from)
-    end
+    @@scaffold_convert_text_to_string = false
+    cattr_accessor :scaffold_convert_text_to_string
     
-    def self.reflection_merge(reflection, from, to)
-      foreign_key = reflection.options[:foreign_key] || table_name.classify.foreign_key
-      sql = case reflection.macro
-        when :has_one, :has_many
-          "UPDATE #{reflection.klass.table_name} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}\n" 
-        when :has_and_belongs_to_many
-          join_table = reflection.options[:join_table] || ( table_name < reflection.klass.table_name ? '#{table_name}_#{reflection.klass.table_name}' : '#{reflection.klass.table_name}_#{table_name}')
-          "UPDATE #{join_table} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}\n" 
+    class << self
+      def merge_records(from, to)
+        reflect_on_all_associations.each{|reflection| reflection_merge(reflection, from, to)}
+        destroy(from)
       end
-      connection.update(sql)
-    end
-    
-    @@scaffold_fields = nil
-    def self.scaffold_fields
-      @@scaffold_fields ||= column_names
-    end
-    
-    @@scaffold_select_order = nil
-    def self.scaffold_select_order
-      @@scaffold_select_order
-    end
-    
-    @@scaffold_include = nil
-    def self.scaffold_include
-      @@scaffold_include
-    end
-    
-    @@scaffold_table_classes = {:form=>'formtable', :list=>'sortable', :show=>'sortable'}
-    def self.scaffold_table_class(type)
-      @@scaffold_table_classes[type]
-    end
-    
-    @@scaffold_column_types = {'password'=>:password}
-    def scaffold_column_type(column_name)
-      if @@scaffold_column_types[column_name]
-        @@scaffold_column_types[column_name]
-      elsif attributes.include?(column_name)
-        column_for_attribute(column_name).type
-      else :select
+      
+      def reflection_merge(reflection, from, to)
+        foreign_key = reflection.options[:foreign_key] || table_name.classify.foreign_key
+        sql = case reflection.macro
+          when :has_one, :has_many
+            "UPDATE #{reflection.klass.table_name} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}\n" 
+          when :has_and_belongs_to_many
+            join_table = reflection.options[:join_table] || ( table_name < reflection.klass.table_name ? '#{table_name}_#{reflection.klass.table_name}' : '#{reflection.klass.table_name}_#{table_name}')
+            "UPDATE #{join_table} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}\n" 
+        end
+        connection.update(sql)
       end
-    end
-    
-    @@scaffold_column_options = {}
-    def scaffold_column_options(column_name)
-      @@scaffold_column_options[column_name]
+      
+      def scaffold_fields
+        @scaffold_fields ||= column_names
+      end
+      
+      def scaffold_select_order
+        @scaffold_select_order
+      end
+      
+      def scaffold_include
+        @scaffold_include
+      end
+      
+      def scaffold_table_class(type)
+        @scaffold_table_classes ||= {:form=>'formtable', :list=>'sortable', :show=>'sortable'}
+        @scaffold_table_classes[type]
+      end
+      
+      def scaffold_column_type(column_name)
+        @scaffold_column_types ||= {'password'=>:password}
+        if @scaffold_column_types[column_name]
+          @scaffold_column_types[column_name]
+        elsif columns_hash.include?(column_name)
+          type = columns_hash[column_name].type
+          (@@scaffold_convert_text_to_string and type == :text) ? :string : type
+        else :select
+        end
+      end
+      
+      def scaffold_column_options(column_name)
+        @scaffold_column_options ||= {}
+        @scaffold_column_options[column_name]
+      end
     end
     
     def merge_into(record)
@@ -97,7 +100,7 @@ module ActionView
 
     class InstanceTag      
       def to_tag(options = {})
-        options = (object.scaffold_column_options(@method_name) || {}).merge(options)
+        options = (object.class.scaffold_column_options(@method_name) || {}).merge(options)
         case column_type
           when :string, :integer, :float
             to_input_field_tag("text", options)
@@ -141,7 +144,7 @@ module ActionView
       end
     
       def column_type
-        object.scaffold_column_type(@method_name)
+        object.class.scaffold_column_type(@method_name)
       end
         
       def to_association_select_tag(options)
@@ -216,7 +219,6 @@ module ActionController
           else []
         end
         habtm.each {|habtm_class| scaffold_habtm(model_id, habtm_class, false)}
-        RAILS_DEFAULT_LOGGER.info(options[:habtm].class.inspect)
         
         if add_methods.include?(:manage)
           module_eval <<-"end_eval", __FILE__, __LINE__
