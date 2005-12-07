@@ -2,7 +2,7 @@
 <h1>Showing <%= entry.scaffold_name %></h1>
 
 <table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class :show %>">
-<thead><tr><th>Key</th><th>Value</th></tr></thead>
+<thead><tr><th>Attribute</th><th>Value</th></tr></thead>
 <tbody>
 <% for column in @scaffold_class.scaffold_fields %>
   <tr><td><%= column.humanize %></td><td><%= entry.send(column).methods.include?('scaffold_name') ? entry.send(column).scaffold_name : entry.send(column) %></td></tr>

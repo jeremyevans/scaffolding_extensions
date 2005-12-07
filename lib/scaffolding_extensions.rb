@@ -373,7 +373,8 @@ module ActionController # :nodoc:
             def destroy#{suffix}
               if params[:id]
                 #{class_name}.find(params[:id]).destroy
-                redirect_to :action => "manage#{suffix}"
+                flash[:notice] = "#{singular_name.humanize} was successfully destroyed"
+                redirect_to :action => "destroy#{suffix}"
               else
                 @scaffold_action = 'destroy'
                 list#{suffix}
@@ -399,8 +400,8 @@ module ActionController # :nodoc:
               @#{singular_name}.attributes = params[:#{singular_name}]
         
               if @#{singular_name}.save
-                flash[:notice] = "#{class_name} was successfully updated"
-                redirect_to :action => "show#{suffix}", :id => @#{singular_name}.id.to_s
+                flash[:notice] = "#{singular_name.humanize} was successfully updated"
+                redirect_to :action => "edit#{suffix}"
               else
                 render#{suffix}_scaffold('edit')
               end
@@ -418,8 +419,8 @@ module ActionController # :nodoc:
             def create#{suffix}
               @#{singular_name} = #{class_name}.new(params[:#{singular_name}])
               if @#{singular_name}.save
-                flash[:notice] = "#{class_name} was successfully created"
-                redirect_to :action => "show#{suffix}", :id => @#{singular_name}.id
+                flash[:notice] = "#{singular_name.humanize} was successfully created"
+                redirect_to :action => "new#{suffix}"
               else
                 render#{suffix}_scaffold('new')
               end
@@ -474,6 +475,7 @@ module ActionController # :nodoc:
     
           def merge_update#{suffix}
             #{class_name}.merge_records(params[:from], params[:to])
+            flash[:notice] = "#{plural_name.humanize} were successfully merged"
             redirect_to :action=>'merge#{suffix}'
           end
         end_eval
