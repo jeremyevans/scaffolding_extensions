@@ -9,4 +9,4 @@
 <% end %>
 </tbody></table>
 <br />
-<%= link_to("Manage #{@scaffold_plural_name.humanize}", :action => "manage#{@scaffold_suffix}") if @scaffold_methods.include?(:manage) %>
+<%= link_to("Manage #{@scaffold_plural_name.humanize.downcase}", :action => "manage#{@scaffold_suffix}") if @scaffold_methods.include?(:manage) %>

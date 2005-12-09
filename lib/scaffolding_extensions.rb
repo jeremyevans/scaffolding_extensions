@@ -129,7 +129,7 @@ module ActionView # :nodoc:
             input_block.call(record_name, record.column_for_attribute(field))
           end
         end
-        "\n<table class='#{@scaffold_class.scaffold_table_class :form}'><tbody>\n#{rows.join}</tbody></table><br />"
+        "\n<table class='#{record.class.scaffold_table_class :form}'><tbody>\n#{rows.join}</tbody></table><br />"
       end
       
       # Wraps each widget and widget label in a table row

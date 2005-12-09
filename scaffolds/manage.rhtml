@@ -1,11 +1,11 @@
-<h1>Manage <%= @scaffold_plural_name.humanize %></h1>
+<h1>Manage <%= @scaffold_plural_name.humanize.downcase %></h1>
 <ul>
-<% {"Create #{@scaffold_singular_name.humanize}"=>:new,
-"Edit #{@scaffold_singular_name.humanize}"=>:edit,
-"Destroy #{@scaffold_singular_name.humanize}"=>:destroy,
-"Show #{@scaffold_singular_name.humanize}"=>:show,
-"Search #{@scaffold_plural_name.humanize}"=>:search,
-"Merge #{@scaffold_plural_name.humanize}"=>:merge,
+<% {"Create #{@scaffold_singular_name.humanize.downcase}"=>:new,
+"Edit #{@scaffold_singular_name.humanize.downcase}"=>:edit,
+"Destroy #{@scaffold_singular_name.humanize.downcase}"=>:destroy,
+"Show #{@scaffold_singular_name.humanize.downcase}"=>:show,
+"Search #{@scaffold_plural_name.humanize.downcase}"=>:search,
+"Merge #{@scaffold_plural_name.humanize.downcase}"=>:merge,
 }.sort.each do |text, action| %>
   <%= content_tag(:li, link_to(text, :action=>"#{action}#{@scaffold_suffix}")) if @scaffold_methods.include?(action) %>
 <% end %>
