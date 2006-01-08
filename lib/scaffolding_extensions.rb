@@ -118,10 +118,11 @@ module ActionView # :nodoc:
     # records, and uses a table to display the form.
     module ActiveRecordHelper
       # Uses a table to display the form widgets, so that everything lines up
-      # nicely.  Handles associated records.
+      # nicely.  Handles associated records. Also allows for a different set
+      # of fields to be specified instead of the default scaffold_fields.
       def all_input_tags(record, record_name, options)
         input_block = options[:input_block] || default_input_block
-        rows = record.class.scaffold_fields.collect do |field|
+        rows = (options[:fields] || record.class.scaffold_fields).collect do |field|
           reflection = record.class.reflect_on_association(field.to_sym)
           if reflection
             input_block.call(record_name, reflection) 
