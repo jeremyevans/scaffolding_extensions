@@ -57,6 +57,7 @@ module ActiveRecord # :nodoc:
           when :has_and_belongs_to_many
             join_table = reflection.options[:join_table] || ( table_name < reflection.klass.table_name ? '#{table_name}_#{reflection.klass.table_name}' : '#{reflection.klass.table_name}_#{table_name}')
             "UPDATE #{join_table} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}\n" 
+          else return
         end
         connection.update(sql)
       end
