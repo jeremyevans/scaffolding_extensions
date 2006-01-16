@@ -242,6 +242,15 @@ module ActionController # :nodoc:
       def default_scaffold_methods
         @default_scaffold_methods ||= @@default_scaffold_methods
       end
+      
+      # Normalizes scaffold options, allowing submission of symbols or arrays
+      def normalize_scaffold_options(options)
+        case options
+          when Array then options
+          when Symbol then [options]
+          else []
+        end
+      end
     end
     
     private
@@ -319,14 +328,10 @@ module ActionController # :nodoc:
         class_name    = options[:class_name] || singular_name.camelize
         plural_name   = singular_name.pluralize
         suffix        = options[:suffix] ? "_#{singular_name}" : ""
-        add_methods = (options[:only] || self.default_scaffold_methods)
-        add_methods -= options[:except] if options[:except]
+        add_methods = options[:only] ? normalize_scaffold_options(options[:only]) : self.default_scaffold_methods
+        add_methods -= normalize_scaffold_options(options[:except]) if options[:except]
         
-        habtm = case options[:habtm]
-          when Array then options[:habtm]
-          when Symbol then [options[:habtm]]
-          else []
-        end
+        habtm = normalize_scaffold_options(options[:habtm])
         habtm.each {|habtm_class| scaffold_habtm(model_id, habtm_class, false)}
         
         if add_methods.include?(:manage)
