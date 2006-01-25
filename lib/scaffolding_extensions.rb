@@ -330,9 +330,7 @@ module ActionController # :nodoc:
         suffix        = options[:suffix] ? "_#{singular_name}" : ""
         add_methods = options[:only] ? normalize_scaffold_options(options[:only]) : self.default_scaffold_methods
         add_methods -= normalize_scaffold_options(options[:except]) if options[:except]
-        
-        habtm = normalize_scaffold_options(options[:habtm])
-        habtm.each {|habtm_class| scaffold_habtm(model_id, habtm_class, false)}
+        habtm = normalize_scaffold_options(options[:habtm]).collect{|habtm_class| habtm_class if scaffold_habtm(model_id, habtm_class, false)}.compact
         
         if add_methods.include?(:manage)
           module_eval <<-"end_eval", __FILE__, __LINE__
@@ -514,9 +512,8 @@ module ActionController # :nodoc:
       # Scaffolds a habtm association for two classes using two select boxes.
       # By default, scaffolds the association both ways.
       def scaffold_habtm(singular, many, both_ways = true)
-        singular_class, many_class = eval(singular.to_s.camelize), eval(many.to_s.camelize)
-        singular_name,  = singular_class.name
-        many_class_name = many_class.name
+        singular_class, many_class = singular.to_s.singularize.camelize.constantize, many.to_s.singularize.camelize.constantize
+        singular_name, many_class_name = singular_class.name, many_class.name
         many_name = many_class.name.pluralize.underscore
         reflection = singular_class.reflect_on_association(many_name.to_sym)
         return false if reflection.nil? or reflection.macro != :has_and_belongs_to_many
