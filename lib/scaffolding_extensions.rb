@@ -348,7 +348,7 @@ module ActionController # :nodoc:
           end
         end
         
-        if add_methods.include?(:show) or add_methods.include?(:destory) or add_methods.include?(:edit)
+        if add_methods.include?(:show) or add_methods.include?(:destroy) or add_methods.include?(:edit)
           module_eval <<-"end_eval", __FILE__, __LINE__
             def list#{suffix}
               @scaffold_action ||= 'edit'
