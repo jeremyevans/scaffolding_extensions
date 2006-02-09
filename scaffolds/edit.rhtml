@@ -5,7 +5,7 @@
   <h3>Associate Records</h3>
   <ul>
   <% @scaffold_habtms.each do |habtm| %>
-    <li><%= link_to(habtm.to_s.humanize, :action=>"edit_#{@scaffold_singular_name}_#{habtm.to_s.pluralize}", :id=>instance_variable_get("@#{@scaffold_singular_name}").id) %></li>
+    <li><%= link_to(habtm.to_s.humanize.pluralize, :action=>"edit_#{@scaffold_singular_name}_#{habtm.to_s.underscore.pluralize}", :id=>instance_variable_get("@#{@scaffold_singular_name}").id) %></li>
   <% end %>
   </ul>
 <% end %><br />

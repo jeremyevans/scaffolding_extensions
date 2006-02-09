@@ -1,11 +1,11 @@
 <h3>Edit <%= @singular_object.scaffold_name %>'s <%= @many_name %> </h3>
 <%= form_tag(:action=>@scaffold_update_page, :id=>@params['id']) %>
 <% if @items_to_add.length > 0 %> 
-  <h4>Add these <%= @many_name %></h4>
+  <h4>Add These <%= @many_name.humanize %></h4>
   <%= select('add', '', @items_to_add, {}, :multiple=>true) %>
 <% end %>
 <% if @items_to_remove.length > 0 %> 
-  <h4>Remove these <%= @many_name %></h4>
+  <h4>Remove These <%= @many_name.humanize %></h4>
   <%= select('remove', '', @items_to_remove, {}, :multiple=>true) %>
 <% end %>
 <br /><br />
