@@ -279,9 +279,10 @@ module ActionController # :nodoc:
     # IS TRUE|FALSE for boolean attributes, and = for other attributes.
     def scaffold_search_add_condition(conditions, record, field) # :doc:
       column = record.column_for_attribute(field)
+      like = ActiveRecord::Base.connection.class == ActiveRecord::ConnectionAdapters::PostgreSQLAdapter ? "ILIKE" : "LIKE"
       if column and column.klass == String
         if record.send(field).length > 0
-          conditions[0] << "#{record.class.table_name}.#{field} ILIKE ?"
+          conditions[0] << "#{record.class.table_name}.#{field} #{like} ?"
           conditions << "%#{record.send(field)}%"
         end
       elsif column.klass == Object
