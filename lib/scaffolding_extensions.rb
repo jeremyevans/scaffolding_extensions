@@ -64,7 +64,15 @@ module ActiveRecord # :nodoc:
       
       # Returns the list of fields to display on the scaffolded forms
       def scaffold_fields
-        @scaffold_fields ||= column_names
+        return @scaffold_fields if @scaffold_fields
+        @scaffold_fields = columns.reject{|c| c.primary || c.name =~ /_count$/ || c.name == inheritance_column }.collect{|c| c.name}
+        reflect_on_all_associations.each do |reflection|
+          next unless reflection.macro == :belongs_to
+          @scaffold_fields.delete((reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key).to_s)
+          @scaffold_fields.push(reflection.name.to_s)
+        end
+        @scaffold_fields.sort!
+        @scaffold_fields
       end
       
       # Returns the scaffolded table class for a given scaffold type.  Currently, the following 
