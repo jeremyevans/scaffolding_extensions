@@ -535,8 +535,8 @@ module ActionController # :nodoc:
             @singular_name = "#{singular_name}" 
             @many_name = "#{many_name.gsub('_',' ')}" 
             @singular_object = #{singular_name}.find(params[:id])
-            @items_to_remove = #{many_class_name}.find(:all, :conditions=>["id IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i], :order=>"#{many_class.scaffold_select_order}").collect{|item| [item.scaffold_name, item.id]}
-            @items_to_add = #{many_class_name}.find(:all, :conditions=>["id NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i], :order=>"#{many_class.scaffold_select_order}").collect{|item| [item.scaffold_name, item.id]}
+            @items_to_remove = #{many_class_name}.find(:all, :conditions=>["id IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i]#{', :order=>"'+many_class.scaffold_select_order+'"' if many_class.scaffold_select_order}).collect{|item| [item.scaffold_name, item.id]}
+            @items_to_add = #{many_class_name}.find(:all, :conditions=>["id NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i]#{', :order=>"'+many_class.scaffold_select_order+'"' if many_class.scaffold_select_order}).collect{|item| [item.scaffold_name, item.id]}
             @scaffold_update_page = "update#{suffix}" 
             render_habtm_scaffold
           end
