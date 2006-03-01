@@ -1,12 +1,8 @@
 <h1>Editing <%= @scaffold_singular_name.humanize.downcase %></h1>
-<%= error_messages_for(@scaffold_singular_name) %>
-<%= form(@scaffold_singular_name, :action=>"update"+ @scaffold_suffix, :submit_value=>"Update #{@scaffold_singular_name.humanize.downcase}") %>
-<% if @scaffold_habtms.length > 0 %>
-  <h3>Associate Records</h3>
-  <ul>
-  <% @scaffold_habtms.each do |habtm| %>
-    <li><%= link_to(habtm.to_s.humanize.pluralize, :action=>"edit_#{@scaffold_singular_name}_#{habtm.to_s.underscore.pluralize}", :id=>instance_variable_get("@#{@scaffold_singular_name}").id) %></li>
-  <% end %>
-  </ul>
-<% end %><br />
-<%= link_to("Manage #{@scaffold_plural_name.humanize.downcase}", :action => "manage#{@scaffold_suffix}") if @scaffold_methods.include?(:manage) %>
+
+<%= scaffold_form('update') %>
+
+<h3>Associated Records</h3>
+<%= association_links %>
+
+<%= manage_link %>

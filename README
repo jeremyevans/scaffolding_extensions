@@ -17,11 +17,88 @@ following ways:
   * Override the input widget type and widget options per attribute
   * Override the directory of the scaffolded forms per controller
 
+Quick Start
+===========
+
+In an existing Rails application, create a controller
+(i.e. "script/generate controller crud"), and modify so it looks like:
+
+  class CrudController < ApplicationController
+    scaffold_all_models
+  end
+	
+Then go to the index page for the controller (e.g. http://website/crud).  
+You'll see a link to a management page for each of your models.  Each
+management page has links to create, delete, edit, show, search, and merge
+pages for the model. The pages should be usable right away, but you'll want to
+add some configuration code to your models to specify the default names to
+display in select boxes, attributes to show on the forms, associations to show,
+etc..
+
+Customization
+=============
+
+An addition to the new scaffold features that this plugin adds (merge, search,
+belongs_to, and habtm scaffolding), the major attraction of this plugin is the
+ability to customize the scaffolding by adding some code to the model class.
+Let's start with the most common customizations:
+
+  class Album < ActiveRecord::Base
+    has_and_belongs_to_many :artists
+    belongs_to :genre
+    @scaffold_fields = %w'name rating genre'
+    @scaffold_select_order = 'name'
+    def scaffold_name
+      name[0...50]
+    end
+  end
+
+@scaffold_fields determines which fields are shown in the new, edit, and search
+forms (which use the order specified).  It defaults to content_columns plus
+belongs_to associations. @scaffold_select_order determines which order is used
+in the SQL ORDER clause when displaying a list of albums (for example, from the
+edit link of the management page).  scaffold_name determines the name to use
+for each album inside those select boxes.  Note that it is a method and not a
+variable, so you need to specify a ruby instance method for it.
+
+Notice in this case that genre was specified.  In this case, our schema has 
+genre_id as a foreign key to the genres table.  If you specified genre_id,
+you'd get a usual text input box for the foreign key integer.  If you specify
+genre (the name of the belongs_to association), instead of a text input box,
+you will get a select box with all genres, allowing you to pick one.  It will
+use the @scaffold_select_order variable and scaffold_name method in the genre 
+model to format the select box.
+
+There are also a couple of customizations that can be set in the controller:
+
+  * @scaffold_template_dir => Allows you to choose a separate directory for the
+    scaffolds (instead of the one that comes with this plugin)
+  * @default_scaffold_methods => Allows you to change the methods scaffolded by
+    default, instead of using :except or :only each time.
+
+There are some other lessor used options which allow you to:
+
+  * Set the css class of scaffolded tables per ActiveRecord class
+  * Override the input widget type and widget options per attribute
+  * Choose which associations to display on the edit screen of a model
+  * Choose which associations to eagerly load when displaying select boxes for
+    the model
+
+Consult the RDoc if you would like more information on these.
+
 General Usage
 =============
 
+In many cases, if you are just using the plugin to create an easy
+administrative front end to your existing application, it will probably be
+easier to use scaffold_all_models instead of following the instructions below,
+as that takes care of things for you.  The instructions below predate the
+introduction of scaffold_all_models, and show how different options passed to
+the scaffold method affect the creation of the scaffolding.  They will mainly
+be useful if you are using the scaffolding for non administrative forms.
+
 Generally, the scaffolding extensions are used in same way as the normal
-scaffolding.  Inside a controller, run the command:
+scaffolding.  Inside a controller, add:
 
   scaffold :album
   
@@ -76,10 +153,13 @@ The manage page would look like:
   * Edit album
   * Search albums
 
-If you click on the edit albums link and select an album, you'll notice a link
-below the standard input form allowing you to associate the album to artists.
-Clicking on that link will bring you to a page with two multiselect boxes,
-allowing you to choose which artists will be associated with the album.
+If you click on the edit albums link and select an album, you'll notice that
+below the entry form for updating the album are all of the items associated
+with the current item (unless you overrode it using the
+@scaffolded_associations variable in the model).  Assuming you use 
+:suffix=>true when creating scaffolds and create scaffolds for multiple models
+in the same controller, the associated items will be linked so that they can be
+easily edited.
 
 If you just want to create habtm scaffolds, there is a command that does so:
 
@@ -88,53 +168,6 @@ If you just want to create habtm scaffolds, there is a command that does so:
 By default, this will create the habtm scaffold both ways. You can go to
 edit_album_artists/42 to edit the artists for album 42 and
 edit_artist_albums/42 to edit the albums for artist 42.
-
-Customization
-=============
-
-An addition to the new scaffold features that this plugin adds (merge, search,
-belongs_to, and habtm scaffolding), the major attraction of this plugin is the
-ability to customize the scaffolding by adding some code to the model class.
-Let's start with the most common customizations:
-
-  class Album < ActiveRecord::Base
-    has_and_belongs_to_many :artists
-    belongs_to :genre
-    @scaffold_fields = %w'name rating genre'
-    @scaffold_select_order = 'name'
-    def scaffold_name
-      name[0...50]
-    end
-  end
-
-The @scaffold_fields variable determines which fields are shown in the new,
-edit, and search forms (and uses the order specified).  The
-@scaffold_select_order determines which order is used in the select when
-displaying a list of albums (for example, from the edit link of the management
-page.  The scaffold_name method determines the name to use for each album
-inside those select boxes.
-
-Notice in this case that genre was specified.  In this case, our schema has 
-genre_id as a foreign key to the genres table.  If you specified genre_id,
-you'd get a usual text input box for the foreign key integer.  If you specify
-genre (the name of the belongs_to association), instead of a text input box,
-you will get a select box with all genres, allowing you to pick one.  It will
-use the @scaffold_select_order variable and scaffold_name method in the genre 
-model to format the select box.
-
-There are also a couple of customizations that can be set in the controller:
-
-  * @scaffold_template_dir => Allows you to choose a separate directory for the
-    scaffolds (instead of the one that comes with this plugin)
-  * @default_scaffold_methods => Allows you to change the methods scaffolded by
-    default, instead of using :except or :only each time.
-
-There are some other lessor used options which allow you to:
-
-  * Set the css class of scaffolded tables per ActiveRecord class
-  * Override the input widget type and widget options per attribute
-
-Consult the RDoc if you would like more information on these.
 
 Questions?
 ==========

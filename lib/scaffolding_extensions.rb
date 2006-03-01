@@ -17,13 +17,15 @@ module ActiveRecord # :nodoc:
   # - scaffold_fields: A list of field names to include in the scaffolded forms.
   #   Values in the list should be either actual fields names, or names of belongs_to
   #   associations (in which case select boxes will be used in the scaffolded forms)
-  #   (default: column_names, example: %w'name number rating')
+  #   (default: content_columns + belongs_to associations, example: %w'name number rating')
   # - scaffold_select_order: The order in which scaffolded records are shown (SQL fragment)
   #   (default: nil, example: 'firstname, lastname')
   # - scaffold_include: Any classes that should include by default when displaying the
   #   scaffold name.  Eager loading is used so that N+1 queries aren't used for displaying N
   #   records, assuming that associated records used in scaffold_name are included in this.
   #   (default: nil, example: [:artist, :album])
+  # - scaffold_associations: Associations to display on the scaffolded edit page for the object
+  #   (default: all associations, example: %w'artist albums')
   # 
   # scaffold_table_classes, scaffold_column_types, and scaffold_column_options_hash can also
   # be specified as instance variables, in which case they will override the class variable
@@ -62,7 +64,14 @@ module ActiveRecord # :nodoc:
         connection.update(sql)
       end
       
-      # Returns the list of fields to display on the scaffolded forms
+      # List of strings for associations to display on the scaffolded edit page
+      def scaffold_associations
+        @scaffold_associations ||= reflect_on_all_associations.collect{|r|r.name.to_s}.sort
+      end
+      
+      # Returns the list of fields to display on the scaffolded forms. Defaults
+      # to displaying all usually scaffolded columns with the addition of select
+      # boxes for belongs_to associated records.
       def scaffold_fields
         return @scaffold_fields if @scaffold_fields
         @scaffold_fields = columns.reject{|c| c.primary || c.name =~ /_count$/ || c.name == inheritance_column }.collect{|c| c.name}
@@ -226,6 +235,52 @@ module ActionView # :nodoc:
   end
 end
 
+# Contains methods used by the scaffolded forms.
+module ScaffoldHelper
+  # Returns link if the controller will respond to the given action, otherwise returns the text itself.
+  # If :action is not specified in the options, returns link.
+  def link_to_or_text(name, options={}, html_options=nil, *parameters_for_method_reference)
+    link_to_or_plain_text(name, name, options, html_options, *parameters_for_method_reference)
+  end
+  
+  # Returns link if the controller will respond to the given action, otherwise returns "".
+  # If :action is not specified in the options, returns link.
+  def link_to_or_blank(name, options={}, html_options=nil, *parameters_for_method_reference)
+    link_to_or_plain_text(name, '', options, html_options, *parameters_for_method_reference)
+  end
+  
+  # Returns link if the controller will respond to the given action, otherwise returns plain.
+  # If :action is not specified in the options, returns link.
+  def link_to_or_plain_text(name, plain, options={}, html_options=nil, *parameters_for_method_reference)
+    _controller = options[:controller] ? options[:controller].camelize.constantize : controller
+    if options[:action]
+      _controller.respond_to?(options[:action]) ? link_to(name, options, html_options, *parameters_for_method_reference) : plain
+    else link_to(name, options, html_options, *parameters_for_method_reference)
+    end
+  end
+  
+  # Returns html <ul> fragment containing information on related models and objects.
+  # The fragment will include links to scaffolded pages for the related items if the links exist.
+  def association_links
+    controller.send(:render_to_string, {:file=>controller.scaffold_path("associations"), :layout=>false})
+  end
+  
+  # Returns link to the scaffolded management page for the model.
+  def manage_link
+    "<br />#{link_to("Manage #{@scaffold_plural_name.humanize.downcase}", :action => "manage#{@scaffold_suffix}")}" if @scaffold_methods.include?(:manage)
+  end
+  
+  # Returns an appropriate scaffolded data entry form for the model, with any related error messages.
+  def scaffold_form(action)
+    "#{error_messages_for(@scaffold_singular_name)}\n#{form(@scaffold_singular_name, :action=>"#{action}#{@scaffold_suffix}", :submit_value=>"#{action.capitalize} #{@scaffold_singular_name.humanize.downcase}")}"
+  end
+  
+  # Returns associated objects scaffold_name if column is an association, otherwise returns column value.
+  def scaffold_value(entry, column)
+    entry.send(column).methods.include?('scaffold_name') ? entry.send(column).scaffold_name : entry.send(column)
+  end
+end
+
 module ActionController # :nodoc:
   # Two variables can be set that affect scaffolding, either as class variables
   # (which specifies the default for all classes) or instance variables (which
@@ -261,21 +316,27 @@ module ActionController # :nodoc:
       end
     end
     
-    private
-    # Renders the habtm scaffold.  Available by default instead of added by the
-    # scaffold_habtm function, since it contains no dependencies that depend on
-    # the input to scaffold_habtm.
-    def render_habtm_scaffold(action = "habtm") # :doc:
-      if template_exists?("\#{self.class.controller_path}/\#{action}")
-        render_action(action)
-      else
-        render(:file=>scaffold_path(action), :layout=>self.active_layout)
-      end
+    # Returns path to the given scaffold rhtml file
+    def scaffold_path(template_name)
+      File.join(self.class.scaffold_template_dir, template_name+'.rhtml')
     end
     
-    # The path to the given scaffold rhtml file
-    def scaffold_path(template_name) # :doc:
-      File.join(self.class.scaffold_template_dir, template_name+'.rhtml')
+    private
+    # Renders manually created page if it exists, otherwise renders  a scaffold form.
+    # If a layout is specified (either in the controller or as an option), use that layout,
+    # otherwise uses the scaffolded layout.
+    def render_scaffold_template(action, options = {}) # :doc:
+      options = if template_exists?("#{self.class.controller_path}/#{action}")
+        {:action=>action}.merge(options)
+      else
+        if active_layout || options.include?(:layout)
+          {:file=>scaffold_path(action.split('_')[0]), :layout=>active_layout}.merge(options)
+        else
+          @content_for_layout = render_to_string({:file=>scaffold_path(action.split('_')[0])}.merge(options))
+          {:file=>scaffold_path("layout")}
+        end
+      end
+      render(options)
     end
     
     # Converts all items in the array to integers and discards non-zero values
@@ -301,17 +362,16 @@ module ActionController # :nodoc:
       end
     end
   end
-
+  
   module Scaffolding # :nodoc:
     module ClassMethods
       # Expands on the default Rails scaffold function.
       # Takes the following additional options:
       #
-      # - :except: array of method symbols not to add
-      # - :only: array of method symbols to use instead of the default
+      # - :except: symbol or array of method symbols not to add
+      # - :only: symbol or array of method symbols to use instead of the default
       # - :habtm: symbol or array of symbols of habtm associated classes,
-      #   which will be scaffolded with the current scaffold.  Links to the habtm
-      #   scaffolds will be placed on the edit page.
+      #   habtm scaffolds will be created for each one
       #
       # The following method symbols are used to control the methods that get
       # added by the scaffold function:
@@ -323,8 +383,8 @@ module ActionController # :nodoc:
       # - :destroy: Shows a select box with all objects, allowing the user to chose
       #   one to delete
       # - :edit: Shows a select box with all objects, allowing the user to chose
-      #   one to edit.  Any associations specified by :habtm are linked from the
-      #   edit page
+      #   one to edit.  Also shows associations specified in the model's
+      #   @scaffold_associations
       # - :new: Form for creating new objects
       # - :search: Simple search form using the same attributes as the new/edit 
       #   form. The results page has links to show, edit, or destroy the object
@@ -332,7 +392,7 @@ module ActionController # :nodoc:
       #   allowing the user to pick one to merge into the other
       def scaffold(model_id, options = {})
         options.assert_valid_keys(:class_name, :suffix, :except, :only, :habtm)
-      
+        
         singular_name = model_id.to_s.underscore.singularize
         class_name    = options[:class_name] || singular_name.camelize
         plural_name   = singular_name.pluralize
@@ -381,7 +441,7 @@ module ActionController # :nodoc:
             end
           end_eval
         end
-
+        
         if add_methods.include?(:destroy)
           module_eval <<-"end_eval", __FILE__, __LINE__
             def destroy#{suffix}
@@ -396,7 +456,7 @@ module ActionController # :nodoc:
             end
           end_eval
         end
-          
+        
         if add_methods.include?(:edit)
           module_eval <<-"end_eval", __FILE__, __LINE__
             def edit#{suffix}
@@ -412,7 +472,7 @@ module ActionController # :nodoc:
             def update#{suffix}
               @#{singular_name} = #{class_name}.find(params[:id])
               @#{singular_name}.attributes = params[:#{singular_name}]
-        
+              
               if @#{singular_name}.save
                 flash[:notice] = "#{singular_name.humanize} was successfully updated"
                 redirect_to :action => "edit#{suffix}"
@@ -486,7 +546,7 @@ module ActionController # :nodoc:
             @#{plural_name}.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if #{class_name}.scaffold_include
             render#{suffix}_scaffold('merge#{suffix}')
           end
-    
+          
           def merge_update#{suffix}
             #{class_name}.merge_records(params[:from], params[:to])
             flash[:notice] = "#{plural_name.humanize} were successfully merged"
@@ -496,20 +556,19 @@ module ActionController # :nodoc:
       end
         
         module_eval <<-"end_eval", __FILE__, __LINE__
+          add_template_helper(ScaffoldHelper)
           private
-            def render#{suffix}_scaffold(action=nil)
+            def render#{suffix}_scaffold(action=nil, options={})
               action ||= caller_method_name(caller)
               @scaffold_class = #{class_name}
               @scaffold_singular_name, @scaffold_plural_name = "#{singular_name}", "#{plural_name}"
               @scaffold_methods = #{add_methods.inspect}
               @scaffold_suffix = "#{suffix}"
               @scaffold_habtms = #{habtm.inspect}
+              @scaffold_singular_object = @#{singular_name}
+              @scaffold_plural_object = @#{plural_name}
               add_instance_variables_to_assigns
-              if template_exists?("\#{self.class.controller_path}/\#{action}")
-                render_action(action)
-              else
-                render(:file=>scaffold_path(action.sub(/#{suffix}$/, "")), :layout=>self.active_layout)
-              end
+              render_scaffold_template(action, options)
             end
             
             def caller_method_name(caller)
@@ -538,9 +597,9 @@ module ActionController # :nodoc:
             @items_to_remove = #{many_class_name}.find(:all, :conditions=>["id IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i]#{', :order=>"'+many_class.scaffold_select_order+'"' if many_class.scaffold_select_order}).collect{|item| [item.scaffold_name, item.id]}
             @items_to_add = #{many_class_name}.find(:all, :conditions=>["id NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i]#{', :order=>"'+many_class.scaffold_select_order+'"' if many_class.scaffold_select_order}).collect{|item| [item.scaffold_name, item.id]}
             @scaffold_update_page = "update#{suffix}" 
-            render_habtm_scaffold
+            render_scaffold_template("habtm")
           end
-    
+          
           def update#{suffix}
             flash[:notice] = begin
               singular_item = #{singular_name}.find(params[:id])
@@ -554,6 +613,20 @@ module ActionController # :nodoc:
           end
         end_eval
         both_ways ? scaffold_habtm(many_class, singular_class, false) : true
+      end
+      
+      # Scaffolds all models in the Rails app, with all associations
+      def scaffold_all_models
+        models = Dir["#{RAILS_ROOT}/app/models/*.rb"].collect{|file|File.basename(file).sub(/\.rb$/, '')}.sort
+        models.each do |model|
+          scaffold model.to_sym, :suffix=>true, :habtm=>model.camelize.constantize.reflect_on_all_associations.collect{|r|r.name if r.macro == :has_and_belongs_to_many}.compact
+        end
+        module_eval <<-"end_eval", __FILE__, __LINE__
+          def index
+            @models = #{models.inspect}
+            render_scaffold_template("index")
+          end
+        end_eval
       end
     end
   end

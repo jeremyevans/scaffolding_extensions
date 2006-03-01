@@ -1,0 +1,6 @@
+<h1>Manage Models</h1>
+<ul>
+<% @models.each do |model| %>
+  <%= content_tag(:li, link_to(model.humanize.pluralize, :action=>"manage_#{model}")) %>
+<% end %>
+</ul>

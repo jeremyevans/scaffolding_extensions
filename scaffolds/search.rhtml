@@ -1,4 +1,4 @@
-<h1>Search for <%= @scaffold_singular_name.gsub('_', ' ') %></h1>
+<h1>Search for <%= @scaffold_plural_name.humanize.downcase %></h1>
 
 <%= form(@scaffold_singular_name, :action=>"results"+@scaffold_suffix, :submit_value=>"Search #{@scaffold_plural_name.humanize.downcase}") do |form|
   form << "<table class='#{@scaffold_class.scaffold_table_class :form}'></tbody>"
@@ -6,5 +6,5 @@
   form << "<tr><td>Not Null Fields:</td><td>#{select('notnull', nil, @scaffold_nullable_fields, {}, :multiple=>true)}</td></tr>\n"
   form << '</tbody></table>'
 end %>
-<br />
-<%= link_to("Manage #{@scaffold_plural_name.humanize.downcase}", :action => "manage#{@scaffold_suffix}") if @scaffold_methods.include?(:manage) %>
+
+<%= manage_link %>

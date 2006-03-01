@@ -1,7 +1,13 @@
 <h1>Choose <%= @scaffold_singular_name.humanize.downcase %> to <%= @scaffold_action %></h1>
+
 <form action="<%= url_for(:action=>"#{@scaffold_action}#{@scaffold_suffix}") %>" method="post">
-<select name="id"><option value=''>&nbsp;</option><%= options_from_collection_for_select(instance_variable_get("@#{@scaffold_plural_name}"), :id, :scaffold_name) %></select>
+<select name="id">
+<option value=''>&nbsp;</option>
+<%= options_from_collection_for_select(@scaffold_plural_object, :id, :scaffold_name) %>
+</select>
+
 <br /><br />
 <input type="submit" value="<%= @scaffold_action.capitalize %> <%= @scaffold_singular_name.humanize.downcase %>" />
-</form><br />
-<%= link_to("Manage #{@scaffold_plural_name.humanize.downcase}", :action => "manage#{@scaffold_suffix}") if @scaffold_methods.include?(:manage) %>
+</form>
+
+<%= manage_link %>
