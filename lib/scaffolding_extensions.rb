@@ -42,11 +42,18 @@ module ActiveRecord # :nodoc:
     class << self
       attr_accessor :scaffold_select_order, :scaffold_include
       
-      # Merges the from record into the to record.  Updates all associated records for the from
-      # record to point at the to record, and then deletes the from record.
+      # Merges the record with id from into the record with id to.  Updates all 
+      # associated records for the record with id from to be assocatiated with
+      # the record with id to instead, and then deletes the record with id from.
+      #
+      # Returns false if the ids given are the same.
       def merge_records(from, to)
-        reflect_on_all_associations.each{|reflection| reflection_merge(reflection, from, to)}
-        destroy(from)
+        return false if from == to
+        transaction do
+          reflect_on_all_associations.each{|reflection| reflection_merge(reflection, from, to)}
+          destroy(from)
+        end
+        true
       end
       
       # Updates associated records for a given reflection and from record to point to the
@@ -113,11 +120,11 @@ module ActiveRecord # :nodoc:
       end
     end
     
-    # Merges the current record into the record given and returns the record given
+    # Merges the current record into the record given and returns the record given.
+    # Returns false if the record isn't the same class as the current class or
+    # if you try to merge a record into itself (which would be the same as deleting it).
     def merge_into(record)
-      raise ActiveRecordError if record.class != self.class
-      self.class.reflect_on_all_associations.each{|reflection| self.class.reflection_merge(reflection, id, record.id)}
-      destroy
+      return false unless record.class == self.class && self.class.merge_records(self, id, record.id)
       record.reload
     end
     
@@ -548,8 +555,10 @@ module ActionController # :nodoc:
           end
           
           def merge_update#{suffix}
-            #{class_name}.merge_records(params[:from], params[:to])
-            flash[:notice] = "#{plural_name.humanize} were successfully merged"
+            flash[:notice] = if #{class_name}.merge_records(params[:from], params[:to])
+              "#{plural_name.humanize} were successfully merged"
+            else "Error merging #{plural_name.humanize.downcase}"
+            end
             redirect_to :action=>'merge#{suffix}'
           end
         end_eval
@@ -617,7 +626,7 @@ module ActionController # :nodoc:
       
       # Scaffolds all models in the Rails app, with all associations
       def scaffold_all_models
-        models = Dir["#{RAILS_ROOT}/app/models/*.rb"].collect{|file|File.basename(file).sub(/\.rb$/, '')}.sort
+        models = Dir["#{RAILS_ROOT}/app/models/*.rb"].collect{|file|File.basename(file).sub(/\.rb$/, '')}.sort.reject{|model| ! model.camelize.constantize.ancestors.include?(ActiveRecord::Base)}
         models.each do |model|
           scaffold model.to_sym, :suffix=>true, :habtm=>model.camelize.constantize.reflect_on_all_associations.collect{|r|r.name if r.macro == :has_and_belongs_to_many}.compact
         end
