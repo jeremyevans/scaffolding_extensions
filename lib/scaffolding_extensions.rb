@@ -26,6 +26,9 @@ module ActiveRecord # :nodoc:
   #   (default: nil, example: [:artist, :album])
   # - scaffold_associations: Associations to display on the scaffolded edit page for the object
   #   (default: all associations, example: %w'artist albums')
+  # - scaffold_associations_path: Path to the template to use to render the associations
+  #   for the edit page.  nil means that it uses the controller's scaffold path.
+  #   (default: nil, example: "#{RAILS_ROOT}/lib/model_associations.rhtml")
   # 
   # scaffold_table_classes, scaffold_column_types, and scaffold_column_options_hash can also
   # be specified as instance variables, in which case they will override the class variable
@@ -40,7 +43,7 @@ module ActiveRecord # :nodoc:
     cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash
     
     class << self
-      attr_accessor :scaffold_select_order, :scaffold_include
+      attr_accessor :scaffold_select_order, :scaffold_include, :scaffold_associations_path
       
       # Merges the record with id from into the record with id to.  Updates all 
       # associated records for the record with id from to be assocatiated with
@@ -208,19 +211,6 @@ module ActionView # :nodoc:
         value ? " selected='selected'" : '' 
       end
       
-      # Changes the default date_select to input type text with size 10, suitable
-      # for MM/DD/YYYY or YYYY-MM-DD date format, both of which apparently handled
-      # fine by ActiveRecord.
-      def to_date_select_tag(options = {})
-        to_input_field_tag('text', {'size'=>'10'}.merge(options))
-      end
-      
-      # Changes the default datetime_select to input type text, simply because using
-      # five select boxes is overkill.
-      def to_datetime_select_tag(options = {})
-        to_input_field_tag('text', options)
-      end
-      
       # Allow overriding of the column type by asking the ActiveRecord for the column type.
       def column_type
         object.class.scaffold_column_type(@method_name)
@@ -269,7 +259,8 @@ module ScaffoldHelper
   # Returns html <ul> fragment containing information on related models and objects.
   # The fragment will include links to scaffolded pages for the related items if the links exist.
   def association_links
-    controller.send(:render_to_string, {:file=>controller.scaffold_path("associations"), :layout=>false})
+    filename = (@scaffold_class.scaffold_associations_path || controller.scaffold_path("associations"))
+    controller.send(:render_to_string, {:file=>filename, :layout=>false}) if File.file?(filename)
   end
   
   # Returns link to the scaffolded management page for the model.
@@ -313,6 +304,11 @@ module ActionController # :nodoc:
         @default_scaffold_methods ||= @@default_scaffold_methods
       end
       
+      # Returns path to the given scaffold rhtml file
+      def scaffold_path(template_name)
+        File.join(scaffold_template_dir, template_name+'.rhtml')
+      end
+      
       # Normalizes scaffold options, allowing submission of symbols or arrays
       def normalize_scaffold_options(options)
         case options
@@ -325,7 +321,7 @@ module ActionController # :nodoc:
     
     # Returns path to the given scaffold rhtml file
     def scaffold_path(template_name)
-      File.join(self.class.scaffold_template_dir, template_name+'.rhtml')
+      self.class.scaffold_path(template_name)
     end
     
     private
@@ -493,7 +489,7 @@ module ActionController # :nodoc:
         if add_methods.include?(:new)
           module_eval <<-"end_eval", __FILE__, __LINE__
             def new#{suffix}
-              @#{singular_name} = #{class_name}.new
+              @#{singular_name} = #{class_name}.new(params[:#{singular_name}])
               render#{suffix}_scaffold
             end
             
