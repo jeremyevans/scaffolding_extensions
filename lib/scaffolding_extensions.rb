@@ -40,7 +40,8 @@ module ActiveRecord # :nodoc:
     @@scaffold_table_classes = {:form=>'formtable', :list=>'sortable', :show=>'sortable'}
     @@scaffold_column_types = {'password'=>:password}
     @@scaffold_column_options_hash = {}
-    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash
+    @@scaffold_association_list_class = ''
+    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class
     
     class << self
       attr_accessor :scaffold_select_order, :scaffold_include, :scaffold_associations_path

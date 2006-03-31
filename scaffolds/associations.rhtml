@@ -1,6 +1,6 @@
 <% unless @scaffold_class.scaffold_associations.empty? %>
   <h3>Associated Records</h3>
-  <ul>
+  <ul id="scaffolded_associations_<%= @scaffold_class.name.underscore %>_<%= @scaffold_singular_object.id %>" class="<%= @scaffold_singular_object.scaffold_association_list_class %>">
   <% @scaffold_class.scaffold_associations.each do |association| %>
     <% next unless reflection = @scaffold_class.reflect_on_association(association.to_sym) %>
     <li><%= reflection.name.to_s.humanize %> 

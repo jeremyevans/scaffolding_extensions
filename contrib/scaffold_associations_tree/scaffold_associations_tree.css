@@ -1,0 +1,20 @@
+/* Turn off list bullets */
+ul.scaffold_associations_tree li { list-style: none; }
+
+ul.scaffold_associations_tree, ul.scaffold_associations_tree ul, ul.scaffold_associations_tree li {
+  margin: 0;
+  padding: 0; 
+}
+
+/* This controls the indent for each sublist */
+ul.scaffold_associations_tree ul, ul.scaffold_associations_tree li a.treestatus { padding-left: 20px; }
+
+/* Show "bullets" in the links, depending on the class of the
+   LI that the link's in */
+ul.scaffold_associations_tree li.sat_open   a.treestatus { background: url("/images/minus.gif") center left no-repeat; }
+ul.scaffold_associations_tree li.sat_closed a.treestatus { background: url("/images/plus.gif") center left no-repeat; }
+ul.scaffold_associations_tree li.sat_bullet a.treestatus { background: url("/images/bullet.gif") center left no-repeat; }
+
+/* Actually show and hide sublists */
+ul.scaffold_associations_tree li.sat_open ul { display: block; }
+ul.scaffold_associations_tree li.sat_closed ul { display: none; }
