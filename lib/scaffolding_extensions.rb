@@ -276,7 +276,7 @@ module ActionView # :nodoc:
         reflection = record.camelize.constantize.reflect_on_association(association)
         foreign_key = reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key
         if reflection.klass.scaffold_use_auto_complete
-          scaffold_text_field_with_auto_complete(record, foreign_key, association)
+          scaffold_text_field_with_auto_complete(record, foreign_key, reflection.klass.name.underscore)
         else
           items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions=>reflection.options[:conditions], :include=>reflection.klass.scaffold_include)
           items.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if reflection.klass.scaffold_include
