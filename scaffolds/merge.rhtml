@@ -1,15 +1,21 @@
 <h1>Merge two <%= @scaffold_plural_name.humanize.downcase %></h1>
 
 <form action="<%= url_for(:action=>"merge_update#{@scaffold_suffix}") %>" method="post">
-<p>Merge: <select name="from">
-<option value=''>&nbsp;</option>
-<%= options_from_collection_for_select(@scaffold_plural_object, :id, :scaffold_name) %>
-</select></p>
+<p>Merge :
+<% if @scaffold_class.scaffold_use_auto_complete %>
+  <%= scaffold_text_field_tag_with_auto_complete('from', @scaffold_class) %>
+<% else %>
+  <%= select_tag('from', "<option value=''>&nbsp;</option>"+options_from_collection_for_select(@scaffold_plural_object, :id, :scaffold_name)) %>
+<% end %>
+</p>
 
-<p>into: <select name="to">
-<option value=''>&nbsp;</option>
-<%= options_from_collection_for_select(@scaffold_plural_object, :id, :scaffold_name) %>
-</select></p>
+<p>into: 
+<% if @scaffold_class.scaffold_use_auto_complete %>
+  <%= scaffold_text_field_tag_with_auto_complete('to', @scaffold_class) %>
+<% else %>
+  <%= select_tag('to', "<option value=''>&nbsp;</option>"+options_from_collection_for_select(@scaffold_plural_object, :id, :scaffold_name)) %>
+<% end %>
+</p>
 
 <input type="submit" value="Merge <%= @scaffold_plural_name.humanize.downcase %>" />
 </form>

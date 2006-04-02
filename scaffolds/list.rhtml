@@ -1,11 +1,11 @@
 <h1>Choose <%= @scaffold_singular_name.humanize.downcase %> to <%= @scaffold_action %></h1>
 
 <form action="<%= url_for(:action=>"#{@scaffold_action}#{@scaffold_suffix}") %>" method="post">
-<select name="id">
-<option value=''>&nbsp;</option>
-<%= options_from_collection_for_select(@scaffold_plural_object, :id, :scaffold_name) %>
-</select>
-
+<% if @scaffold_class.scaffold_use_auto_complete %>
+  <%= scaffold_text_field_tag_with_auto_complete('id', @scaffold_class) %>
+<% else %>
+  <%= select_tag('id', "<option value=''>&nbsp;</option>"+options_from_collection_for_select(@scaffold_plural_object, :id, :scaffold_name)) %>
+<% end %>
 <br /><br />
 <input type="submit" value="<%= @scaffold_action.capitalize %> <%= @scaffold_singular_name.humanize.downcase %>" />
 </form>

@@ -6,16 +6,20 @@ following ways:
 
   * Choose which fields are displayed in the scaffold and in which order
   * Choose which methods are added by the scaffold function
-  * Handle belongs_to associations with select boxes in the new/edit forms
-  * Add HABTM association scaffolding using two select boxes
+  * Handle belongs_to associations with select boxes or auto completing text
+    boxes in the new/edit forms
+  * Add HABTM association scaffolding using a select box for removing existing
+    associations and a select box or an auto completing text box for adding a
+    new association.
+  * Add links to associated objects on the edit page for the model, allowing
+    fast access to manage associated models, edit the HABTM asociations, or add
+    objects for has_many associations.
   * Add simple search scaffolding (using all fields from new/edit form)
   * Add scaffolding for merging records (combining two records into one by
     updating all associated tables)
   * Show associated data instead of foreign key integer in show/search results 
     scaffold
-  * Set the css class of scaffolded tables per ActiveRecord class
-  * Override the input widget type and widget options per attribute
-  * Override the directory of the scaffolded forms per controller
+  * Many customization options for all parts of scaffolding
 
 Quick Start
 ===========
@@ -26,14 +30,14 @@ In an existing Rails application, create a controller
   class CrudController < ApplicationController
     scaffold_all_models
   end
-	
+
 Then go to the index page for the controller (e.g. http://website/crud).  
 You'll see a link to a management page for each of your models.  Each
 management page has links to create, delete, edit, show, search, and merge
 pages for the model. The pages should be usable right away, but you'll want to
 add some configuration code to your models to specify the default names to
 display in select boxes, attributes to show on the forms, associations to show,
-etc..
+whether to use select boxes or autocompleting text boxes, etc..
 
 Customization
 =============
@@ -48,6 +52,7 @@ Let's start with the most common customizations:
     belongs_to :genre
     @scaffold_fields = %w'name rating genre'
     @scaffold_select_order = 'name'
+    @scaffold_auto_complete_options = {}
     def scaffold_name
       name[0...50]
     end
@@ -57,9 +62,12 @@ Let's start with the most common customizations:
 forms (which use the order specified).  It defaults to content_columns plus
 belongs_to associations. @scaffold_select_order determines which order is used
 in the SQL ORDER clause when displaying a list of albums (for example, from the
-edit link of the management page).  scaffold_name determines the name to use
-for each album inside those select boxes.  Note that it is a method and not a
-variable, so you need to specify a ruby instance method for it.
+edit link of the management page).  @scaffold_auto_complete_options turns on
+autocompleting for the model, instead of using select boxes (necessary for a
+decent response time if you have a large number of records).   scaffold_name
+determines the name to use for each album inside those select boxes.  Note that
+it is a method and not a variable, so you need to specify a ruby instance
+method for it.
 
 Notice in this case that genre was specified.  In this case, our schema has 
 genre_id as a foreign key to the genres table.  If you specified genre_id,
@@ -67,7 +75,10 @@ you'd get a usual text input box for the foreign key integer.  If you specify
 genre (the name of the belongs_to association), instead of a text input box,
 you will get a select box with all genres, allowing you to pick one.  It will
 use the @scaffold_select_order variable and scaffold_name method in the genre 
-model to format the select box.
+model to format the select box.  If you have @scaffold_auto_complete_options
+set in the Genre model, there will be an autocompleting text box instead of a
+select box (though since there aren't that many genres, you would probably be
+better off with a select box in this case).
 
 There are also a couple of customizations that can be set in the controller:
 
@@ -84,7 +95,8 @@ There are some other lessor used options which allow you to:
   * Choose which associations to eagerly load when displaying select boxes for
     the model
 
-Consult the RDoc if you would like more information on these.
+Consult the RDoc if you would like more information on these (and other
+options).
 
 General Usage
 =============

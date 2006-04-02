@@ -1,47 +1,61 @@
 # Scaffolding Extensions
 module ActiveRecord # :nodoc:
-  # Modifying class variables allows you to set various defaults for scaffolding.
+  # Modifying class variables allows you to set various defaults for scaffolding. 
   # Note that if multiple subclasses each modify the class variables, chaos will ensue.
+  # Class variables have cattr_accessor so that you can set them in environment.rb, such as:
+  # ActiveRecord::Base.scaffold_convert_text_to_string = true
+  #
   # Available class variables:
   # - scaffold_convert_text_to_string: If true, by default, use input type text instead of textarea 
   #   for fields of type text (default: false)
-  # - scaffold_table_classes: Set the default table classes for different scaffolded tables
+  # - scaffold_table_classes: Set the default table classes for different scaffolded HTML tables
   #   (default: {:form=>'formtable', :list=>'sortable', :show=>'sortable'})
   # - scaffold_column_types: Override the default column type for a given attribute 
   #   (default: {'password'=>:password})
   # - scaffold_column_options_hash: Override the default column options for a given attribute (default: {})
+  # - scaffold_association_list_class: Override the html class for the association list in the edit view
+  #   (default: '')
+  # - scaffold_auto_complete_default_options: Hash containing the default options to use for the scaffold
+  #   autocompleter (default: {:enable=>false, :sql_name=>'LOWER(name)', :text_field_options=>{:size=>50},
+  #   :format_string=>:substring, :search_operator=>'LIKE', :results_limit=>10, :phrase_modifier=>:downcase})
   #
   # Modifying instance variables in each class affects scaffolding for that class only.
   # Available instance variables:
   #
-  # - scaffold_fields: A list of field names to include in the scaffolded forms.
+  # - scaffold_fields: List of field names to include in the scaffolded forms.
   #   Values in the list should be either actual fields names, or names of belongs_to
   #   associations (in which case select boxes will be used in the scaffolded forms)
   #   (default: content_columns + belongs_to associations, example: %w'name number rating')
-  # - scaffold_select_order: The order in which scaffolded records are shown (SQL fragment)
+  # - scaffold_select_order: SQL fragment string setting the order in which scaffolded records are shown
   #   (default: nil, example: 'firstname, lastname')
   # - scaffold_include: Any classes that should include by default when displaying the
   #   scaffold name.  Eager loading is used so that N+1 queries aren't used for displaying N
   #   records, assuming that associated records used in scaffold_name are included in this.
   #   (default: nil, example: [:artist, :album])
-  # - scaffold_associations: Associations to display on the scaffolded edit page for the object
+  # - scaffold_associations: List of associations to display on the scaffolded edit page for the object
   #   (default: all associations, example: %w'artist albums')
-  # - scaffold_associations_path: Path to the template to use to render the associations
+  # - scaffold_associations_path: String path to the template to use to render the associations
   #   for the edit page.  nil means that it uses the controller's scaffold path.
   #   (default: nil, example: "#{RAILS_ROOT}/lib/model_associations.rhtml")
-  # 
+  # - scaffold_auto_complete_options - Hash merged with the auto complete default options to set
+  #   the auto complete options for the model.  If the auto complete default options are set
+  #   with :enable=>false, setting this variable turns on autocompleting.  If the auto complete
+  #   default options are set with :enable=>true, autocompleting can be turned off for this
+  #   model with {:enable=>false}.  (default: nil, example: {})
+  #
   # scaffold_table_classes, scaffold_column_types, and scaffold_column_options_hash can also
   # be specified as instance variables, in which case they will override the class variable
-  # defaults. All added class variables have cattr_accessor, so they can be overridden in
-  # subclasses.  You may need to do so if you are using STI and want different defaults for the
-  # STI classes.  The alternative to this is to specify instance variables in each STI class.
+  # defaults.
   class Base
     @@scaffold_convert_text_to_string = false
     @@scaffold_table_classes = {:form=>'formtable', :list=>'sortable', :show=>'sortable'}
     @@scaffold_column_types = {'password'=>:password}
     @@scaffold_column_options_hash = {}
     @@scaffold_association_list_class = ''
-    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class
+    @@scaffold_auto_complete_default_options = {:enable=>false, :sql_name=>'LOWER(name)',
+      :text_field_options=>{:size=>50}, :format_string=>:substring, :search_operator=>'LIKE',
+      :results_limit=>10, :phrase_modifier=>:downcase}
+    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options
     
     class << self
       attr_accessor :scaffold_select_order, :scaffold_include, :scaffold_associations_path
@@ -81,8 +95,8 @@ module ActiveRecord # :nodoc:
       end
       
       # Returns the list of fields to display on the scaffolded forms. Defaults
-      # to displaying all usually scaffolded columns with the addition of select
-      # boxes for belongs_to associated records.
+      # to displaying all usually scaffolded columns with the addition of belongs
+      # to associations.
       def scaffold_fields
         return @scaffold_fields if @scaffold_fields
         @scaffold_fields = columns.reject{|c| c.primary || c.name =~ /_count$/ || c.name == inheritance_column }.collect{|c| c.name}
@@ -95,9 +109,7 @@ module ActiveRecord # :nodoc:
         @scaffold_fields
       end
       
-      # Returns the scaffolded table class for a given scaffold type.  Currently, the following 
-      # types are used: :form (new/edit/search forms), :show (list of attributes for a given record),
-      # :list (list of search results).
+      # Returns the scaffolded table class for a given scaffold type.
       def scaffold_table_class(type)
         @scaffold_table_classes ||= scaffold_table_classes
         @scaffold_table_classes[type]
@@ -105,7 +117,7 @@ module ActiveRecord # :nodoc:
       
       # Returns the column type for the given scaffolded column name.  First checks to see
       # if a value has been overriden using a class or instance variable, otherwise uses
-      # the default column type.  Associations are always mapped to the :select type.
+      # the default column type.
       def scaffold_column_type(column_name)
         @scaffold_column_types ||= scaffold_column_types
         if @scaffold_column_types[column_name]
@@ -113,7 +125,6 @@ module ActiveRecord # :nodoc:
         elsif columns_hash.include?(column_name)
           type = columns_hash[column_name].type
           (scaffold_convert_text_to_string and type == :text) ? :string : type
-        else :select
         end
       end
       
@@ -121,6 +132,82 @@ module ActiveRecord # :nodoc:
       def scaffold_column_options(column_name)
         @scaffold_column_options_hash ||= scaffold_column_options_hash
         @scaffold_column_options_hash[column_name]
+      end
+      
+      # If the auto complete options have been setup, return them.  Otherwise,
+      # create the auto complete options using the defaults and the existing
+      # class instance variable.
+      def scaffold_auto_complete_options
+        return @scaffold_auto_complete_options if @scaffold_auto_complete_options_setup
+        @scaffold_auto_complete_options = @scaffold_auto_complete_options.nil? ? {} : {:enable=>true}.merge(@scaffold_auto_complete_options)
+        @scaffold_auto_complete_options = scaffold_auto_complete_default_options.merge(@scaffold_auto_complete_options)
+        @scaffold_auto_complete_options_setup = true
+        @scaffold_auto_complete_options
+      end
+      
+      # Whether this class should use an autocompleting text box instead of a select
+      # box for choosing items.
+      def scaffold_use_auto_complete
+        scaffold_auto_complete_options[:enable]
+      end
+      
+      # SQL fragment (usually column name) that is used when scaffold autocompleting is turned on.
+      def scaffold_name_sql
+        scaffold_auto_complete_options[:sql_name]
+      end
+      
+      # Options for the scaffold autocompleting text field
+      def scaffold_auto_complete_text_field_options
+        scaffold_auto_complete_options[:text_field_options]
+      end
+      
+      # Format string used with the phrase to choose the type of search.  Can be
+      # a user defined format string or one of these special symbols:
+      # - :substring - Phase matches any substring of scaffold_name_sql
+      # - :starting - Phrase matches the start of scaffold_name_sql
+      # - :ending - Phrase matches the end of scaffold_name_sql
+      # - :exact - Phrase matches scaffold_name_sql exactly
+      def scaffold_auto_complete_search_format_string
+        {:substring=>'%%%s%%', :starting=>'%s%%', :ending=>'%%%s', :exact=>'%s'}[scaffold_auto_complete_options[:format_string]] || scaffold_auto_complete_options[:format_string]
+      end
+      
+      # Search operator for matching scaffold_name_sql to format_string % phrase,
+      # usally 'LIKE', but might be 'ILIKE' on some databases.
+      def scaffold_auto_complete_search_operator
+        scaffold_auto_complete_options[:search_operator]
+      end
+      
+      # The number of results to return for the scaffolded autocomplete text box.
+      def scaffold_auto_complete_results_limit
+        scaffold_auto_complete_options[:results_limit]
+      end
+      
+      # The conditions phrase (the sql code with ? place holders) used in the
+      # scaffolded autocomplete find.
+      def scaffold_auto_complete_conditions_phrase
+        scaffold_auto_complete_options[:conditions_phrase] ||= "#{scaffold_name_sql} #{scaffold_auto_complete_search_operator} ?"
+      end
+      
+      # A symbol for a string method to send to the submitted phrase.  Usually
+      # :downcase to preform a case insensitive search, but may be :to_s for
+      # a case sensitive search.
+      def scaffold_auto_complete_phrase_modifier
+        scaffold_auto_complete_options[:phrase_modifier]
+      end
+      
+      # The conditions to use for the scaffolded autocomplete find.
+      def scaffold_auto_complete_conditions(phrase)
+        [scaffold_auto_complete_conditions_phrase, (scaffold_auto_complete_search_format_string % phrase.send(scaffold_auto_complete_phrase_modifier))]
+      end
+      
+      # Return all records that match the given phrase (usually a substring of
+      # the most important column).
+      def scaffold_auto_complete_find(phrase, options = {})
+        find_options = { :limit => scaffold_auto_complete_results_limit,
+            :conditions => scaffold_auto_complete_conditions(phrase), 
+            :order => scaffold_select_order,
+            :include => scaffold_include}.merge(options)
+        find(:all, find_options)
       end
     end
     
@@ -137,6 +224,12 @@ module ActiveRecord # :nodoc:
     # Should be overridden by subclasses unless they have a unique attribute named 'name'.
     def scaffold_name
       self[:name] or id
+    end
+    
+    # scaffold_name prefixed with id, used for scaffold autocompleting (a nice hack thanks 
+    # to String#to_i)
+    def scaffold_name_with_id
+      "#{id} - #{scaffold_name}"
     end
   end
 end
@@ -167,16 +260,62 @@ module ActionView # :nodoc:
         Proc.new do |record, column| 
           if column.class.name =~ /Reflection/
             if column.macro == :belongs_to
-              "<tr><td>#{column.name.to_s.humanize}:</td><td>#{input(record, column.name)}</td></tr>\n"
+              "<tr><td>#{column.name.to_s.humanize}:</td><td>#{association_select_tag(record, column.name)}</td></tr>\n"
             end
           else
             "<tr><td>#{column.human_name}:</td><td>#{input(record, column.name)}</td></tr>\n"
           end  
         end
       end
+      
+      # Returns a select box displaying the possible records that can be associated.
+      # If scaffold autocompleting is turned on for the associated model, uses
+      # an autocompleting text box.  Otherwise, creates a select box using
+      # the associated model's scaffold_name and scaffold_select_order.
+      def association_select_tag(record, association)
+        reflection = record.camelize.constantize.reflect_on_association(association)
+        foreign_key = reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key
+        if reflection.klass.scaffold_use_auto_complete
+          scaffold_text_field_with_auto_complete(record, foreign_key, association)
+        else
+          items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions=>reflection.options[:conditions], :include=>reflection.klass.scaffold_include)
+          items.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if reflection.klass.scaffold_include
+          select(record, foreign_key, items.collect{|i| [i.scaffold_name, i.id]}, {:include_blank=>true})
+        end
+      end
     end
     
-    class InstanceTag      
+    # Methods used to implement scaffold autocompleting
+    module JavaScriptMacrosHelper
+      # Text field with autocompleting used for belongs_to associations of main object in scaffolded forms.
+      def scaffold_text_field_with_auto_complete(object, method, associated_class, tag_options = {})
+        (auto_complete_stylesheet +
+        text_field(object, method, associated_class.to_s.camelize.constantize.scaffold_auto_complete_text_field_options.merge({:value=>(instance_variable_get("@#{object}").send(method) ? associated_class.to_s.camelize.constantize.find(instance_variable_get("@#{object}").send(method)).scaffold_name_with_id : '')}).merge(tag_options)) +
+        content_tag("div", "", :id => "#{object}_#{method}_scaffold_auto_complete", :class => "auto_complete") +
+        scaffold_auto_complete_field("#{object}_#{method}", { :url => { :action => "scaffold_auto_complete_for_#{associated_class}" } }))
+      end
+      
+      # Text field with autocompleting for classes without an attached object.
+      def scaffold_text_field_tag_with_auto_complete(id, klass, tag_options = {})
+        (auto_complete_stylesheet +
+        text_field_tag(id, nil, klass.scaffold_auto_complete_text_field_options.merge(tag_options)) +
+        content_tag("div", "", :id => "#{id}_scaffold_auto_complete", :class => "auto_complete") +
+        scaffold_auto_complete_field(id, { :url => { :action => "scaffold_auto_complete_for_#{klass.name.underscore}"} }))
+      end
+      
+      # Javascript code for setting up autocomplete for given field_id
+      def scaffold_auto_complete_field(field_id, options = {})
+        javascript_tag("var #{field_id}_auto_completer = new Ajax.Autocompleter('#{field_id}', '#{options[:update] || "#{field_id}_scaffold_auto_complete"}', '#{url_for(options[:url])}', {paramName:'id'})")
+      end
+      
+      # Formats auto_complete_result using model's scaffold_name_with_id
+      def scaffold_auto_complete_result(entries)
+        return unless entries
+        content_tag("ul", entries.map{|entry| content_tag("li", h(entry.scaffold_name_with_id))}.uniq)
+      end
+    end
+    
+    class InstanceTag
       # Gets the default options for the attribute and merges them with the given options.
       # Chooses an appropriate widget based on attribute's column type.
       def to_tag(options = {})
@@ -194,8 +333,6 @@ module ActionView # :nodoc:
             to_datetime_select_tag(options)
           when :boolean
             to_boolean_select_tag(options)
-          when :select
-            to_association_select_tag(options)
         end
       end
       
@@ -212,22 +349,9 @@ module ActionView # :nodoc:
         value ? " selected='selected'" : '' 
       end
       
-      # Allow overriding of the column type by asking the ActiveRecord for the column type.
+      # Allow overriding of the column type by asking the ActiveRecord for the appropriate column type.
       def column_type
         object.class.scaffold_column_type(@method_name)
-      end
-      
-      # Returns a select box displaying the possible records that can be associated.
-      # Can work with the allow_multiple_associations_same_table plugin.  Uses the objects
-      # scaffold_name and scaffold_select_order to populate the select box.
-      def to_association_select_tag(options)
-        reflection = object.class.reflect_on_association @method_name.to_sym
-        @method_name = reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key
-        alias_name = reflection.klass.table_name
-        conditions = eval("\"#{reflection.options[:conditions]}\"") if reflection.options[:conditions]
-        items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions=>conditions, :include=>reflection.klass.scaffold_include)
-        items.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if reflection.klass.scaffold_include
-        to_collection_select_tag(items, :id, :scaffold_name, {:include_blank=>true}.merge(options), {})
       end
     end
   end
@@ -257,14 +381,14 @@ module ScaffoldHelper
     end
   end
   
-  # Returns html <ul> fragment containing information on related models and objects.
-  # The fragment will include links to scaffolded pages for the related items if the links exist.
+  # Returns html fragment containing information on related models and objects.
+  # The fragment will include links to scaffolded pages for the related items if the links would work.
   def association_links
     filename = (@scaffold_class.scaffold_associations_path || controller.scaffold_path("associations"))
     controller.send(:render_to_string, {:file=>filename, :layout=>false}) if File.file?(filename)
   end
   
-  # Returns link to the scaffolded management page for the model.
+  # Returns link to the scaffolded management page for the model if it was created by the scaffolding.
   def manage_link
     "<br />#{link_to("Manage #{@scaffold_plural_name.humanize.downcase}", :action => "manage#{@scaffold_suffix}")}" if @scaffold_methods.include?(:manage)
   end
@@ -274,7 +398,7 @@ module ScaffoldHelper
     "#{error_messages_for(@scaffold_singular_name)}\n#{form(@scaffold_singular_name, :action=>"#{action}#{@scaffold_suffix}", :submit_value=>"#{action.capitalize} #{@scaffold_singular_name.humanize.downcase}")}"
   end
   
-  # Returns associated objects scaffold_name if column is an association, otherwise returns column value.
+  # Returns associated object's scaffold_name if column is an association, otherwise returns column value.
   def scaffold_value(entry, column)
     entry.send(column).methods.include?('scaffold_name') ? entry.send(column).scaffold_name : entry.send(column)
   end
@@ -318,6 +442,26 @@ module ActionController # :nodoc:
           else []
         end
       end
+      
+      # Create controller instance method for returning results to the scaffold autocompletor
+      # for the given model.
+      def scaffold_auto_complete_for(object, options = {})
+        define_method("scaffold_auto_complete_for_#{object}") do
+          @items = object.to_s.camelize.constantize.scaffold_auto_complete_find(params[:id], options)
+          render :inline => "<%= scaffold_auto_complete_result(@items) %>"
+        end
+      end
+      
+      # Setup scaffold_auto_complete_for for the given controller for all models
+      # implementing scaffold autocompleting.  If scaffolding is used in multiple
+      # controllers, scaffold_auto_complete_for methods for all models will be added
+      # to all controllers.
+      def setup_scaffold_auto_completes
+        return if @scaffold_auto_completes_are_setup
+        models = Dir["#{RAILS_ROOT}/app/models/*.rb"].collect{|file|File.basename(file).sub(/\.rb$/, '').camelize.constantize}.reject{|model| ! model.ancestors.include?(ActiveRecord::Base)}
+        models.each{|model| scaffold_auto_complete_for(model.name.underscore.to_sym) if model.scaffold_use_auto_complete && !respond_to?("scaffold_auto_complete_for_#{model.name.underscore.to_sym}")}
+        @scaffold_auto_completes_are_setup = true
+      end
     end
     
     # Returns path to the given scaffold rhtml file
@@ -345,10 +489,11 @@ module ActionController # :nodoc:
     
     # Converts all items in the array to integers and discards non-zero values
     def multiple_select_ids(arr) # :doc:
+      arr = [arr] unless arr.is_a?(Array)
       arr.collect{|x| x.to_i}.delete_if{|x| x == 0}
     end
     
-    # Adds conditions for the scaffolded search query.  Uses ILIKE for string attributes
+    # Adds conditions for the scaffolded search query.  Uses LIKE OR ILIKE for string attributes,
     # IS TRUE|FALSE for boolean attributes, and = for other attributes.
     def scaffold_search_add_condition(conditions, record, field) # :doc:
       column = record.column_for_attribute(field)
@@ -388,7 +533,9 @@ module ActionController # :nodoc:
       #   one to delete
       # - :edit: Shows a select box with all objects, allowing the user to chose
       #   one to edit.  Also shows associations specified in the model's
-      #   @scaffold_associations
+      #   scaffold_associations, allowing you easy access to manage associated models,
+      #   add new objects for has_many associations, and edit the has_and_belongs_to_many
+      #   associations.
       # - :new: Form for creating new objects
       # - :search: Simple search form using the same attributes as the new/edit 
       #   form. The results page has links to show, edit, or destroy the object
@@ -404,6 +551,7 @@ module ActionController # :nodoc:
         add_methods = options[:only] ? normalize_scaffold_options(options[:only]) : self.default_scaffold_methods
         add_methods -= normalize_scaffold_options(options[:except]) if options[:except]
         habtm = normalize_scaffold_options(options[:habtm]).collect{|habtm_class| habtm_class if scaffold_habtm(model_id, habtm_class, false)}.compact
+        setup_scaffold_auto_completes
         
         if add_methods.include?(:manage)
           module_eval <<-"end_eval", __FILE__, __LINE__
@@ -425,8 +573,10 @@ module ActionController # :nodoc:
           module_eval <<-"end_eval", __FILE__, __LINE__
             def list#{suffix}
               @scaffold_action ||= 'edit'
-              @#{plural_name} = #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
-              @#{plural_name}.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if #{class_name}.scaffold_include
+              unless #{class_name}.scaffold_use_auto_complete
+                @#{plural_name} = #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
+                @#{plural_name}.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if #{class_name}.scaffold_include
+              end
               render#{suffix}_scaffold "list#{suffix}"
             end
           end_eval
@@ -436,7 +586,7 @@ module ActionController # :nodoc:
           module_eval <<-"end_eval", __FILE__, __LINE__
             def show#{suffix}
               if params[:id]
-                @#{singular_name} = #{class_name}.find(params[:id], :include=>#{class_name}.scaffold_include)
+                @#{singular_name} = #{class_name}.find(params[:id].to_i, :include=>#{class_name}.scaffold_include)
                 render#{suffix}_scaffold
               else
                 @scaffold_action = 'show'
@@ -450,7 +600,7 @@ module ActionController # :nodoc:
           module_eval <<-"end_eval", __FILE__, __LINE__
             def destroy#{suffix}
               if params[:id]
-                #{class_name}.find(params[:id]).destroy
+                #{class_name}.find(params[:id].to_i).destroy
                 flash[:notice] = "#{singular_name.humanize} was successfully destroyed"
                 redirect_to :action => "destroy#{suffix}"
               else
@@ -465,7 +615,7 @@ module ActionController # :nodoc:
           module_eval <<-"end_eval", __FILE__, __LINE__
             def edit#{suffix}
               if params[:id]
-                @#{singular_name} = #{class_name}.find(params[:id])
+                @#{singular_name} = #{class_name}.find(params[:id].to_i)
                 render#{suffix}_scaffold
               else
                 @scaffold_action = 'edit'
@@ -546,13 +696,15 @@ module ActionController # :nodoc:
       if add_methods.include?(:merge)
         module_eval <<-"end_eval", __FILE__, __LINE__
           def merge#{suffix}
-            @#{plural_name} = #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
-            @#{plural_name}.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if #{class_name}.scaffold_include
+            unless #{class_name}.scaffold_use_auto_complete
+              @#{plural_name} = #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
+              @#{plural_name}.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if #{class_name}.scaffold_include
+            end
             render#{suffix}_scaffold('merge#{suffix}')
           end
           
           def merge_update#{suffix}
-            flash[:notice] = if #{class_name}.merge_records(params[:from], params[:to])
+            flash[:notice] = if #{class_name}.merge_records(params[:from].to_i, params[:to].to_i)
               "#{plural_name.humanize} were successfully merged"
             else "Error merging #{plural_name.humanize.downcase}"
             end
@@ -595,13 +747,17 @@ module ActionController # :nodoc:
         association_foreign_key = reflection.options[:association_foreign_key] || many_class.table_name.classify.foreign_key
         join_table = reflection.options[:join_table] || ( singular_name < many_class_name ? '#{singular_name}_#{many_class_name}' : '#{many_class_name}_#{singular_name}')
         suffix = "_#{singular_name.underscore}_#{many_name}" 
+        setup_scaffold_auto_completes
         module_eval <<-"end_eval", __FILE__, __LINE__
           def edit#{suffix}
             @singular_name = "#{singular_name}" 
             @many_name = "#{many_name.gsub('_',' ')}" 
             @singular_object = #{singular_name}.find(params[:id])
-            @items_to_remove = #{many_class_name}.find(:all, :conditions=>["id IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i]#{', :order=>"'+many_class.scaffold_select_order+'"' if many_class.scaffold_select_order}).collect{|item| [item.scaffold_name, item.id]}
-            @items_to_add = #{many_class_name}.find(:all, :conditions=>["id NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i]#{', :order=>"'+many_class.scaffold_select_order+'"' if many_class.scaffold_select_order}).collect{|item| [item.scaffold_name, item.id]}
+            @many_class = #{many_class_name}
+            @items_to_remove = #{many_class_name}.find(:all, :conditions=>["#{many_class.primary_key} IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i]#{', :order=>"'+many_class.scaffold_select_order+'"' if many_class.scaffold_select_order}).collect{|item| [item.scaffold_name, item.id]}
+            unless #{many_class}.scaffold_use_auto_complete
+              @items_to_add = #{many_class_name}.find(:all, :conditions=>["#{many_class.primary_key} NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i]#{', :order=>"'+many_class.scaffold_select_order+'"' if many_class.scaffold_select_order}).collect{|item| [item.scaffold_name, item.id]}
+            end
             @scaffold_update_page = "update#{suffix}" 
             render_scaffold_template("habtm")
           end
@@ -609,8 +765,8 @@ module ActionController # :nodoc:
           def update#{suffix}
             flash[:notice] = begin
               singular_item = #{singular_name}.find(params[:id])
-              singular_item.#{many_name}.push(#{many_class_name}.find(multiple_select_ids(params[:add]))) if params[:add]
-              singular_item.#{many_name}.delete(#{many_class_name}.find(multiple_select_ids(params[:remove]))) if params[:remove]
+              singular_item.#{many_name}.push(#{many_class_name}.find(multiple_select_ids(params[:add]))) if params[:add] && !params[:add].empty?
+              singular_item.#{many_name}.delete(#{many_class_name}.find(multiple_select_ids(params[:remove]))) if params[:remove] && !params[:remove].empty?
               "Updated #{singular_name}'s #{many_name} successfully" 
             rescue ::ActiveRecord::StatementInvalid
               "Error updating #{singular_name}'s #{many_name}" 
