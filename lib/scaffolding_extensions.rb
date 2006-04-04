@@ -549,7 +549,7 @@ module ActionController # :nodoc:
       # - :merge: Brings up two select boxes each populated with all objects,
       #   allowing the user to pick one to merge into the other
       def scaffold(model_id, options = {})
-        options.assert_valid_keys(:class_name, :suffix, :except, :only, :habtm)
+        options.assert_valid_keys(:class_name, :suffix, :except, :only, :habtm, :setup_auto_completes)
         
         singular_name = model_id.to_s.underscore.singularize
         class_name    = options[:class_name] || singular_name.camelize
@@ -558,7 +558,7 @@ module ActionController # :nodoc:
         add_methods = options[:only] ? normalize_scaffold_options(options[:only]) : self.default_scaffold_methods
         add_methods -= normalize_scaffold_options(options[:except]) if options[:except]
         habtm = normalize_scaffold_options(options[:habtm]).collect{|habtm_class| habtm_class if scaffold_habtm(model_id, habtm_class, false)}.compact
-        setup_scaffold_auto_completes
+        setup_scaffold_auto_completes unless options[:setup_auto_completes] == false
         
         if add_methods.include?(:manage)
           module_eval <<-"end_eval", __FILE__, __LINE__
