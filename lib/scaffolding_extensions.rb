@@ -466,7 +466,7 @@ module ActionController # :nodoc:
       def setup_scaffold_auto_completes
         return if @scaffold_auto_completes_are_setup
         models = Dir["#{RAILS_ROOT}/app/models/*.rb"].collect{|file|File.basename(file).sub(/\.rb$/, '').camelize.constantize}.reject{|model| ! model.ancestors.include?(ActiveRecord::Base)}
-        models.each{|model| scaffold_auto_complete_for(model.name.underscore.to_sym) if model.scaffold_use_auto_complete && !respond_to?("scaffold_auto_complete_for_#{model.name.underscore.to_sym}")}
+        models.each{|model| scaffold_auto_complete_for(model.name.underscore.to_sym) if model.scaffold_use_auto_complete && !respond_to?("scaffold_auto_complete_for_#{model.name.underscore}")}
         @scaffold_auto_completes_are_setup = true
       end
     end
@@ -754,7 +754,7 @@ module ActionController # :nodoc:
         association_foreign_key = reflection.options[:association_foreign_key] || many_class.table_name.classify.foreign_key
         join_table = reflection.options[:join_table] || ( singular_name < many_class_name ? '#{singular_name}_#{many_class_name}' : '#{many_class_name}_#{singular_name}')
         suffix = "_#{singular_name.underscore}_#{many_name}" 
-        setup_scaffold_auto_completes
+        scaffold_auto_complete_for(many_class_name.underscore.to_sym) if many_class.scaffold_use_auto_complete && !respond_to?("scaffold_auto_complete_for_#{many_class_name.underscore}")
         module_eval <<-"end_eval", __FILE__, __LINE__
           def edit#{suffix}
             @singular_name = "#{singular_name}" 
