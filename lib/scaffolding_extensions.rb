@@ -17,7 +17,8 @@ module ActiveRecord # :nodoc:
   #   (default: '')
   # - scaffold_auto_complete_default_options: Hash containing the default options to use for the scaffold
   #   autocompleter (default: {:enable=>false, :sql_name=>'LOWER(name)', :text_field_options=>{:size=>50},
-  #   :format_string=>:substring, :search_operator=>'LIKE', :results_limit=>10, :phrase_modifier=>:downcase})
+  #   :format_string=>:substring, :search_operator=>'LIKE', :results_limit=>10, :phrase_modifier=>:downcase,
+  #   :skip_style=>false})
   #
   # Modifying instance variables in each class affects scaffolding for that class only.
   # Available instance variables:
@@ -54,7 +55,7 @@ module ActiveRecord # :nodoc:
     @@scaffold_association_list_class = ''
     @@scaffold_auto_complete_default_options = {:enable=>false, :sql_name=>'LOWER(name)',
       :text_field_options=>{:size=>50}, :format_string=>:substring, :search_operator=>'LIKE',
-      :results_limit=>10, :phrase_modifier=>:downcase}
+      :results_limit=>10, :phrase_modifier=>:downcase, :skip_style=>false}
     cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options
     
     class << self
@@ -138,10 +139,10 @@ module ActiveRecord # :nodoc:
       # create the auto complete options using the defaults and the existing
       # class instance variable.
       def scaffold_auto_complete_options
-        return @scaffold_auto_complete_options if @scaffold_auto_complete_options_setup
+        return @scaffold_auto_complete_options if @scaffold_auto_complete_options && @scaffold_auto_complete_options[:setup]
         @scaffold_auto_complete_options = @scaffold_auto_complete_options.nil? ? {} : {:enable=>true}.merge(@scaffold_auto_complete_options)
         @scaffold_auto_complete_options = scaffold_auto_complete_default_options.merge(@scaffold_auto_complete_options)
-        @scaffold_auto_complete_options_setup = true
+        @scaffold_auto_complete_options[:setup] = true
         @scaffold_auto_complete_options
       end
       
@@ -159,6 +160,10 @@ module ActiveRecord # :nodoc:
       # Options for the scaffold autocompleting text field
       def scaffold_auto_complete_text_field_options
         scaffold_auto_complete_options[:text_field_options]
+      end
+      
+      def scaffold_auto_complete_skip_style
+        scaffold_auto_complete_options[:skip_style]
       end
       
       # Format string used with the phrase to choose the type of search.  Can be
@@ -289,15 +294,17 @@ module ActionView # :nodoc:
     module JavaScriptMacrosHelper
       # Text field with autocompleting used for belongs_to associations of main object in scaffolded forms.
       def scaffold_text_field_with_auto_complete(object, method, associated_class, tag_options = {})
-        (auto_complete_stylesheet +
-        text_field(object, method, associated_class.to_s.camelize.constantize.scaffold_auto_complete_text_field_options.merge({:value=>(instance_variable_get("@#{object}").send(method) ? associated_class.to_s.camelize.constantize.find(instance_variable_get("@#{object}").send(method)).scaffold_name_with_id : '')}).merge(tag_options)) +
+        klass = associated_class.to_s.camelize.constantize
+        foreign_key = instance_variable_get("@#{object}").send(method)
+        ((klass.scaffold_auto_complete_skip_style ? '' : auto_complete_stylesheet) +
+        text_field(object, method, klass.scaffold_auto_complete_text_field_options.merge({:value=>(foreign_key ? klass.find(foreign_key).scaffold_name_with_id : '')}).merge(tag_options)) +
         content_tag("div", "", :id => "#{object}_#{method}_scaffold_auto_complete", :class => "auto_complete") +
         scaffold_auto_complete_field("#{object}_#{method}", { :url => { :action => "scaffold_auto_complete_for_#{associated_class}" } }))
       end
       
       # Text field with autocompleting for classes without an attached object.
       def scaffold_text_field_tag_with_auto_complete(id, klass, tag_options = {})
-        (auto_complete_stylesheet +
+        ((klass.scaffold_auto_complete_skip_style ? '' : auto_complete_stylesheet) +
         text_field_tag(id, nil, klass.scaffold_auto_complete_text_field_options.merge(tag_options)) +
         content_tag("div", "", :id => "#{id}_scaffold_auto_complete", :class => "auto_complete") +
         scaffold_auto_complete_field(id, { :url => { :action => "scaffold_auto_complete_for_#{klass.name.underscore}"} }))
