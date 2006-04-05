@@ -61,6 +61,12 @@ module ActiveRecord # :nodoc:
     class << self
       attr_accessor :scaffold_select_order, :scaffold_include, :scaffold_associations_path
       
+      # Checks all files in the models directory to return strings for all models
+      # that are a subclass of the current class
+      def all_models
+        Dir["#{RAILS_ROOT}/app/models/*.rb"].collect{|file|File.basename(file).sub(/\.rb$/, '')}.sort.reject{|model| (! model.camelize.constantize.ancestors.include?(self)) rescue true}
+      end
+      
       # Merges the record with id from into the record with id to.  Updates all 
       # associated records for the record with id from to be assocatiated with
       # the record with id to instead, and then deletes the record with id from.
@@ -459,14 +465,19 @@ module ActionController # :nodoc:
         end
       end
       
+      # Setup scaffold auto complete for them model if it is requested by model
+      # and it hasn't already been setup.
+      def setup_scaffold_auto_complete_for(model_id)
+        scaffold_auto_complete_for(model_id) if model_id.to_s.camelize.constantize.scaffold_use_auto_complete && !respond_to?("scaffold_auto_complete_for_#{model_id}")
+      end
+      
       # Setup scaffold_auto_complete_for for the given controller for all models
       # implementing scaffold autocompleting.  If scaffolding is used in multiple
       # controllers, scaffold_auto_complete_for methods for all models will be added
       # to all controllers.
       def setup_scaffold_auto_completes
         return if @scaffold_auto_completes_are_setup
-        models = Dir["#{RAILS_ROOT}/app/models/*.rb"].collect{|file|File.basename(file).sub(/\.rb$/, '').camelize.constantize}.reject{|model| ! model.ancestors.include?(ActiveRecord::Base)}
-        models.each{|model| scaffold_auto_complete_for(model.name.underscore.to_sym) if model.scaffold_use_auto_complete && !respond_to?("scaffold_auto_complete_for_#{model.name.underscore}")}
+        ActiveRecord::Base.all_models.each{|model| setup_scaffold_auto_complete_for(model.to_sym)}
         @scaffold_auto_completes_are_setup = true
       end
     end
@@ -477,7 +488,7 @@ module ActionController # :nodoc:
     end
     
     private
-    # Renders manually created page if it exists, otherwise renders  a scaffold form.
+    # Renders manually created page if it exists, otherwise renders a scaffold form.
     # If a layout is specified (either in the controller or as an option), use that layout,
     # otherwise uses the scaffolded layout.
     def render_scaffold_template(action, options = {}) # :doc:
@@ -528,6 +539,8 @@ module ActionController # :nodoc:
       # - :only: symbol or array of method symbols to use instead of the default
       # - :habtm: symbol or array of symbols of habtm associated classes,
       #   habtm scaffolds will be created for each one
+      # - :setup_auto_completes: if set to false, don't create scaffold auto
+      #   complete actions for all models
       #
       # The following method symbols are used to control the methods that get
       # added by the scaffold function:
@@ -557,7 +570,7 @@ module ActionController # :nodoc:
         suffix        = options[:suffix] ? "_#{singular_name}" : ""
         add_methods = options[:only] ? normalize_scaffold_options(options[:only]) : self.default_scaffold_methods
         add_methods -= normalize_scaffold_options(options[:except]) if options[:except]
-        habtm = normalize_scaffold_options(options[:habtm]).collect{|habtm_class| habtm_class if scaffold_habtm(model_id, habtm_class, false)}.compact
+        normalize_scaffold_options(options[:habtm]).each{|habtm_class| scaffold_habtm(model_id, habtm_class, false)}
         setup_scaffold_auto_completes unless options[:setup_auto_completes] == false
         
         if add_methods.include?(:manage)
@@ -729,7 +742,6 @@ module ActionController # :nodoc:
               @scaffold_singular_name, @scaffold_plural_name = "#{singular_name}", "#{plural_name}"
               @scaffold_methods = #{add_methods.inspect}
               @scaffold_suffix = "#{suffix}"
-              @scaffold_habtms = #{habtm.inspect}
               @scaffold_singular_object = @#{singular_name}
               @scaffold_plural_object = @#{plural_name}
               add_instance_variables_to_assigns
@@ -742,8 +754,9 @@ module ActionController # :nodoc:
         end_eval
       end
       
-      # Scaffolds a habtm association for two classes using two select boxes.
-      # By default, scaffolds the association both ways.
+      # Scaffolds a habtm association for two classes using two select boxes, or
+      # a select box for removing associations and an autocompleting text box for
+      # adding associations. By default, scaffolds the association both ways.
       def scaffold_habtm(singular, many, both_ways = true)
         singular_class, many_class = singular.to_s.singularize.camelize.constantize, many.to_s.singularize.camelize.constantize
         singular_name, many_class_name = singular_class.name, many_class.name
@@ -754,7 +767,7 @@ module ActionController # :nodoc:
         association_foreign_key = reflection.options[:association_foreign_key] || many_class.table_name.classify.foreign_key
         join_table = reflection.options[:join_table] || ( singular_name < many_class_name ? '#{singular_name}_#{many_class_name}' : '#{many_class_name}_#{singular_name}')
         suffix = "_#{singular_name.underscore}_#{many_name}" 
-        scaffold_auto_complete_for(many_class_name.underscore.to_sym) if many_class.scaffold_use_auto_complete && !respond_to?("scaffold_auto_complete_for_#{many_class_name.underscore}")
+        setup_scaffold_auto_complete_for(many_class_name.underscore.to_sym)
         module_eval <<-"end_eval", __FILE__, __LINE__
           def edit#{suffix}
             @singular_name = "#{singular_name}" 
@@ -786,7 +799,7 @@ module ActionController # :nodoc:
       
       # Scaffolds all models in the Rails app, with all associations
       def scaffold_all_models
-        models = Dir["#{RAILS_ROOT}/app/models/*.rb"].collect{|file|File.basename(file).sub(/\.rb$/, '')}.sort.reject{|model| ! model.camelize.constantize.ancestors.include?(ActiveRecord::Base)}
+        models = ActiveRecord::Base.all_models
         models.each do |model|
           scaffold model.to_sym, :suffix=>true, :habtm=>model.camelize.constantize.reflect_on_all_associations.collect{|r|r.name if r.macro == :has_and_belongs_to_many}.compact
         end
