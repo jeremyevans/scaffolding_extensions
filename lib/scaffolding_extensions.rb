@@ -797,11 +797,13 @@ module ActionController # :nodoc:
         both_ways ? scaffold_habtm(many_class, singular_class, false) : true
       end
       
-      # Scaffolds all models in the Rails app, with all associations
-      def scaffold_all_models
-        models = ActiveRecord::Base.all_models
+      # Scaffolds all models in the Rails app, with all associations.  Scaffolds all 
+      # models in the models directory if no arguments are given, otherwise just
+      # scaffolds for those models.
+      def scaffold_all_models(*models)
+        models = ActiveRecord::Base.all_models if models.length == 0
         models.each do |model|
-          scaffold model.to_sym, :suffix=>true, :habtm=>model.camelize.constantize.reflect_on_all_associations.collect{|r|r.name if r.macro == :has_and_belongs_to_many}.compact
+          scaffold model.to_sym, :suffix=>true, :habtm=>model.to_s.camelize.constantize.reflect_on_all_associations.collect{|r|r.name if r.macro == :has_and_belongs_to_many}.compact
         end
         module_eval <<-"end_eval", __FILE__, __LINE__
           def index
