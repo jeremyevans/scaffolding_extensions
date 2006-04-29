@@ -15,34 +15,43 @@ module ActiveRecord # :nodoc:
   # - scaffold_column_options_hash: Override the default column options for a given attribute (default: {})
   # - scaffold_association_list_class: Override the html class for the association list in the edit view
   #   (default: '')
+  # - scaffold_browse_default_records_per_page - The default number of records per page to show in the
+  #   browse scaffold (default: 10)
+  # - scaffold_search_results_default_limit - The default limit on scaffolded search results 
+  #   (default: nil # no limit)
   # - scaffold_auto_complete_default_options: Hash containing the default options to use for the scaffold
   #   autocompleter (default: {:enable=>false, :sql_name=>'LOWER(name)', :text_field_options=>{:size=>50},
   #   :format_string=>:substring, :search_operator=>'LIKE', :results_limit=>10, :phrase_modifier=>:downcase,
   #   :skip_style=>false})
   #
-  # Modifying instance variables in each class affects scaffolding for that class only.
+  # Modifying instance variables in each class affects scaffolding for that class only (always defaults to nil).
   # Available instance variables:
   #
   # - scaffold_fields: List of field names to include in the scaffolded forms.
   #   Values in the list should be either actual fields names, or names of belongs_to
-  #   associations (in which case select boxes will be used in the scaffolded forms)
-  #   (default: content_columns + belongs_to associations, example: %w'name number rating')
+  #   associations (in which case select boxes will be used in the scaffolded forms).
+  #   Uses content_columns + belongs_to associations if not specified.
+  #   (example: %w'name number rating')
   # - scaffold_select_order: SQL fragment string setting the order in which scaffolded records are shown
-  #   (default: nil, example: 'firstname, lastname')
+  #   (example: 'firstname, lastname')
   # - scaffold_include: Any classes that should include by default when displaying the
   #   scaffold name.  Eager loading is used so that N+1 queries aren't used for displaying N
   #   records, assuming that associated records used in scaffold_name are included in this.
-  #   (default: nil, example: [:artist, :album])
-  # - scaffold_associations: List of associations to display on the scaffolded edit page for the object
-  #   (default: all associations, example: %w'artist albums')
+  #   (example: [:artist, :album])
+  # - scaffold_associations: List of associations to display on the scaffolded edit page for the object.
+  #   Uses all associations if not specified (example: %w'artist albums')
   # - scaffold_associations_path: String path to the template to use to render the associations
-  #   for the edit page.  nil means that it uses the controller's scaffold path.
-  #   (default: nil, example: "#{RAILS_ROOT}/lib/model_associations.rhtml")
+  #   for the edit page.  Uses the controller's scaffold path if not specified.
+  #   (example: "#{RAILS_ROOT}/lib/model_associations.rhtml")
+  # - scaffold_browse_records_per_page - The number of records per page to show in the
+  #   browse scaffold.  Uses scaffold_browse_default_records_per_page if not specified (example: 25)
+  # - scaffold_search_results_limit - The limit on the number of records in the scaffolded search
+  #   results page (example: 25)
   # - scaffold_auto_complete_options - Hash merged with the auto complete default options to set
   #   the auto complete options for the model.  If the auto complete default options are set
   #   with :enable=>false, setting this variable turns on autocompleting.  If the auto complete
   #   default options are set with :enable=>true, autocompleting can be turned off for this
-  #   model with {:enable=>false}.  (default: nil, example: {})
+  #   model with {:enable=>false}.  (example: {})
   #
   # scaffold_table_classes, scaffold_column_types, and scaffold_column_options_hash can also
   # be specified as instance variables, in which case they will override the class variable
@@ -53,10 +62,12 @@ module ActiveRecord # :nodoc:
     @@scaffold_column_types = {'password'=>:password}
     @@scaffold_column_options_hash = {}
     @@scaffold_association_list_class = ''
+    @@scaffold_browse_default_records_per_page = 10
+    @@scaffold_search_results_default_limit = nil
     @@scaffold_auto_complete_default_options = {:enable=>false, :sql_name=>'LOWER(name)',
       :text_field_options=>{:size=>50}, :format_string=>:substring, :search_operator=>'LIKE',
       :results_limit=>10, :phrase_modifier=>:downcase, :skip_style=>false}
-    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options
+    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options, :scaffold_browse_default_records_per_page, :scaffold_search_results_default_limit
     
     class << self
       attr_accessor :scaffold_select_order, :scaffold_include, :scaffold_associations_path
@@ -139,6 +150,16 @@ module ActiveRecord # :nodoc:
       def scaffold_column_options(column_name)
         @scaffold_column_options_hash ||= scaffold_column_options_hash
         @scaffold_column_options_hash[column_name]
+      end
+      
+      # The number of records to show on each page when using the browse scaffold
+      def scaffold_browse_records_per_page
+        @scaffold_browse_records_per_page ||= scaffold_browse_default_records_per_page
+      end
+      
+      # The maximum number of results to show on the scaffolded search results page
+      def scaffold_search_results_limit
+        @scaffold_search_results_limit ||= scaffold_search_results_default_limit
       end
       
       # If the auto complete options have been setup, return them.  Otherwise,
@@ -425,10 +446,10 @@ module ActionController # :nodoc:
   # - scaffold_template_dir: the location of the scaffold templates (default:
   #   "#{File.dirname(__FILE__)}/../scaffolds" # the plugin's default scaffold directory)
   # - default_scaffold_methods: the default methods added by the scaffold function
-  #   (default: [:manage, :show, :destroy, :edit, :new, :search, :merge] # all methods)
+  #   (default: [:manage, :show, :destroy, :edit, :new, :search, :merge, :browse] # all methods)
   class Base
     @@scaffold_template_dir = "#{File.dirname(__FILE__)}/../scaffolds"
-    @@default_scaffold_methods = [:manage, :show, :destroy, :edit, :new, :search, :merge]
+    @@default_scaffold_methods = [:manage, :show, :destroy, :edit, :new, :search, :merge, :browse]
     cattr_accessor = :scaffold_template_dir, :default_scaffold_methods
     
     class << self
@@ -515,10 +536,9 @@ module ActionController # :nodoc:
     # IS TRUE|FALSE for boolean attributes, and = for other attributes.
     def scaffold_search_add_condition(conditions, record, field) # :doc:
       column = record.column_for_attribute(field)
-      like = ActiveRecord::Base.connection.class == ActiveRecord::ConnectionAdapters::PostgreSQLAdapter ? "ILIKE" : "LIKE"
       if column and column.klass == String
         if record.send(field).length > 0
-          conditions[0] << "#{record.class.table_name}.#{field} #{like} ?"
+          conditions[0] << "#{record.class.table_name}.#{field} #{record.class.scaffold_auto_complete_search_operator} ?"
           conditions << "%#{record.send(field)}%"
         end
       elsif column.klass == Object
@@ -561,6 +581,7 @@ module ActionController # :nodoc:
       #   form. The results page has links to show, edit, or destroy the object
       # - :merge: Brings up two select boxes each populated with all objects,
       #   allowing the user to pick one to merge into the other
+      # - :browse: Browse all model objects, similar to the default Rails list scaffold 
       def scaffold(model_id, options = {})
         options.assert_valid_keys(:class_name, :suffix, :except, :only, :habtm, :setup_auto_completes)
         
@@ -707,31 +728,40 @@ module ActionController # :nodoc:
               params[:notnull].each {|field| conditions[0] << field + ' IS NOT NULL' } if params[:notnull]
               conditions[0] = conditions[0].join(' AND ')
               conditions[0] = '1=1' if conditions[0].length == 0
-              @#{plural_name} = #{class_name}.find(:all, :conditions=>conditions, :include=>includes)
+              @#{plural_name} = #{class_name}.find(:all, :conditions=>conditions, :include=>includes, :order=>#{class_name}.scaffold_select_order, :limit=>#{class_name}.scaffold_search_results_limit)
               render#{suffix}_scaffold('listtable#{suffix}')
             end
           end_eval
         end
       
-      if add_methods.include?(:merge)
-        module_eval <<-"end_eval", __FILE__, __LINE__
-          def merge#{suffix}
-            unless #{class_name}.scaffold_use_auto_complete
-              @#{plural_name} = #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
-              @#{plural_name}.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if #{class_name}.scaffold_include
+        if add_methods.include?(:merge)
+          module_eval <<-"end_eval", __FILE__, __LINE__
+            def merge#{suffix}
+              unless #{class_name}.scaffold_use_auto_complete
+                @#{plural_name} = #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
+                @#{plural_name}.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if #{class_name}.scaffold_include
+              end
+              render#{suffix}_scaffold('merge#{suffix}')
             end
-            render#{suffix}_scaffold('merge#{suffix}')
-          end
-          
-          def merge_update#{suffix}
-            flash[:notice] = if #{class_name}.merge_records(params[:from].to_i, params[:to].to_i)
-              "#{plural_name.humanize} were successfully merged"
-            else "Error merging #{plural_name.humanize.downcase}"
+            
+            def merge_update#{suffix}
+              flash[:notice] = if #{class_name}.merge_records(params[:from].to_i, params[:to].to_i)
+                "#{plural_name.humanize} were successfully merged"
+              else "Error merging #{plural_name.humanize.downcase}"
+              end
+              redirect_to :action=>'merge#{suffix}'
             end
-            redirect_to :action=>'merge#{suffix}'
-          end
-        end_eval
-      end
+          end_eval
+        end
+        
+        if add_methods.include?(:browse)
+          module_eval <<-"end_eval", __FILE__, __LINE__
+            def browse#{suffix}
+              @#{singular_name}_pages, @#{plural_name} = paginate(:#{plural_name}, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_fields.collect{|field| field.to_sym if #{class_name}.reflect_on_association(field.to_sym)}.compact, :per_page => #{class_name}.scaffold_browse_records_per_page)
+              render#{suffix}_scaffold('listtable#{suffix}')
+            end
+          end_eval
+        end
         
         module_eval <<-"end_eval", __FILE__, __LINE__
           add_template_helper(ScaffoldHelper)

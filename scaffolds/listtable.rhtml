@@ -1,25 +1,29 @@
 <h1>Listing <%= @scaffold_plural_name.humanize.downcase %></h1>
 
 <table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class :list %>">
-  <tr>
+  <thead><tr>
   <% @scaffold_class.scaffold_fields.each do |column| -%>
-    <th><%= column %></th>
+    <th><%= column.humanize %></th>
   <% end %>
   <%= content_tag(:th, 'Show') if @scaffold_methods.include?(:show) %>
   <%= content_tag(:th, 'Edit') if @scaffold_methods.include?(:edit) %>
   <%= content_tag(:th, 'Destroy') if @scaffold_methods.include?(:destroy) %>
-  </tr>
-  
+  </tr></thead><tbody>
 <% @scaffold_plural_object.each do |entry| %>
   <tr>
   <% @scaffold_class.scaffold_fields.each do |column|  %>
-    <td><%= scaffold_value(entry, column) %></td>
+    <td><%=h scaffold_value(entry, column) %></td>
   <% end %>
   <%= content_tag(:td, button_to('Show', :action=>"show#{@scaffold_suffix}", :id=>entry.id)) if @scaffold_methods.include?(:show) %>
   <%= content_tag(:td, button_to('Edit', :action=>"edit#{@scaffold_suffix}", :id=>entry.id)) if @scaffold_methods.include?(:edit) %>
   <%= content_tag(:td, button_to('Destroy', :action=>"destroy#{@scaffold_suffix}", :id=>entry.id)) if @scaffold_methods.include?(:destroy) %>
   </tr>
 <% end %>
-</table>
+</tbody></table>
+
+<% if pages = instance_variable_get("@#{@scaffold_singular_name}_pages") %>
+  <%= link_to("Previous page", {:page=>pages.current.previous}) if pages.current.previous %>
+  <%= link_to("Next page", {:page=>pages.current.next}) if pages.current.next %> 
+<% end %>
 
 <%= manage_link %>

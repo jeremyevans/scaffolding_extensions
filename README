@@ -131,6 +131,7 @@ you go to the index of the controller.  You'll notice some differences.  The
 default Rails scaffold page has a paginated table of records.  This plugin
 changes that to a simple management page with the following links:
 
+  * Browse albums
   * Create album
   * Destroy album
   * Edit album
@@ -143,17 +144,18 @@ allowing you to choose a record to show, destroy, or edit.  Clicking on new
 will bring you to a form that allows you to create a new object (similar to the
 default form, with slightly different formatting).  Clicking on search will
 bring up a simple search form for searching on any of the fields in the new or
-edit form (the search results page looks similar to the default Rails index
+edit form (the search results page looks similar to the default Rails list
 page).  Clicking on merge will bring up a page with two select boxes, allowing
 you to merge two records of the same type (by updating the necessary
-associations and then deleting the record to be merged).
+associations and then deleting the record to be merged).  Clicking on browse
+brings up a paginated table of records similar to the search results.
 
 If you specified any actions in :except (or didn't include them in :only),
 the appropriate links won't appear in the management page.  If you specified
 :manage in :except, the management page won't be created.  The scaffold methods
 that are available for use in :except and :only are:
 
-  [:manage, :show, :destroy, :edit, :new, :search, :merge]
+  [:manage, :show, :destroy, :edit, :new, :search, :merge, :browse]
   
 Let's say you used the command:
 

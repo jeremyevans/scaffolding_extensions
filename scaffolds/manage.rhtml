@@ -6,6 +6,7 @@
 "Show #{@scaffold_singular_name.humanize.downcase}"=>:show,
 "Search #{@scaffold_plural_name.humanize.downcase}"=>:search,
 "Merge #{@scaffold_plural_name.humanize.downcase}"=>:merge,
+"Browse #{@scaffold_plural_name.humanize.downcase}"=>:browse
 }.sort.each do |text, action| %>
   <%= content_tag(:li, link_to(text, :action=>"#{action}#{@scaffold_suffix}")) if @scaffold_methods.include?(action) %>
 <% end %>

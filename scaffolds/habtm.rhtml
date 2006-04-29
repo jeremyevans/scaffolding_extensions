@@ -1,4 +1,4 @@
-<h3>Edit <%= @singular_object.scaffold_name %>'s <%= @many_name %> </h3>
+<h3>Edit <%=h @singular_object.scaffold_name %>'s <%= @many_name %> </h3>
 
 <%= form_tag(:action=>@scaffold_update_page, :id=>@params[:id]) %>
 
