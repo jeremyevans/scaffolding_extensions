@@ -428,8 +428,8 @@ module ScaffoldHelper
   end
   
   # Returns an appropriate scaffolded data entry form for the model, with any related error messages.
-  def scaffold_form(action)
-    "#{error_messages_for(@scaffold_singular_name)}\n#{form(@scaffold_singular_name, :action=>"#{action}#{@scaffold_suffix}", :submit_value=>"#{action.capitalize} #{@scaffold_singular_name.humanize.downcase}")}"
+  def scaffold_form(action, options = {})
+    "#{error_messages_for(@scaffold_singular_name)}\n#{form(@scaffold_singular_name, {:action=>"#{action}#{@scaffold_suffix}", :submit_value=>"#{action.capitalize} #{@scaffold_singular_name.humanize.downcase}"}.merge(options))}"
   end
   
   # Returns associated object's scaffold_name if column is an association, otherwise returns column value.
@@ -628,6 +628,7 @@ module ActionController # :nodoc:
             def show#{suffix}
               if params[:id]
                 @#{singular_name} = #{class_name}.find(params[:id].to_i, :include=>#{class_name}.scaffold_include)
+                @scaffold_associations_readonly = true
                 render#{suffix}_scaffold
               else
                 @scaffold_action = 'show'

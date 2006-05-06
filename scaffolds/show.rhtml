@@ -1,4 +1,4 @@
-<h1>Showing <%= @scaffold_singular_name.humanize.downcase %></h1>
+<h1>Showing <%= @scaffold_singular_name.humanize.downcase %> <%= link_to_or_blank('(edit)', :action=>"edit_#{@scaffold_class.name.underscore}", :id=>@scaffold_singular_object.id) %></h1>
 
 <table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class :show %>">
 <thead><tr><th>Attribute</th><th>Value</th></tr></thead>
@@ -10,5 +10,7 @@
   </tr>
 <% end %>
 </tbody></table>
+
+<%= association_links %>
 
 <%= manage_link %>
