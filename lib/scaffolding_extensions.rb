@@ -92,6 +92,12 @@ module ActiveRecord # :nodoc:
         true
       end
       
+      def interpolate_conditions(conditions)
+        return conditions unless conditions
+        aliased_table_name = table_name
+        instance_eval("%@#{conditions.gsub('@', '\@')}@")
+      end
+      
       # Updates associated records for a given reflection and from record to point to the
       # to record
       def reflection_merge(reflection, from, to)
@@ -310,7 +316,7 @@ module ActionView # :nodoc:
         if reflection.klass.scaffold_use_auto_complete
           scaffold_text_field_with_auto_complete(record, foreign_key, reflection.klass.name.underscore)
         else
-          items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions=>reflection.options[:conditions], :include=>reflection.klass.scaffold_include)
+          items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions => reflection.klass.interpolate_conditions(reflection.options[:conditions]), :include=>reflection.klass.scaffold_include)
           items.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if reflection.klass.scaffold_include
           select(record, foreign_key, items.collect{|i| [i.scaffold_name, i.id]}, {:include_blank=>true})
         end
