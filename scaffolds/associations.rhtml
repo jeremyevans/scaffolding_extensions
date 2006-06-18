@@ -9,7 +9,7 @@
       <%= " - " + link_to_or_text(h(@scaffold_singular_object.send(reflection.name).scaffold_name), :action=>"#{@scaffold_associations_readonly ? 'show' : 'edit'}_#{reflection.klass.name.underscore}", :id=>@scaffold_singular_object.send(reflection.name).id) if @scaffold_singular_object.send(reflection.name) %> 
     <% elsif reflection.macro == :has_many || reflection.macro == :has_and_belongs_to_many %>
       <% if reflection.macro == :has_and_belongs_to_many %>
-        <%= link_to_or_blank('(edit)', :action=>"edit_#{@scaffold_singular_name}_#{reflection.klass.name.underscore.pluralize}", :id=>@scaffold_singular_object.id) unless @scaffold_associations_readonly %>
+        <%= link_to_or_blank('(edit)', :action=>"edit_#{@scaffold_singular_name}_#{reflection.name.to_s.underscore.pluralize}", :id=>@scaffold_singular_object.id) unless @scaffold_associations_readonly %>
       <% else %>
         <%= link_to_or_blank('(new)', :action=>"new_#{reflection.klass.name.underscore}", "#{reflection.klass.name.underscore}[#{reflection.options[:foreign_key] || @scaffold_class.name.foreign_key}]"=>@scaffold_singular_object.id) unless @scaffold_associations_readonly %>
       <% end %>

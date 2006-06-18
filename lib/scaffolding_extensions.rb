@@ -797,11 +797,14 @@ module ActionController # :nodoc:
       # a select box for removing associations and an autocompleting text box for
       # adding associations. By default, scaffolds the association both ways.
       def scaffold_habtm(singular, many, both_ways = true)
-        singular_class, many_class = singular.to_s.singularize.camelize.constantize, many.to_s.singularize.camelize.constantize
-        singular_name, many_class_name = singular_class.name, many_class.name
-        many_name = many_class.name.pluralize.underscore
-        reflection = singular_class.reflect_on_association(many_name.to_sym)
+        singular_class = singular.to_s.singularize.camelize.constantize
+        singular_name = singular_class.name
+        reflection = singular_class.reflect_on_association(many)
         return false if reflection.nil? or reflection.macro != :has_and_belongs_to_many
+        many_class = reflection.options[:class_name] || many
+        many_class = many_class.to_s.singularize.camelize.constantize
+        many_class_name = many_class.name
+        many_name = many.to_s.pluralize.underscore
         foreign_key = reflection.options[:foreign_key] || singular_class.table_name.classify.foreign_key
         association_foreign_key = reflection.options[:association_foreign_key] || many_class.table_name.classify.foreign_key
         join_table = reflection.options[:join_table] || ( singular_name < many_class_name ? '#{singular_name}_#{many_class_name}' : '#{many_class_name}_#{singular_name}')
