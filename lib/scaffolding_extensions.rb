@@ -592,7 +592,7 @@ module ActionController # :nodoc:
         options.assert_valid_keys(:class_name, :suffix, :except, :only, :habtm,
           :setup_auto_completes, :scaffold_all_models)
         
-        singular_name = model_id.to_s.underscore.singularize
+        singular_name = model_id.to_s.underscore
         class_name    = options[:class_name] || singular_name.camelize
         plural_name   = singular_name.pluralize
         suffix        = options[:suffix] ? "_#{singular_name}" : ""
