@@ -589,7 +589,8 @@ module ActionController # :nodoc:
       #   allowing the user to pick one to merge into the other
       # - :browse: Browse all model objects, similar to the default Rails list scaffold 
       def scaffold(model_id, options = {})
-        options.assert_valid_keys(:class_name, :suffix, :except, :only, :habtm, :setup_auto_completes)
+        options.assert_valid_keys(:class_name, :suffix, :except, :only, :habtm,
+          :setup_auto_completes, :scaffold_all_models)
         
         singular_name = model_id.to_s.underscore.singularize
         class_name    = options[:class_name] || singular_name.camelize
@@ -603,6 +604,7 @@ module ActionController # :nodoc:
         if add_methods.include?(:manage)
           module_eval <<-"end_eval", __FILE__, __LINE__
             def manage#{suffix}
+              @scaffold_all_models = #{options[:scaffold_all_models] ? 'true' : 'false'}
               render#{suffix}_scaffold "manage#{suffix}"
             end
           end_eval
@@ -840,7 +842,7 @@ module ActionController # :nodoc:
       def scaffold_all_models(*models)
         models = ActiveRecord::Base.all_models if models.length == 0
         models.each do |model|
-          scaffold model.to_sym, :suffix=>true, :habtm=>model.to_s.camelize.constantize.reflect_on_all_associations.collect{|r|r.name if r.macro == :has_and_belongs_to_many}.compact
+          scaffold model.to_sym, :suffix=>true, :scaffold_all_models=>true, :habtm=>model.to_s.camelize.constantize.reflect_on_all_associations.collect{|r|r.name if r.macro == :has_and_belongs_to_many}.compact
         end
         module_eval <<-"end_eval", __FILE__, __LINE__
           def index

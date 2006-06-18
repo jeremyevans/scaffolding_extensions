@@ -11,3 +11,5 @@
   <%= content_tag(:li, link_to(text, :action=>"#{action}#{@scaffold_suffix}")) if @scaffold_methods.include?(action) %>
 <% end %>
 </ul>
+
+<%= link_to('Manage Models', :action=>'index') if @scaffold_all_models %>
