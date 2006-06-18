@@ -621,13 +621,13 @@ module ActionController # :nodoc:
         if add_methods.include?(:show) or add_methods.include?(:destroy) or add_methods.include?(:edit)
           module_eval <<-"end_eval", __FILE__, __LINE__
             def list#{suffix}
-              @scaffold_action ||= 'edit'
               unless #{class_name}.scaffold_use_auto_complete
                 @#{plural_name} = #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
                 @#{plural_name}.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if #{class_name}.scaffold_include
               end
               render#{suffix}_scaffold "list#{suffix}"
             end
+            private :list#{suffix}
           end_eval
         end
         
