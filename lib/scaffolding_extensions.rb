@@ -598,7 +598,7 @@ module ActionController # :nodoc:
         suffix        = options[:suffix] ? "_#{singular_name}" : ""
         add_methods = options[:only] ? normalize_scaffold_options(options[:only]) : self.default_scaffold_methods
         add_methods -= normalize_scaffold_options(options[:except]) if options[:except]
-        normalize_scaffold_options(options[:habtm]).each{|habtm_class| scaffold_habtm(model_id, habtm_class, false)}
+        normalize_scaffold_options(options[:habtm]).each{|habtm_association| scaffold_habtm(model_id, habtm_association, false)}
         setup_scaffold_auto_completes unless options[:setup_auto_completes] == false
         
         if add_methods.include?(:manage)
@@ -797,12 +797,11 @@ module ActionController # :nodoc:
       # a select box for removing associations and an autocompleting text box for
       # adding associations. By default, scaffolds the association both ways.
       def scaffold_habtm(singular, many, both_ways = true)
-        singular_class = singular.to_s.singularize.camelize.constantize
+        singular_class = singular.to_s.camelize.constantize
         singular_name = singular_class.name
-        reflection = singular_class.reflect_on_association(many)
+        reflection = singular_class.reflect_on_association(many.to_s.pluralize.underscore.to_sym)
         return false if reflection.nil? or reflection.macro != :has_and_belongs_to_many
-        many_class = reflection.options[:class_name] || many
-        many_class = many_class.to_s.singularize.camelize.constantize
+        many_class = (reflection.options[:class_name] || many.to_s.camelize).constantize
         many_class_name = many_class.name
         many_name = many.to_s.pluralize.underscore
         foreign_key = reflection.options[:foreign_key] || singular_class.table_name.classify.foreign_key
@@ -829,14 +828,14 @@ module ActionController # :nodoc:
               singular_item = #{singular_name}.find(params[:id])
               singular_item.#{many_name}.push(#{many_class_name}.find(multiple_select_ids(params[:add]))) if params[:add] && !params[:add].empty?
               singular_item.#{many_name}.delete(#{many_class_name}.find(multiple_select_ids(params[:remove]))) if params[:remove] && !params[:remove].empty?
-              "Updated #{singular_name}'s #{many_name} successfully" 
+              "Updated #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase} successfully" 
             rescue ::ActiveRecord::StatementInvalid
-              "Error updating #{singular_name}'s #{many_name}" 
+              "Error updating #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase}" 
             end
             redirect_to(:action=>"edit#{suffix}", :id=>params[:id])
           end
         end_eval
-        both_ways ? scaffold_habtm(many_class, singular_class, false) : true
+        (both_ways && !reflection.options[:class_name]) ? scaffold_habtm(many_class_name, singular_name, false) : true
       end
       
       # Scaffolds all models in the Rails app, with all associations.  Scaffolds all 
@@ -845,7 +844,7 @@ module ActionController # :nodoc:
       def scaffold_all_models(*models)
         models = ActiveRecord::Base.all_models if models.length == 0
         models.each do |model|
-          scaffold model.to_sym, :suffix=>true, :scaffold_all_models=>true, :habtm=>model.to_s.camelize.constantize.reflect_on_all_associations.collect{|r|r.name if r.macro == :has_and_belongs_to_many}.compact
+          scaffold model.to_sym, :suffix=>true, :scaffold_all_models=>true, :habtm=>model.to_s.camelize.constantize.reflect_on_all_associations.collect{|r|r.name.to_s.singularize if r.macro == :has_and_belongs_to_many}.compact
         end
         module_eval <<-"end_eval", __FILE__, __LINE__
           def index

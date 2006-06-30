@@ -21,6 +21,17 @@ following ways:
     scaffold
   * Many customization options for all parts of scaffolding
 
+Please note that this does not affect the scaffold generator (script/generate
+scaffold). This plugin only affects the scaffold method.  It is designed to
+replace the generator by being customizable enough so that you would not need
+to modify its output.
+
+This plugin is compatible with Rails 1.0 and 1.1. However, it does not support
+some Rails 1.1 features such as polymorphic and has_many :through associations.
+
+svn: svn://suven.no-ip.org/rails/plugins/scaffolding_extensions
+file: http://suven.no-ip.org/scaffolding_extensions.tar.gz
+
 Quick Start
 ===========
 
@@ -38,6 +49,30 @@ pages for the model. The pages should be usable right away, but you'll want to
 add some configuration code to your models to specify the default names to
 display in select boxes, attributes to show on the forms, associations to show,
 whether to use select boxes or autocompleting text boxes, etc..
+
+Backwards Compatibility Note
+============================
+
+Recent versions of the plugin are more strict than previous versions in the 
+arguments to scaffold and scaffold_habtm. Originally I thought that using 
+singularize on an already singular word (or pluralize on an already plural
+word) would have no effect (like using camelize on an already camelized word).
+However, this isn't the case and can cause bugs for some common words (notably
+things ending in "ss"), so now you must you the singular, underscored, form:
+
+  scaffold :artist # Works
+  scaffold :albums # Doesn't work
+
+  scaffold :album, :habtm=>:artist # Yes
+  scaffold :artist, :habtm=>albums # No
+
+  scaffold_habtm :album, :artist # Dice
+  scaffold_habtm :albums, :artists # No Dice
+  scaffold_habtm :album, :artists # Still No Dice
+                                               
+I chose to use the singular form even for the habtm forms as that is the one
+the documentation has always used. Note that if you just use
+scaffold_all_models, you don't need to worry about this.
 
 Customization
 =============
@@ -124,7 +159,7 @@ the scaffold method:
 So these is are valid calls to scaffold:
 
   scaffold :album, :suffix=>true, :except=>:delete, :habtm=>[:artist]
-  scaffold :artist, :only=>[:new, :edit, :search, :manage], :habtm=>:artist
+  scaffold :artist, :only=>[:new, :edit, :search, :manage], :habtm=>:album
 
 Let's say you just do the simplest possible command (scaffold :album).  Then
 you go to the index of the controller.  You'll notice some differences.  The
@@ -159,7 +194,7 @@ that are available for use in :except and :only are:
   
 Let's say you used the command:
 
-  scaffold :artist, :only=>[:new, :edit, :search, :manage], :habtm=>:artist
+  scaffold :artist, :only=>[:new, :edit, :search, :manage], :habtm=>:album
 
 The manage page would look like:
 
