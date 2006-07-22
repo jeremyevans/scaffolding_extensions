@@ -733,8 +733,8 @@ module ActionController # :nodoc:
                   scaffold_search_add_condition(conditions, record, field) if params[:#{singular_name}][field] and params[:#{singular_name}][field].length > 0
                 end
               end
-              params[:null].each {|field| conditions[0] << field + ' IS NULL' } if params[:null]
-              params[:notnull].each {|field| conditions[0] << field + ' IS NOT NULL' } if params[:notnull]
+              params[:null].each {|field| conditions[0] << #{class_name}.table_name + '.' + field + ' IS NULL' } if params[:null]
+              params[:notnull].each {|field| conditions[0] <<  #{class_name}.table_name + '.' + field + ' IS NOT NULL' } if params[:notnull]
               conditions[0] = conditions[0].join(' AND ')
               conditions[0] = '1=1' if conditions[0].length == 0
               @#{plural_name} = #{class_name}.find(:all, :conditions=>conditions, :include=>includes, :order=>#{class_name}.scaffold_select_order, :limit=>#{class_name}.scaffold_search_results_limit)
