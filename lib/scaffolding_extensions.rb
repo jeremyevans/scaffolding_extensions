@@ -115,7 +115,7 @@ module ActiveRecord # :nodoc:
       
       # List of strings for associations to display on the scaffolded edit page
       def scaffold_associations
-        @scaffold_associations ||= reflect_on_all_associations.collect{|r|r.name.to_s}.sort
+        @scaffold_associations ||= reflect_on_all_associations.collect{|r|r.name.to_s unless ((r.macro == :has_many && r.options.include?(:through)) || r.options.include?(:as))}.compact.sort
       end
       
       # Returns the list of fields to display on the scaffolded forms. Defaults
