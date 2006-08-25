@@ -1,5 +1,5 @@
 <h1>Create new <%= @scaffold_singular_name.humanize.downcase %></h1>
 
-<%= scaffold_form('create') %>
+<%= scaffold_form('create', :fields=>@scaffold_class.scaffold_new_fields) %>
 
 <%= manage_link %>

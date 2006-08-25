@@ -62,12 +62,13 @@ module ActiveRecord # :nodoc:
     @@scaffold_column_types = {'password'=>:password}
     @@scaffold_column_options_hash = {}
     @@scaffold_association_list_class = ''
+    @@scaffold_default_column_names = {}
     @@scaffold_browse_default_records_per_page = 10
     @@scaffold_search_results_default_limit = nil
     @@scaffold_auto_complete_default_options = {:enable=>false, :sql_name=>'LOWER(name)',
       :text_field_options=>{:size=>50}, :format_string=>:substring, :search_operator=>'LIKE',
       :results_limit=>10, :phrase_modifier=>:downcase, :skip_style=>false}
-    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options, :scaffold_browse_default_records_per_page, :scaffold_search_results_default_limit
+    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options, :scaffold_browse_default_records_per_page, :scaffold_search_results_default_limit, :scaffold_default_column_names
     
     class << self
       attr_accessor :scaffold_select_order, :scaffold_include, :scaffold_associations_path
@@ -121,6 +122,11 @@ module ActiveRecord # :nodoc:
       # Returns the list of fields to display on the scaffolded forms. Defaults
       # to displaying all usually scaffolded columns with the addition of belongs
       # to associations.
+      #
+      # This the basis for the display of fields in the scaffolds.  Each type of scaffold
+      # that displays fields (new, edit, show, search, and browse), can have a different
+      # set of fields by overriding scaffold_*_fields (e.g. scaffold_new_fields) via a
+      # class method or class instance variable.
       def scaffold_fields
         return @scaffold_fields if @scaffold_fields
         @scaffold_fields = columns.reject{|c| c.primary || c.name =~ /_count$/ || c.name == inheritance_column }.collect{|c| c.name}
@@ -131,6 +137,14 @@ module ActiveRecord # :nodoc:
         end
         @scaffold_fields.sort!
         @scaffold_fields
+      end
+      
+      %w'new edit show search browse'.each do |type|
+        module_eval <<-"end_eval", __FILE__, __LINE__
+          def scaffold_#{type}_fields
+            @scaffold_#{type}_fields ||= scaffold_fields
+          end
+        end_eval
       end
       
       # Returns the scaffolded table class for a given scaffold type.
@@ -156,6 +170,12 @@ module ActiveRecord # :nodoc:
       def scaffold_column_options(column_name)
         @scaffold_column_options_hash ||= scaffold_column_options_hash
         @scaffold_column_options_hash[column_name]
+      end
+      
+      # Returns the visable name for a given attribute
+      def scaffold_column_name(column_name)
+        @scaffold_column_names ||= scaffold_default_column_names
+        @scaffold_column_names[column_name.to_sym] || column_name.to_s.humanize
       end
       
       # The number of records to show on each page when using the browse scaffold
@@ -296,13 +316,13 @@ module ActionView # :nodoc:
       # Wraps each widget and widget label in a table row
       def default_input_block
         Proc.new do |record, column| 
-          if column.class.name =~ /Reflection/
-            if column.macro == :belongs_to
-              "<tr><td>#{column.name.to_s.humanize}:</td><td>#{association_select_tag(record, column.name)}</td></tr>\n"
-            end
+          label_id, tag = if column.class.name =~ /Reflection/
+            next unless column.macro == :belongs_to
+            ["#{record}_#{column.options[:foreign_key] || column.klass.table_name.classify.foreign_key}", association_select_tag(record, column.name)]
           else
-            "<tr><td>#{column.human_name}:</td><td>#{input(record, column.name)}</td></tr>\n"
-          end  
+            ["#{record}_#{column.name}", input(record, column.name)]
+          end
+          "<tr><td><label for='#{label_id}'>#{@scaffold_class ? @scaffold_class.scaffold_column_name(column.name) :  column.name.to_s.humanize}</label></td><td>#{tag}</td></tr>\n"
         end
       end
       
@@ -474,6 +494,10 @@ module ActionController # :nodoc:
         File.join(scaffold_template_dir, template_name+'.rhtml')
       end
       
+      def scaffold_method(method_name) # :nodoc:
+        "alias_method :#{method_name}, :_#{method_name}; private :_#{method_name};"
+      end
+      
       # Normalizes scaffold options, allowing submission of symbols or arrays
       def normalize_scaffold_options(options)
         case options
@@ -512,6 +536,11 @@ module ActionController # :nodoc:
     # Returns path to the given scaffold rhtml file
     def scaffold_path(template_name)
       self.class.scaffold_path(template_name)
+    end
+    
+    def caller_method_name(caller) # :nodoc:
+      x = caller.first.scan(/`(.*)'/).first.first
+      x[0...1] == '_' ? x[1..-1] : x
     end
     
     private
@@ -567,6 +596,8 @@ module ActionController # :nodoc:
       #   habtm scaffolds will be created for each one
       # - :setup_auto_completes: if set to false, don't create scaffold auto
       #   complete actions for all models
+      # - :generate: instead of evaluating the code produced, it outputs the code
+      #   functioning as a poor man's generator
       #
       # The following method symbols are used to control the methods that get
       # added by the scaffold function:
@@ -590,7 +621,7 @@ module ActionController # :nodoc:
       # - :browse: Browse all model objects, similar to the default Rails list scaffold 
       def scaffold(model_id, options = {})
         options.assert_valid_keys(:class_name, :suffix, :except, :only, :habtm,
-          :setup_auto_completes, :scaffold_all_models)
+          :setup_auto_completes, :scaffold_all_models, :generate)
         
         singular_name = model_id.to_s.underscore
         class_name    = options[:class_name] || singular_name.camelize
@@ -600,42 +631,46 @@ module ActionController # :nodoc:
         add_methods -= normalize_scaffold_options(options[:except]) if options[:except]
         normalize_scaffold_options(options[:habtm]).each{|habtm_association| scaffold_habtm(model_id, habtm_association, false)}
         setup_scaffold_auto_completes unless options[:setup_auto_completes] == false
+        code = ''
         
         if add_methods.include?(:manage)
-          module_eval <<-"end_eval", __FILE__, __LINE__
-            def manage#{suffix}
-              @scaffold_all_models = #{options[:scaffold_all_models] ? 'true' : 'false'}
+          code << <<-"end_eval"
+            def _manage#{suffix}
+              @scaffold_all_models ||= #{options[:scaffold_all_models] ? 'true' : 'false'}
               render#{suffix}_scaffold "manage#{suffix}"
             end
+            #{scaffold_method("manage#{suffix}")}
+            
           end_eval
           
           unless options[:suffix]
-            module_eval <<-"end_eval", __FILE__, __LINE__
+            code << <<-"end_eval"
               def index
                 manage
               end
+              
             end_eval
           end
         end
         
         if add_methods.include?(:show) or add_methods.include?(:destroy) or add_methods.include?(:edit)
-          module_eval <<-"end_eval", __FILE__, __LINE__
+          code << <<-"end_eval"
             def list#{suffix}
               unless #{class_name}.scaffold_use_auto_complete
-                @#{plural_name} = #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
-                @#{plural_name}.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if #{class_name}.scaffold_include
+                @#{plural_name} ||= #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
               end
               render#{suffix}_scaffold "list#{suffix}"
             end
             private :list#{suffix}
+            
           end_eval
         end
         
         if add_methods.include?(:show)
-          module_eval <<-"end_eval", __FILE__, __LINE__
-            def show#{suffix}
+          code << <<-"end_eval"
+            def _show#{suffix}
               if params[:id]
-                @#{singular_name} = #{class_name}.find(params[:id].to_i, :include=>#{class_name}.scaffold_include)
+                @#{singular_name} ||= #{class_name}.find(params[:id].to_i, :include=>#{class_name}.scaffold_include)
                 @scaffold_associations_readonly = true
                 render#{suffix}_scaffold
               else
@@ -643,38 +678,43 @@ module ActionController # :nodoc:
                 list#{suffix}
               end
             end
+            #{scaffold_method("show#{suffix}")}
+            
           end_eval
         end
         
         if add_methods.include?(:destroy)
-          module_eval <<-"end_eval", __FILE__, __LINE__
-            def destroy#{suffix}
+          code << <<-"end_eval"
+            def _destroy#{suffix}
               if params[:id]
                 #{class_name}.find(params[:id].to_i).destroy
                 flash[:notice] = "#{singular_name.humanize} was successfully destroyed"
-                redirect_to :action => "destroy#{suffix}"
+                redirect_to :action => "destroy#{suffix}", :id => nil
               else
                 @scaffold_action = 'destroy'
                 list#{suffix}
               end
             end
+            #{scaffold_method("destroy#{suffix}")}
+            
           end_eval
         end
         
         if add_methods.include?(:edit)
-          module_eval <<-"end_eval", __FILE__, __LINE__
-            def edit#{suffix}
+          code << <<-"end_eval"
+            def _edit#{suffix}
               if params[:id]
-                @#{singular_name} = #{class_name}.find(params[:id].to_i)
+                @#{singular_name} ||= #{class_name}.find(params[:id].to_i)
                 render#{suffix}_scaffold
               else
                 @scaffold_action = 'edit'
                 list#{suffix}
               end
             end
+            #{scaffold_method("edit#{suffix}")}
             
-            def update#{suffix}
-              @#{singular_name} = #{class_name}.find(params[:id])
+            def _update#{suffix}
+              @#{singular_name} ||= #{class_name}.find(params[:id])
               @#{singular_name}.attributes = params[:#{singular_name}]
               
               if @#{singular_name}.save
@@ -684,18 +724,21 @@ module ActionController # :nodoc:
                 render#{suffix}_scaffold('edit')
               end
             end
+            #{scaffold_method("update#{suffix}")}
+            
           end_eval
         end
         
         if add_methods.include?(:new)
-          module_eval <<-"end_eval", __FILE__, __LINE__
-            def new#{suffix}
-              @#{singular_name} = #{class_name}.new(params[:#{singular_name}])
+          code << <<-"end_eval"
+            def _new#{suffix}
+              @#{singular_name} ||= #{class_name}.new(params[:#{singular_name}])
               render#{suffix}_scaffold
             end
+            #{scaffold_method("new#{suffix}")}
             
-            def create#{suffix}
-              @#{singular_name} = #{class_name}.new(params[:#{singular_name}])
+            def _create#{suffix}
+              @#{singular_name} ||= #{class_name}.new(params[:#{singular_name}])
               if @#{singular_name}.save
                 flash[:notice] = "#{singular_name.humanize} was successfully created"
                 redirect_to :action => "new#{suffix}"
@@ -703,27 +746,33 @@ module ActionController # :nodoc:
                 render#{suffix}_scaffold('new')
               end
             end
+            #{scaffold_method("create#{suffix}")}
+            
           end_eval
         end
         
         if add_methods.include?(:search)
-          module_eval <<-"end_eval", __FILE__, __LINE__
-            def search#{suffix}
-              @#{singular_name} = #{class_name}.new
-              @scaffold_fields = @#{singular_name}.class.scaffold_fields
-              @scaffold_nullable_fields = @#{singular_name}.class.scaffold_fields.collect do |field|
+          code << <<-"end_eval"
+            def _search#{suffix}
+              unless @#{singular_name}
+                @#{singular_name} ||= #{class_name}.new
+                #{class_name}.column_names.each{|key| @#{singular_name}[key] = nil }
+              end
+              @scaffold_fields ||= @#{singular_name}.class.scaffold_search_fields
+              @scaffold_nullable_fields ||= @#{singular_name}.class.scaffold_search_fields.collect do |field|
                 reflection = @#{singular_name}.class.reflect_on_association(field.to_sym)
                 reflection ? (reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key) : field
               end
               render#{suffix}_scaffold('search#{suffix}')
             end
+            #{scaffold_method("search#{suffix}")}
             
-            def results#{suffix}
+            def _results#{suffix}
               record = #{class_name}.new(params["#{singular_name}"])
               conditions = [[]]
               includes = []
               if params[:#{singular_name}]
-                #{class_name}.scaffold_fields.each do |field|
+                #{class_name}.scaffold_search_fields.each do |field|
                   reflection = #{class_name}.reflect_on_association(field.to_sym)
                   if reflection
                     includes << field.to_sym
@@ -738,59 +787,67 @@ module ActionController # :nodoc:
               conditions[0] = conditions[0].join(' AND ')
               conditions[0] = '1=1' if conditions[0].length == 0
               @#{plural_name} = #{class_name}.find(:all, :conditions=>conditions, :include=>includes, :order=>#{class_name}.scaffold_select_order, :limit=>#{class_name}.scaffold_search_results_limit)
+              @scaffold_fields = #{class_name}.scaffold_search_fields
               render#{suffix}_scaffold('listtable#{suffix}')
             end
+            #{scaffold_method("results#{suffix}")}
+            
           end_eval
         end
       
         if add_methods.include?(:merge)
-          module_eval <<-"end_eval", __FILE__, __LINE__
-            def merge#{suffix}
+          code << <<-"end_eval"
+            def _merge#{suffix}
               unless #{class_name}.scaffold_use_auto_complete
-                @#{plural_name} = #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
-                @#{plural_name}.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if #{class_name}.scaffold_include
+                @#{plural_name} ||= #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
               end
               render#{suffix}_scaffold('merge#{suffix}')
             end
+            #{scaffold_method("merge#{suffix}")}
             
-            def merge_update#{suffix}
+            def _merge_update#{suffix}
               flash[:notice] = if #{class_name}.merge_records(params[:from].to_i, params[:to].to_i)
                 "#{plural_name.humanize} were successfully merged"
               else "Error merging #{plural_name.humanize.downcase}"
               end
               redirect_to :action=>'merge#{suffix}'
             end
+            #{scaffold_method("merge_update#{suffix}")}
+            
           end_eval
         end
         
         if add_methods.include?(:browse)
-          module_eval <<-"end_eval", __FILE__, __LINE__
-            def browse#{suffix}
-              @#{singular_name}_pages, @#{plural_name} = paginate(:#{plural_name}, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_fields.collect{|field| field.to_sym if #{class_name}.reflect_on_association(field.to_sym)}.compact, :per_page => #{class_name}.scaffold_browse_records_per_page)
+          code << <<-"end_eval"
+            def _browse#{suffix}
+              @#{singular_name}_pages, @#{plural_name} = paginate(:#{plural_name}, :class_name=>'#{class_name}', :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_browse_fields.collect{|field| field.to_sym if #{class_name}.reflect_on_association(field.to_sym)}.compact, :per_page => #{class_name}.scaffold_browse_records_per_page) unless @#{singular_name}_pages && @#{plural_name}
+              @scaffold_fields = #{class_name}.scaffold_browse_fields
               render#{suffix}_scaffold('listtable#{suffix}')
             end
+            #{scaffold_method("browse#{suffix}")}
+            
           end_eval
         end
         
-        module_eval <<-"end_eval", __FILE__, __LINE__
+        code << <<-"end_eval"
           add_template_helper(ScaffoldHelper)
+          
           private
             def render#{suffix}_scaffold(action=nil, options={})
               action ||= caller_method_name(caller)
-              @scaffold_class = #{class_name}
-              @scaffold_singular_name, @scaffold_plural_name = "#{singular_name}", "#{plural_name}"
-              @scaffold_methods = #{add_methods.inspect}
-              @scaffold_suffix = "#{suffix}"
-              @scaffold_singular_object = @#{singular_name}
-              @scaffold_plural_object = @#{plural_name}
+              @scaffold_class ||= #{class_name}
+              @scaffold_singular_name ||= "#{singular_name}"
+              @scaffold_plural_name ||= "#{plural_name}"
+              @scaffold_methods ||= #{add_methods.inspect}
+              @scaffold_suffix ||= "#{suffix}"
+              @scaffold_singular_object ||= @#{singular_name}
+              @scaffold_plural_object ||= @#{plural_name}
               add_instance_variables_to_assigns
               render_scaffold_template(action, options)
             end
-            
-            def caller_method_name(caller)
-              caller.first.scan(/`(.*)'/).first.first # ' ruby-mode
-            end
         end_eval
+        
+        options[:generate] ? code : module_eval(code, __FILE__, __LINE__)
       end
       
       # Scaffolds a habtm association for two classes using two select boxes, or
@@ -838,13 +895,34 @@ module ActionController # :nodoc:
         (both_ways && !reflection.options[:class_name]) ? scaffold_habtm(many_class_name, singular_name, false) : true
       end
       
-      # Scaffolds all models in the Rails app, with all associations.  Scaffolds all 
-      # models in the models directory if no arguments are given, otherwise just
-      # scaffolds for those models.
+      # Scaffolds all models in the Rails app, with all associations when called
+      # with no arguments.  
+      #
+      # There are two ways to call it with arguments:
+      # - Multiple string or symbol arguments specify models to be scaffolded.  No
+      #   other models will be scaffolded (deprecated)
+      # - One hash with the following symbols as keys:
+      #   - :except => Array  # Don't scaffold these models
+      #   - :only   => Array  # Only scaffold these models
+      #   - * (Everything else) => Hash # Key is a symbol with the class name underscored.
+      #                                 # Value is a hash of scaffold options.
+      #                                 # To use a different singular name,
+      #                                 # use :model_id=>'singular_name' inside
+      #                                 # the value hash
       def scaffold_all_models(*models)
-        models = ActiveRecord::Base.all_models if models.length == 0
-        models.each do |model|
-          scaffold model.to_sym, :suffix=>true, :scaffold_all_models=>true, :habtm=>model.to_s.camelize.constantize.reflect_on_all_associations.collect{|r|r.name.to_s.singularize if r.macro == :has_and_belongs_to_many}.compact
+        options = models.pop if models.length > 0 && Hash === models[-1]
+        except = options.delete(:except) if options
+        only = options.delete(:only) if options
+        models = ActiveRecord::Base.all_models if options || models.length == 0
+        models.delete_if{|model| except.include?(model)} if except
+        models.delete_if{|model| !only.include?(model)} if only
+        models.collect! do |model|
+          scaffold_options = {:suffix=>true, :scaffold_all_models=>true, :habtm=>model.to_s.camelize.constantize.reflect_on_all_associations.collect{|r|r.name.to_s.singularize if r.macro == :has_and_belongs_to_many}.compact
+}
+          scaffold_options.merge!(options[model.to_sym]) if options && options.include?(model.to_sym)
+          scaffold_model = scaffold_options.delete(:model_id) || model.to_sym
+          scaffold scaffold_model, scaffold_options
+          scaffold_model.to_s
         end
         module_eval <<-"end_eval", __FILE__, __LINE__
           def index

@@ -1,6 +1,6 @@
 <h1>Editing <%= @scaffold_singular_name.humanize.downcase %></h1>
 
-<%= scaffold_form('update') %>
+<%= scaffold_form('update', :fields=>@scaffold_class.scaffold_edit_fields) %>
 
 <%= association_links %>
 

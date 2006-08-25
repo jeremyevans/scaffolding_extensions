@@ -9,6 +9,8 @@
       font-size:   13px;
       line-height: 18px;
     }
+    
+    h4 { font-size: 16px; }
 
     pre {
       background-color: #eee;
@@ -58,6 +60,7 @@
   </style>
 </head>
 <body>
+<h4><%= flash[:notice] %></h4>
 
 <%= @content_for_layout %>
 

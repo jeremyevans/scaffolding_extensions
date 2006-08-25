@@ -3,7 +3,7 @@
 <table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class :list %>">
   <thead><tr>
   <% @scaffold_class.scaffold_fields.each do |column| -%>
-    <th><%= column.humanize %></th>
+    <th><%= @scaffold_class.scaffold_column_name(column) %></th>
   <% end %>
   <%= content_tag(:th, 'Show') if @scaffold_methods.include?(:show) %>
   <%= content_tag(:th, 'Edit') if @scaffold_methods.include?(:edit) %>
