@@ -2,7 +2,7 @@
 
 <table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class :list %>">
   <thead><tr>
-  <% @scaffold_class.scaffold_fields.each do |column| -%>
+  <% @scaffold_class.send(@scaffold_fields_method || :scaffold_fields).each do |column| -%>
     <th><%= @scaffold_class.scaffold_column_name(column) %></th>
   <% end %>
   <%= content_tag(:th, 'Show') if @scaffold_methods.include?(:show) %>
@@ -11,7 +11,7 @@
   </tr></thead><tbody>
 <% @scaffold_plural_object.each do |entry| %>
   <tr>
-  <% @scaffold_class.scaffold_fields.each do |column|  %>
+  <% @scaffold_class.send(@scaffold_fields_method || :scaffold_fields).each do |column|  %>
     <td><%=h scaffold_value(entry, column) %></td>
   <% end %>
   <%= content_tag(:td, button_to('Show', :action=>"show#{@scaffold_suffix}", :id=>entry.id)) if @scaffold_methods.include?(:show) %>
@@ -24,6 +24,23 @@
 <% if pages = instance_variable_get("@#{@scaffold_singular_name}_pages") %>
   <%= link_to("Previous page", {:page=>pages.current.previous}) if pages.current.previous %>
   <%= link_to("Next page", {:page=>pages.current.next}) if pages.current.next %> 
+<% end %>
+
+<% if @scaffold_search_results_form_params %>
+<form action="results<%= @scaffold_suffix %>" method="post">
+  <%= hidden_field_tag('page', @scaffold_search_results_page) %>
+  <% @scaffold_search_results_form_params[@scaffold_singular_name].each do |key, value| -%>
+    <%= hidden_field_tag("#{@scaffold_singular_name}[#{key}]", value, :id=>"#{@scaffold_singular_name}_#{key}") %>
+  <% end %>
+  <% @scaffold_search_results_form_params[:notnull].each do |field| -%>
+    <%= hidden_field_tag("notnull[]", field, :id=>"notnull_") %>
+  <% end %>
+  <% @scaffold_search_results_form_params[:null].each do |field| -%>
+    <%= hidden_field_tag("null[]", field, :id=>'null_') %>
+  <% end %>
+  <%= '<input type="submit" name="page_previous" value="Previous Page" >' if @scaffold_search_results_page > 1 %>
+  <%= '<input type="submit" name="page_next" value="Next Page" >' if @scaffold_search_results_page_next %>
+</form>
 <% end %>
 
 <%= manage_link %>

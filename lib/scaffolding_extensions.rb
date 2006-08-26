@@ -13,18 +13,19 @@ module ActiveRecord # :nodoc:
   # - scaffold_column_types: Override the default column type for a given attribute 
   #   (default: {'password'=>:password})
   # - scaffold_column_options_hash: Override the default column options for a given attribute (default: {})
+  # - scaffold_default_column_names: Override the visible names of columns for each attribute (default: {})
   # - scaffold_association_list_class: Override the html class for the association list in the edit view
   #   (default: '')
   # - scaffold_browse_default_records_per_page - The default number of records per page to show in the
   #   browse scaffold (default: 10)
-  # - scaffold_search_results_default_limit - The default limit on scaffolded search results 
-  #   (default: nil # no limit)
+  # - scaffold_search_results_default_limit - The default limit on scaffolded search results.  If nil,
+  #   the search results will be displayed on one page instead of being paginated (default: 10)
   # - scaffold_auto_complete_default_options: Hash containing the default options to use for the scaffold
   #   autocompleter (default: {:enable=>false, :sql_name=>'LOWER(name)', :text_field_options=>{:size=>50},
   #   :format_string=>:substring, :search_operator=>'LIKE', :results_limit=>10, :phrase_modifier=>:downcase,
   #   :skip_style=>false})
   #
-  # Modifying instance variables in each class affects scaffolding for that class only (always defaults to nil).
+  # Modifying instance variables in each class affects scaffolding for that class only.
   # Available instance variables:
   #
   # - scaffold_fields: List of field names to include in the scaffolded forms.
@@ -32,12 +33,20 @@ module ActiveRecord # :nodoc:
   #   associations (in which case select boxes will be used in the scaffolded forms).
   #   Uses content_columns + belongs_to associations if not specified.
   #   (example: %w'name number rating')
+  # - scaffold_(new|edit|show|search|browse)_fields: Different scaffold actions can have different
+  #   fields displayed.  Defaults to scaffold_fields if not specified.
   # - scaffold_select_order: SQL fragment string setting the order in which scaffolded records are shown
   #   (example: 'firstname, lastname')
-  # - scaffold_include: Any classes that should include by default when displaying the
+  # - scaffold_include: Any associations that should be included by default when displaying the
   #   scaffold name.  Eager loading is used so that N+1 queries aren't used for displaying N
   #   records, assuming that associated records used in scaffold_name are included in this.
   #   (example: [:artist, :album])
+  # - scaffold_(search|browse)_(select_order|include): Search and browse can have their own
+  #   select order and include.  For select order, defaults to scaffold_select_order if not given.
+  #   For include, defaults to the subset of scaffold_(search|browse)_fields that are 
+  #   associations instead of attributes.
+  # - scaffold_column_names: Override the visible names of columns for each attribute.
+  #   By default, this is just the humanized name. (example: {:modelnum=>'Model Number'})
   # - scaffold_associations: List of associations to display on the scaffolded edit page for the object.
   #   Uses all associations if not specified (example: %w'artist albums')
   # - scaffold_associations_path: String path to the template to use to render the associations
@@ -64,7 +73,7 @@ module ActiveRecord # :nodoc:
     @@scaffold_association_list_class = ''
     @@scaffold_default_column_names = {}
     @@scaffold_browse_default_records_per_page = 10
-    @@scaffold_search_results_default_limit = nil
+    @@scaffold_search_results_default_limit = 10
     @@scaffold_auto_complete_default_options = {:enable=>false, :sql_name=>'LOWER(name)',
       :text_field_options=>{:size=>50}, :format_string=>:substring, :search_operator=>'LIKE',
       :results_limit=>10, :phrase_modifier=>:downcase, :skip_style=>false}
@@ -93,7 +102,7 @@ module ActiveRecord # :nodoc:
         true
       end
       
-      def interpolate_conditions(conditions)
+      def interpolate_conditions(conditions) # :nodoc:
         return conditions unless conditions
         aliased_table_name = table_name
         instance_eval("%@#{conditions.gsub('@', '\@')}@")
@@ -145,6 +154,44 @@ module ActiveRecord # :nodoc:
             @scaffold_#{type}_fields ||= scaffold_fields
           end
         end_eval
+      end
+      
+      %w'search browse'.each do |type|
+        module_eval <<-"end_eval", __FILE__, __LINE__
+          def scaffold_#{type}_select_order
+            @scaffold_#{type}_select_order ||= scaffold_select_order
+          end
+        end_eval
+      end
+      
+      # A list of symbols for including in the query for the search scaffold
+      def scaffold_search_include
+        @scaffold_search_include ||= scaffold_search_fields.collect{|field| field.to_sym if reflection = reflect_on_association(field.to_sym)}.compact
+      end
+      
+      # A list of symbols for including in the query for the browse scaffold
+      def scaffold_browse_include
+        @scaffold_browse_include ||= scaffold_browse_fields.collect{|field| field.to_sym if reflection = reflect_on_association(field.to_sym)}.compact
+      end
+      
+      # If search pagination is enabled, scaffold_search_results_limit should be numeric
+      def search_pagination_enabled?
+        !scaffold_search_results_limit.nil?
+      end
+      
+      # List of scaffold search fields with association names replaced by foreign key names
+      def scaffold_search_fields_replacing_associations
+        @scaffold_search_fields_replacing_associations ||= scaffold_search_fields.collect do |field|
+          reflection = reflect_on_association(field.to_sym)
+          reflection ? (reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key) : field
+        end
+      end
+      
+      # List of human visible names and field names to use for NULL/NOT NULL fields on the scaffolded search page
+      def scaffold_search_null_options
+        @scaffold_search_null_options ||= scaffold_search_fields_replacing_associations.collect do |field|
+          [scaffold_column_name(field), field]
+        end
       end
       
       # Returns the scaffolded table class for a given scaffold type.
@@ -215,6 +262,7 @@ module ActiveRecord # :nodoc:
         scaffold_auto_complete_options[:text_field_options]
       end
       
+      # Don't use the style tags, used if they are already defined in the CSS file
       def scaffold_auto_complete_skip_style
         scaffold_auto_complete_options[:skip_style]
       end
@@ -275,6 +323,21 @@ module ActiveRecord # :nodoc:
     def merge_into(record)
       return false unless record.class == self.class && self.class.merge_records(self, id, record.id)
       record.reload
+    end
+    
+    # Only update the attributes given in allowed_fields
+    def update_scaffold_attributes(allowed_fields, new_attributes)
+      return if new_attributes.nil?
+      attributes = new_attributes.dup
+      attributes.stringify_keys!
+      attributes.delete_if{|k,v| !allowed_fields.include?(k.split('(')[0])}
+      
+      multi_parameter_attributes = []
+      attributes.each do |k, v|
+        k.include?("(") ? multi_parameter_attributes << [ k, v ] : send(k + "=", v)
+      end
+      
+      assign_multiparameter_attributes(multi_parameter_attributes)
     end
     
     # The name given to the item that is used in various places in the scaffold.  For example,
@@ -538,12 +601,11 @@ module ActionController # :nodoc:
       self.class.scaffold_path(template_name)
     end
     
+    private
     def caller_method_name(caller) # :nodoc:
       x = caller.first.scan(/`(.*)'/).first.first
-      x[0...1] == '_' ? x[1..-1] : x
     end
     
-    private
     # Renders manually created page if it exists, otherwise renders a scaffold form.
     # If a layout is specified (either in the controller or as an option), use that layout,
     # otherwise uses the scaffolded layout.
@@ -567,7 +629,7 @@ module ActionController # :nodoc:
       arr.collect{|x| x.to_i}.delete_if{|x| x == 0}
     end
     
-    # Adds conditions for the scaffolded search query.  Uses LIKE OR ILIKE for string attributes,
+    # Adds conditions for the scaffolded search query.  Uses a search for string attributes,
     # IS TRUE|FALSE for boolean attributes, and = for other attributes.
     def scaffold_search_add_condition(conditions, record, field) # :doc:
       column = record.column_for_attribute(field)
@@ -670,7 +732,7 @@ module ActionController # :nodoc:
           code << <<-"end_eval"
             def _show#{suffix}
               if params[:id]
-                @#{singular_name} ||= #{class_name}.find(params[:id].to_i, :include=>#{class_name}.scaffold_include)
+                @#{singular_name} ||= #{class_name}.find(params[:id].to_i)
                 @scaffold_associations_readonly = true
                 render#{suffix}_scaffold
               else
@@ -715,7 +777,7 @@ module ActionController # :nodoc:
             
             def _update#{suffix}
               @#{singular_name} ||= #{class_name}.find(params[:id])
-              @#{singular_name}.attributes = params[:#{singular_name}]
+              @#{singular_name}.update_scaffold_attributes(#{class_name}.scaffold_edit_fields, params[:#{singular_name}])
               
               if @#{singular_name}.save
                 flash[:notice] = "#{singular_name.humanize} was successfully updated"
@@ -738,7 +800,8 @@ module ActionController # :nodoc:
             #{scaffold_method("new#{suffix}")}
             
             def _create#{suffix}
-              @#{singular_name} ||= #{class_name}.new(params[:#{singular_name}])
+              @#{singular_name} ||= #{class_name}.new
+              @#{singular_name}.update_scaffold_attributes(#{class_name}.scaffold_new_fields, params[:#{singular_name}])
               if @#{singular_name}.save
                 flash[:notice] = "#{singular_name.humanize} was successfully created"
                 redirect_to :action => "new#{suffix}"
@@ -758,36 +821,49 @@ module ActionController # :nodoc:
                 @#{singular_name} ||= #{class_name}.new
                 #{class_name}.column_names.each{|key| @#{singular_name}[key] = nil }
               end
-              @scaffold_fields ||= @#{singular_name}.class.scaffold_search_fields
-              @scaffold_nullable_fields ||= @#{singular_name}.class.scaffold_search_fields.collect do |field|
-                reflection = @#{singular_name}.class.reflect_on_association(field.to_sym)
-                reflection ? (reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key) : field
-              end
               render#{suffix}_scaffold('search#{suffix}')
             end
             #{scaffold_method("search#{suffix}")}
             
             def _results#{suffix}
-              record = #{class_name}.new(params["#{singular_name}"])
+              record = #{class_name}.new
+              record.update_scaffold_attributes(#{class_name}.scaffold_search_fields, params[:#{singular_name}])
               conditions = [[]]
-              includes = []
+              
+              limit, offset = nil, nil
+              if #{class_name}.search_pagination_enabled?
+                @scaffold_search_results_form_params = {"#{singular_name}"=>{}, :notnull=>[], :null=>[]}
+                @scaffold_search_results_page = params[:page].to_i > 1 ? params[:page].to_i : 1
+                @scaffold_search_results_page -= 1 if params[:page_previous]
+                @scaffold_search_results_page += 1 if params[:page_next]
+                limit = #{class_name}.scaffold_search_results_limit + 1
+                offset = @scaffold_search_results_page > 1 ? (limit-1)*(@scaffold_search_results_page - 1) : nil
+              end
+              
               if params[:#{singular_name}]
-                #{class_name}.scaffold_search_fields.each do |field|
-                  reflection = #{class_name}.reflect_on_association(field.to_sym)
-                  if reflection
-                    includes << field.to_sym
-                    field = (reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key).to_s
-                  end
-                  next if (params[:null] and params[:null].include?(field)) or (params[:notnull] and params[:notnull].include?(field))
-                  scaffold_search_add_condition(conditions, record, field) if params[:#{singular_name}][field] and params[:#{singular_name}][field].length > 0
+                #{class_name}.scaffold_search_fields_replacing_associations.each do |field|
+                  next if (params[:null] && params[:null].include?(field)) || (params[:notnull] && params[:notnull].include?(field)) || !params[:#{singular_name}][field] || params[:#{singular_name}][field].length == 0
+                  scaffold_search_add_condition(conditions, record, field)
+                  @scaffold_search_results_form_params["#{singular_name}"][field] = params[:#{singular_name}][field] if #{class_name}.search_pagination_enabled?
                 end
               end
-              params[:null].each {|field| conditions[0] << #{class_name}.table_name + '.' + field + ' IS NULL' } if params[:null]
-              params[:notnull].each {|field| conditions[0] <<  #{class_name}.table_name + '.' + field + ' IS NOT NULL' } if params[:notnull]
+              
+              #{class_name}.scaffold_search_fields_replacing_associations.each do |field|
+                if params[:null] && params[:null].include?(field)
+                  conditions[0] << #{class_name}.table_name + '.' + field + ' IS NULL'
+                  @scaffold_search_results_form_params[:null] << field if #{class_name}.search_pagination_enabled?
+                end
+                if params[:notnull] && params[:notnull].include?(field)
+                  conditions[0] << #{class_name}.table_name + '.' + field + ' IS NOT NULL'
+                  @scaffold_search_results_form_params[:notnull] << field if #{class_name}.search_pagination_enabled?
+                end
+              end
+              
               conditions[0] = conditions[0].join(' AND ')
               conditions[0] = '1=1' if conditions[0].length == 0
-              @#{plural_name} = #{class_name}.find(:all, :conditions=>conditions, :include=>includes, :order=>#{class_name}.scaffold_select_order, :limit=>#{class_name}.scaffold_search_results_limit)
-              @scaffold_fields = #{class_name}.scaffold_search_fields
+              @#{plural_name} = #{class_name}.find(:all, :conditions=>conditions, :include=>#{class_name}.scaffold_search_include, :order=>#{class_name}.scaffold_search_select_order, :limit=>limit, :offset=>offset)
+              @scaffold_search_results_page_next = true if #{class_name}.search_pagination_enabled? && @#{plural_name}.length > 0 && @#{plural_name}.pop && @#{plural_name}.length == #{class_name}.scaffold_search_results_limit
+              @scaffold_fields_method = :scaffold_search_fields
               render#{suffix}_scaffold('listtable#{suffix}')
             end
             #{scaffold_method("results#{suffix}")}
@@ -820,8 +896,8 @@ module ActionController # :nodoc:
         if add_methods.include?(:browse)
           code << <<-"end_eval"
             def _browse#{suffix}
-              @#{singular_name}_pages, @#{plural_name} = paginate(:#{plural_name}, :class_name=>'#{class_name}', :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_browse_fields.collect{|field| field.to_sym if #{class_name}.reflect_on_association(field.to_sym)}.compact, :per_page => #{class_name}.scaffold_browse_records_per_page) unless @#{singular_name}_pages && @#{plural_name}
-              @scaffold_fields = #{class_name}.scaffold_browse_fields
+              @#{singular_name}_pages, @#{plural_name} = paginate(:#{plural_name}, :class_name=>'#{class_name}', :order=>#{class_name}.scaffold_browse_select_order, :include=>#{class_name}.scaffold_browse_include, :per_page => #{class_name}.scaffold_browse_records_per_page) unless @#{singular_name}_pages && @#{plural_name}
+              @scaffold_fields_method = :scaffold_browse_fields
               render#{suffix}_scaffold('listtable#{suffix}')
             end
             #{scaffold_method("browse#{suffix}")}
@@ -835,6 +911,7 @@ module ActionController # :nodoc:
           private
             def render#{suffix}_scaffold(action=nil, options={})
               action ||= caller_method_name(caller)
+              action = action[1..-1] if action[0...1] =~ /\A_/ 
               @scaffold_class ||= #{class_name}
               @scaffold_singular_name ||= "#{singular_name}"
               @scaffold_plural_name ||= "#{plural_name}"
@@ -904,25 +981,15 @@ module ActionController # :nodoc:
       # - One hash with the following symbols as keys:
       #   - :except => Array  # Don't scaffold these models
       #   - :only   => Array  # Only scaffold these models
-      #   - * (Everything else) => Hash # Key is a symbol with the class name underscored.
-      #                                 # Value is a hash of scaffold options.
-      #                                 # To use a different singular name,
-      #                                 # use :model_id=>'singular_name' inside
-      #                                 # the value hash
+      #   - * (Everything else) => Hash 
+      #     - Key is a symbol with the class name underscored.
+      #     - Value is a hash of scaffold options.
+      #     - To use a different singular name, use :model_id=>'singular_name' inside the value hash
       def scaffold_all_models(*models)
-        options = models.pop if models.length > 0 && Hash === models[-1]
-        except = options.delete(:except) if options
-        only = options.delete(:only) if options
-        models = ActiveRecord::Base.all_models if options || models.length == 0
-        models.delete_if{|model| except.include?(model)} if except
-        models.delete_if{|model| !only.include?(model)} if only
-        models.collect! do |model|
-          scaffold_options = {:suffix=>true, :scaffold_all_models=>true, :habtm=>model.to_s.camelize.constantize.reflect_on_all_associations.collect{|r|r.name.to_s.singularize if r.macro == :has_and_belongs_to_many}.compact
-}
-          scaffold_options.merge!(options[model.to_sym]) if options && options.include?(model.to_sym)
-          scaffold_model = scaffold_options.delete(:model_id) || model.to_sym
-          scaffold scaffold_model, scaffold_options
-          scaffold_model.to_s
+        models = parse_scaffold_all_models_options(*models)
+        models.collect! do |model, options| 
+          scaffold(model, options)
+          model.to_s
         end
         module_eval <<-"end_eval", __FILE__, __LINE__
           def index
@@ -930,6 +997,23 @@ module ActionController # :nodoc:
             render_scaffold_template("index")
           end
         end_eval
+      end
+      
+      # Parse the arguments for scaffold_all_models.  Seperated so that it can
+      # also be used in testing.
+      def parse_scaffold_all_models_options(*models)
+        options = models.pop if models.length > 0 && Hash === models[-1]
+        except = options.delete(:except) if options
+        only = options.delete(:only) if options
+        models = ActiveRecord::Base.all_models if options || models.length == 0
+        models.delete_if{|model| except.include?(model)} if except
+        models.delete_if{|model| !only.include?(model)} if only
+        models.collect do |model|
+          scaffold_options = {:suffix=>true, :scaffold_all_models=>true, :habtm=>model.to_s.camelize.constantize.reflect_on_all_associations.collect{|r|r.name.to_s.singularize if r.macro == :has_and_belongs_to_many}.compact}
+          scaffold_options.merge!(options[model.to_sym]) if options && options.include?(model.to_sym)
+          scaffold_model = scaffold_options.delete(:model_id) || model.to_sym
+          [scaffold_model, scaffold_options]
+        end
       end
     end
   end
