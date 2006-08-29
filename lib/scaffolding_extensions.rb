@@ -153,6 +153,10 @@ module ActiveRecord # :nodoc:
           def scaffold_#{type}_fields
             @scaffold_#{type}_fields ||= scaffold_fields
           end
+          
+          def scaffold_#{type}_fields_replacing_associations
+            @scaffold_#{type}_fields_replacing_associations ||= scaffold_fields_replacing_associations(scaffold_#{type}_fields)
+          end
         end_eval
       end
       
@@ -179,11 +183,14 @@ module ActiveRecord # :nodoc:
         !scaffold_search_results_limit.nil?
       end
       
-      # List of scaffold search fields with association names replaced by foreign key names
-      def scaffold_search_fields_replacing_associations
-        @scaffold_search_fields_replacing_associations ||= scaffold_search_fields.collect do |field|
-          reflection = reflect_on_association(field.to_sym)
-          reflection ? (reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key) : field
+      def scaffold_fields_replacing_associations(fields = nil)
+        if fields.nil?
+          @scaffold_fields_replacing_associations ||= scaffold_fields_replacing_associations(scaffold_fields)
+        else
+          fields.collect do |field|
+            reflection = reflect_on_association(field.to_sym)
+            reflection ? (reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key) : field
+          end
         end
       end
       
@@ -777,7 +784,7 @@ module ActionController # :nodoc:
             
             def _update#{suffix}
               @#{singular_name} ||= #{class_name}.find(params[:id])
-              @#{singular_name}.update_scaffold_attributes(#{class_name}.scaffold_edit_fields, params[:#{singular_name}])
+              @#{singular_name}.update_scaffold_attributes(#{class_name}.scaffold_edit_fields_replacing_associations, params[:#{singular_name}])
               
               if @#{singular_name}.save
                 flash[:notice] = "#{singular_name.humanize} was successfully updated"
@@ -801,7 +808,7 @@ module ActionController # :nodoc:
             
             def _create#{suffix}
               @#{singular_name} ||= #{class_name}.new
-              @#{singular_name}.update_scaffold_attributes(#{class_name}.scaffold_new_fields, params[:#{singular_name}])
+              @#{singular_name}.update_scaffold_attributes(#{class_name}.scaffold_new_fields_replacing_associations, params[:#{singular_name}])
               if @#{singular_name}.save
                 flash[:notice] = "#{singular_name.humanize} was successfully created"
                 redirect_to :action => "new#{suffix}"
@@ -827,7 +834,7 @@ module ActionController # :nodoc:
             
             def _results#{suffix}
               record = #{class_name}.new
-              record.update_scaffold_attributes(#{class_name}.scaffold_search_fields, params[:#{singular_name}])
+              record.update_scaffold_attributes(#{class_name}.scaffold_search_fields_replacing_associations, params[:#{singular_name}])
               conditions = [[]]
               
               limit, offset = nil, nil
