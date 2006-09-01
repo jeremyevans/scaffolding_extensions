@@ -869,7 +869,7 @@ module ActionController # :nodoc:
               conditions[0] = conditions[0].join(' AND ')
               conditions[0] = '1=1' if conditions[0].length == 0
               @#{plural_name} = #{class_name}.find(:all, :conditions=>conditions, :include=>#{class_name}.scaffold_search_include, :order=>#{class_name}.scaffold_search_select_order, :limit=>limit, :offset=>offset)
-              @scaffold_search_results_page_next = true if #{class_name}.search_pagination_enabled? && @#{plural_name}.length > 0 && @#{plural_name}.pop && @#{plural_name}.length == #{class_name}.scaffold_search_results_limit
+              @scaffold_search_results_page_next = true if #{class_name}.search_pagination_enabled? && @#{plural_name}.length == #{class_name}.scaffold_search_results_limit+1 && @#{plural_name}.pop
               @scaffold_fields_method = :scaffold_search_fields
               render#{suffix}_scaffold('listtable#{suffix}')
             end
