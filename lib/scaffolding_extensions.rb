@@ -918,7 +918,7 @@ module ActionController # :nodoc:
           private
             def render#{suffix}_scaffold(action=nil, options={})
               action ||= caller_method_name(caller)
-              action = action[1..-1] if action[0...1] =~ /\A_/ 
+              action = action[1..-1] if action[0...1] == '_' 
               @scaffold_class ||= #{class_name}
               @scaffold_singular_name ||= "#{singular_name}"
               @scaffold_plural_name ||= "#{plural_name}"
