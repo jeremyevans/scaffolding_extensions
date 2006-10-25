@@ -1012,6 +1012,8 @@ module ActionController # :nodoc:
         options = models.pop if models.length > 0 && Hash === models[-1]
         except = options.delete(:except) if options
         only = options.delete(:only) if options
+        except.collect!(&:to_s) if except
+        only.collect!(&:to_s) if only
         models = ActiveRecord::Base.all_models if options || models.length == 0
         models.delete_if{|model| except.include?(model)} if except
         models.delete_if{|model| !only.include?(model)} if only
