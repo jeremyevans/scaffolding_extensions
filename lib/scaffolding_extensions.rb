@@ -183,6 +183,7 @@ module ActiveRecord # :nodoc:
         !scaffold_search_results_limit.nil?
       end
       
+      # scaffold_fields with associations replaced by foreign key fields
       def scaffold_fields_replacing_associations(fields = nil)
         if fields.nil?
           @scaffold_fields_replacing_associations ||= scaffold_fields_replacing_associations(scaffold_fields)
@@ -609,6 +610,28 @@ module ActionController # :nodoc:
     end
     
     private
+    # Redirect to the appropriate form for the scaffolded model
+    #
+    # In addition to scaffold_redirect, there is also uses scaffold_#{action}_redirect
+    # (e.g. scaffold_new_redirect), which makes the redirect modifiable per action.
+    # So if you to redirect to the edit page of an object just after creating it,
+    # you may want to redefine scaffold_new_redirect:
+    #
+    #  def scaffold_new_redirect(suffix)
+    #    redirect_to({:action => "edit#{suffix}", :id=>params[:id].to_i})
+    #  end
+    def scaffold_redirect(action, suffix)
+      redirect_to({:action => "#{action}#{suffix}", :id=>nil})
+    end
+    
+    %w'destroy edit new merge'.each do |action|
+      module_eval <<-"end_eval", __FILE__, __LINE__
+        def scaffold_#{action}_redirect(suffix)
+          scaffold_redirect("#{action}", suffix)
+        end
+      end_eval
+    end
+
     def caller_method_name(caller) # :nodoc:
       x = caller.first.scan(/`(.*)'/).first.first
     end
@@ -758,7 +781,7 @@ module ActionController # :nodoc:
               if params[:id]
                 #{class_name}.find(params[:id].to_i).destroy
                 flash[:notice] = "#{singular_name.humanize} was successfully destroyed"
-                redirect_to :action => "destroy#{suffix}", :id => nil
+                scaffold_destroy_redirect('#{suffix}')
               else
                 @scaffold_action = 'destroy'
                 list#{suffix}
@@ -788,7 +811,7 @@ module ActionController # :nodoc:
               
               if @#{singular_name}.save
                 flash[:notice] = "#{singular_name.humanize} was successfully updated"
-                redirect_to :action => "edit#{suffix}"
+                scaffold_edit_redirect('#{suffix}')
               else
                 render#{suffix}_scaffold('edit')
               end
@@ -811,7 +834,7 @@ module ActionController # :nodoc:
               @#{singular_name}.update_scaffold_attributes(#{class_name}.scaffold_new_fields_replacing_associations, params[:#{singular_name}])
               if @#{singular_name}.save
                 flash[:notice] = "#{singular_name.humanize} was successfully created"
-                redirect_to :action => "new#{suffix}"
+                scaffold_new_redirect('#{suffix}')
               else
                 render#{suffix}_scaffold('new')
               end
@@ -893,7 +916,7 @@ module ActionController # :nodoc:
                 "#{plural_name.humanize} were successfully merged"
               else "Error merging #{plural_name.humanize.downcase}"
               end
-              redirect_to :action=>'merge#{suffix}'
+              scaffold_merge_redirect('#{suffix}')
             end
             #{scaffold_method("merge_update#{suffix}")}
             
