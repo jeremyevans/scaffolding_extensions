@@ -233,11 +233,11 @@ Testing
 =======
 
 The plugin now includes functions that make it easier to test.  The testing 
-isn't comprehensive, as it doesn't test if the forms work, it just tests if the
-response is success.  Still, it is useful to see if any errors are produced due
-to naming conflicts (these can be resolved by adding some configuration code
-to the model or changing the arguments to the scaffold method call). For
-example:
+isn't comprehensive, as it doesn't test if the forms work, it just tests to see
+if you can successfully request the displayed pages.  Still, it is useful to
+see if any errors are produced due to naming conflicts (which can be resolved
+by adding some configuration code to the model or changing the arguments to the
+scaffold method call). For example:
 
   class CrudControllerTest < Test::Unit::TestCase
     def setup
@@ -250,6 +250,21 @@ example:
   end
 
 Consult the RDoc if you want view more testing options.
+
+Code Generation
+===============
+
+I don't recommend using the generated code for anything more than debugging,
+but if you want to see the code that is generated, try this for a single model:
+
+  script/runner "puts ActionController::Base.scaffold(:model, \
+                 :generate=>true)"
+
+or this for all models:
+
+  script/runner "ActiveRecord::Base.all_models.each{|model| puts \
+                 ActionController::Base.scaffold(model.to_sym, \
+                 :suffix=>true, :generate=>true)}"
 
 Questions?
 ==========
