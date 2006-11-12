@@ -1,0 +1,12 @@
+This allows you to auto focus the page to the first form field.
+
+To use this, add the .js file to public/javascripts, and modify the layout to
+include the javascript file after the scaffolded form:
+
+  <%= javascript_include_tag('scaffold_form_focus') if @scaffold_class || @scaffold_update_page %>
+
+The if statement makes it take effect for the scaffolded pages (which define
+one of the two variables).  Note that the code is fairly simplistic, it just
+focuses on the first text input, password input, textarea, or
+select box on the page, so if your layout has a form before the scaffolded
+form, you'll probably want to modify the code.  
