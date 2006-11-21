@@ -125,12 +125,12 @@ module ActiveRecord # :nodoc:
       
       # List of strings for associations to display on the scaffolded edit page
       def scaffold_associations
-        @scaffold_associations ||= reflect_on_all_associations.collect{|r|r.name.to_s unless ((r.macro == :has_many && r.options.include?(:through)) || r.options.include?(:as))}.compact.sort
+        @scaffold_associations ||= reflect_on_all_associations.collect{|r|r.name.to_s unless (r.options.include?(:through) || r.options.include?(:as) || r.options.include?(:polymorphic))}.compact.sort
       end
       
       # Returns the list of fields to display on the scaffolded forms. Defaults
       # to displaying all usually scaffolded columns with the addition of belongs
-      # to associations.
+      # to associations that aren't polymorphic.
       #
       # This the basis for the display of fields in the scaffolds.  Each type of scaffold
       # that displays fields (new, edit, show, search, and browse), can have a different
@@ -142,6 +142,7 @@ module ActiveRecord # :nodoc:
         reflect_on_all_associations.each do |reflection|
           next unless reflection.macro == :belongs_to
           @scaffold_fields.delete((reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key).to_s)
+          next if reflection.options.include?(:polymorphic)
           @scaffold_fields.push(reflection.name.to_s)
         end
         @scaffold_fields.sort!
