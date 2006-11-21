@@ -199,8 +199,8 @@ module ActiveRecord # :nodoc:
       # List of human visible names and field names to use for NULL/NOT NULL fields on the scaffolded search page
       def scaffold_search_null_options
         @scaffold_search_null_options ||= scaffold_search_fields_replacing_associations.collect do |field|
-          [scaffold_column_name(field), field]
-        end
+          [scaffold_column_name(field), field] if columns_hash[field]
+        end.compact
       end
       
       # Returns the scaffolded table class for a given scaffold type.
@@ -375,26 +375,22 @@ module ActionView # :nodoc:
       def all_input_tags(record, record_name, options)
         input_block = options[:input_block] || default_input_block
         rows = (options[:fields] || record.class.scaffold_fields).collect do |field|
-          reflection = record.class.reflect_on_association(field.to_sym)
-          if reflection
-            input_block.call(record_name, reflection) 
-          else
-            input_block.call(record_name, record.column_for_attribute(field))
-          end
+          input_block.call(record_name, record.class.reflect_on_association(field.to_sym) || record.column_for_attribute(field) || field) 
         end
         "\n<table class='#{record.class.scaffold_table_class :form}'><tbody>\n#{rows.join}</tbody></table><br />"
       end
       
       # Wraps each widget and widget label in a table row
       def default_input_block
-        Proc.new do |record, column| 
+        Proc.new do |record, column|
+          column_name = column.send(column.is_a?(String) || column.is_a?(Symbol) ? :to_s : :name)
           label_id, tag = if column.class.name =~ /Reflection/
             next unless column.macro == :belongs_to
-            ["#{record}_#{column.options[:foreign_key] || column.klass.table_name.classify.foreign_key}", association_select_tag(record, column.name)]
+            ["#{record}_#{column.options[:foreign_key] || column.klass.table_name.classify.foreign_key}", association_select_tag(record, column_name)]
           else
-            ["#{record}_#{column.name}", input(record, column.name)]
+            ["#{record}_#{column_name}", input(record, column_name) || text_field(record, column_name)]
           end
-          "<tr><td><label for='#{label_id}'>#{@scaffold_class ? @scaffold_class.scaffold_column_name(column.name) :  column.name.to_s.humanize}</label></td><td>#{tag}</td></tr>\n"
+          "<tr><td><label for='#{label_id}'>#{@scaffold_class ? @scaffold_class.scaffold_column_name(column_name) :  column_name.to_s.humanize}</label></td><td>#{tag}</td></tr>\n"
         end
       end
       
@@ -663,8 +659,8 @@ module ActionController # :nodoc:
     # Adds conditions for the scaffolded search query.  Uses a search for string attributes,
     # IS TRUE|FALSE for boolean attributes, and = for other attributes.
     def scaffold_search_add_condition(conditions, record, field) # :doc:
-      column = record.column_for_attribute(field)
-      if column and column.klass == String
+      return unless column = record.column_for_attribute(field)
+      if column.klass == String
         if record.send(field).length > 0
           conditions[0] << "#{record.class.table_name}.#{field} #{record.class.scaffold_auto_complete_search_operator} ?"
           conditions << "%#{record.send(field)}%"
@@ -891,7 +887,7 @@ module ActionController # :nodoc:
               end
               
               conditions[0] = conditions[0].join(' AND ')
-              conditions[0] = '1=1' if conditions[0].length == 0
+              conditions = nil if conditions[0].length == 0
               @#{plural_name} = #{class_name}.find(:all, :conditions=>conditions, :include=>#{class_name}.scaffold_search_include, :order=>#{class_name}.scaffold_search_select_order, :limit=>limit, :offset=>offset)
               @scaffold_search_results_page_next = true if #{class_name}.search_pagination_enabled? && @#{plural_name}.length == #{class_name}.scaffold_search_results_limit+1 && @#{plural_name}.pop
               @scaffold_fields_method = :scaffold_search_fields
