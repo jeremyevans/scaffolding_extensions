@@ -610,12 +610,18 @@ module ActionController # :nodoc:
     # Redirect to the appropriate form for the scaffolded model
     #
     # In addition to scaffold_redirect, there is also uses scaffold_#{action}_redirect
-    # (e.g. scaffold_new_redirect), which makes the redirect modifiable per action.
+    # (e.g. scaffold_(new|edit|destroy|merge)_redirect), which makes the redirect modifiable per action.
     # So if you to redirect to the edit page of an object just after creating it,
     # you may want to redefine scaffold_new_redirect:
     #
     #  def scaffold_new_redirect(suffix)
     #    redirect_to({:action => "edit#{suffix}", :id=>params[:id].to_i})
+    #  end
+    #
+    # You can also define redirects for a given action and a model:
+    #
+    #  def scaffold_new_artist_redirect
+    #    redirect_to({:controller=>'artists', :action=>"profile", :id=>params[:id].to_i})
     #  end
     def scaffold_redirect(action, suffix)
       redirect_to({:action => "#{action}#{suffix}", :id=>nil})
@@ -624,9 +630,26 @@ module ActionController # :nodoc:
     %w'destroy edit new merge'.each do |action|
       module_eval <<-"end_eval", __FILE__, __LINE__
         def scaffold_#{action}_redirect(suffix)
-          scaffold_redirect("#{action}", suffix)
+          action = 'scaffold_#{action}\#{suffix}_redirect'
+          respond_to?(action) ? send(action) : scaffold_redirect("#{action}", suffix)
         end
       end_eval
+    end
+    
+    # Redirect to the appropriate page after a habtm associations update
+    #
+    # Because the habtm update form redirects even on failure, both the suffix
+    # and a success flag are passed.
+    #
+    # Like scaffold_redirect, it's possible to change the redirect per model, via:
+    #
+    #  def scaffold_habtm_artist_albums_redirect(suffix)
+    #    redirect_to({:controller=>'artists', :action=>"profile", :id=>params[:id].to_i})
+    #  end
+    #
+    def scaffold_habtm_redirect(suffix, success)
+      action = 'scaffold_habtm#{suffix}_redirect'
+      respond_to?(action) ? send(action, success) : redirect_to(:action=>"edit#{suffix}", :id=>params[:id].to_i)
     end
 
     def caller_method_name(caller) # :nodoc:
@@ -985,15 +1008,15 @@ module ActionController # :nodoc:
           end
           
           def update#{suffix}
-            flash[:notice] = begin
+            flash[:notice], success = begin
               singular_item = #{singular_name}.find(params[:id])
               singular_item.#{many_name}.push(#{many_class_name}.find(multiple_select_ids(params[:add]))) if params[:add] && !params[:add].empty?
               singular_item.#{many_name}.delete(#{many_class_name}.find(multiple_select_ids(params[:remove]))) if params[:remove] && !params[:remove].empty?
-              "Updated #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase} successfully" 
+              ["Updated #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase} successfully", true]
             rescue ::ActiveRecord::StatementInvalid
-              "Error updating #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase}" 
+              ["Error updating #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase}", false]
             end
-            redirect_to(:action=>"edit#{suffix}", :id=>params[:id])
+            scaffold_habtm_redirect('#{suffix}', success)
           end
         end_eval
         (both_ways && !reflection.options[:class_name]) ? scaffold_habtm(many_class_name, singular_name, false) : true
