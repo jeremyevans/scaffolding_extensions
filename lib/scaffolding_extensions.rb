@@ -469,7 +469,7 @@ module ActionView # :nodoc:
       def to_boolean_select_tag(options = {})
         options = options.stringify_keys
         add_default_name_and_id(options)
-        "<select#{tag_options(options)}><option value=''#{selected(value.nil?)}>&nbsp;</option><option value='f'#{selected(value == false)}>False</option><option value='t'#{selected(value)}>True</option></select>"
+        "<select#{tag_options(options)}><option value=''#{selected(value(object).nil?)}>&nbsp;</option><option value='f'#{selected(value(object) == false)}>False</option><option value='t'#{selected(value(object))}>True</option></select>"
       end
       
       # Returns XHTML compliant fragment for whether the value is selected or not
