@@ -1,6 +1,6 @@
 <h3>Edit <%=h @singular_object.scaffold_name %>'s <%= @many_name %> </h3>
 
-<%= form_tag(:action=>@scaffold_update_page, :id=>@params[:id]) %>
+<%= form_tag(:action=>@scaffold_update_page, :id=>params[:id]) %>
 
 <% if @many_class.scaffold_use_auto_complete %>
   <h4>Add This <%= @many_name.singularize.humanize %></h4>
