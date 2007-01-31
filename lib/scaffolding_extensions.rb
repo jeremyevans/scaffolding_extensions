@@ -380,9 +380,8 @@ module ActionView # :nodoc:
         "\n<table class='#{record.class.scaffold_table_class :form}'><tbody>\n#{rows.join}</tbody></table><br />"
       end
       
-      # Wraps each widget and widget label in a table row
-      def default_input_block
-        Proc.new do |record, column|
+      # Get label and widget for column
+      def input_tag_label_and_widget(record, column)
           column_name = column.send(column.is_a?(String) || column.is_a?(Symbol) ? :to_s : :name)
           label_id, tag = if column.class.name =~ /Reflection/
             next unless column.macro == :belongs_to
@@ -390,8 +389,17 @@ module ActionView # :nodoc:
           else
             ["#{record}_#{column_name}", input(record, column_name) || text_field(record, column_name)]
           end
-          "<tr><td><label for='#{label_id}'>#{@scaffold_class ? @scaffold_class.scaffold_column_name(column_name) :  column_name.to_s.humanize}</label></td><td>#{tag}</td></tr>\n"
-        end
+          ["<label for='#{label_id}'>#{@scaffold_class ? @scaffold_class.scaffold_column_name(column_name) :  column_name.to_s.humanize}</label>", tag]
+      end
+      
+      # Wrap label and widget in table row
+      def input_tag_row(label, tag)
+          "<tr><td>#{label}</td><td>#{tag}</td></tr>\n"
+      end
+      
+      # Assemble table row with label and widget
+      def default_input_block
+        Proc.new{|record, column| input_tag_row(*input_tag_label_and_widget(record, column))}
       end
       
       # Returns a select box displaying the possible records that can be associated.
