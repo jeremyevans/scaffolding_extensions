@@ -1,8 +1,9 @@
 <% unless @scaffold_class.scaffold_associations.empty? %>
-  <h3>Associated Records</h3>
+  <h3 class="scaffold_associated_records_header">Associated Records</h3>
   <ul id="scaffolded_associations_<%= @scaffold_class.name.underscore %>_<%= @scaffold_singular_object.id %>" class="<%= @scaffold_singular_object.scaffold_association_list_class %>">
   <% @scaffold_class.scaffold_associations.each do |association| %>
     <% next unless reflection = @scaffold_class.reflect_on_association(association.to_sym) %>
+    <% next if @scaffold_class.scaffold_habtm_with_ajax && reflection.macro == :has_and_belongs_to_many %>
     <li><%= reflection.name.to_s.humanize %> 
     <%= link_to_or_blank('(manage)', :action=>"manage_#{reflection.klass.name.underscore}") unless @scaffold_associations_readonly %>
     <% if reflection.macro == :belongs_to || reflection.macro == :has_one %>

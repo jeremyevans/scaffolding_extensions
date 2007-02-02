@@ -2,6 +2,10 @@
 
 <%= scaffold_form('update', :fields=>@scaffold_class.scaffold_edit_fields) %>
 
+<% if @scaffold_class.scaffold_habtm_with_ajax %>
+  <%= habtm_ajax_associations %>
+<% end %>
+
 <%= association_links %>
 
 <%= manage_link %>

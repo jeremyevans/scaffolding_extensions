@@ -20,6 +20,8 @@ module ActiveRecord # :nodoc:
   #   browse scaffold (default: 10)
   # - scaffold_search_results_default_limit - The default limit on scaffolded search results.  If nil,
   #   the search results will be displayed on one page instead of being paginated (default: 10)
+  # - scaffold_habtm_with_ajax_default - Whether or not to use Ajax (instead of a separate page) for 
+  #   habtm associations for all models (default: false)
   # - scaffold_auto_complete_default_options: Hash containing the default options to use for the scaffold
   #   autocompleter (default: {:enable=>false, :sql_name=>'LOWER(name)', :text_field_options=>{:size=>50},
   #   :format_string=>:substring, :search_operator=>'LIKE', :results_limit=>10, :phrase_modifier=>:downcase,
@@ -56,6 +58,7 @@ module ActiveRecord # :nodoc:
   #   browse scaffold.  Uses scaffold_browse_default_records_per_page if not specified (example: 25)
   # - scaffold_search_results_limit - The limit on the number of records in the scaffolded search
   #   results page (example: 25)
+  # - scaffold_habtm_with_ajax - Whether to use Ajax for habtm associations for this class (example: true)
   # - scaffold_auto_complete_options - Hash merged with the auto complete default options to set
   #   the auto complete options for the model.  If the auto complete default options are set
   #   with :enable=>false, setting this variable turns on autocompleting.  If the auto complete
@@ -74,10 +77,11 @@ module ActiveRecord # :nodoc:
     @@scaffold_default_column_names = {}
     @@scaffold_browse_default_records_per_page = 10
     @@scaffold_search_results_default_limit = 10
+    @@scaffold_habtm_with_ajax_default = false
     @@scaffold_auto_complete_default_options = {:enable=>false, :sql_name=>'LOWER(name)',
       :text_field_options=>{:size=>50}, :format_string=>:substring, :search_operator=>'LIKE',
       :results_limit=>10, :phrase_modifier=>:downcase, :skip_style=>false}
-    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options, :scaffold_browse_default_records_per_page, :scaffold_search_results_default_limit, :scaffold_default_column_names
+    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options, :scaffold_browse_default_records_per_page, :scaffold_search_results_default_limit, :scaffold_default_column_names, :scaffold_habtm_with_ajax_default
     
     class << self
       attr_accessor :scaffold_select_order, :scaffold_include, :scaffold_associations_path
@@ -126,6 +130,14 @@ module ActiveRecord # :nodoc:
       # List of strings for associations to display on the scaffolded edit page
       def scaffold_associations
         @scaffold_associations ||= reflect_on_all_associations.collect{|r|r.name.to_s unless (r.options.include?(:through) || r.options.include?(:as) || r.options.include?(:polymorphic))}.compact.sort
+      end
+      
+      # Array of all habtm reflections for this model's scaffold_associations
+      def scaffold_habtm_reflections
+        @scaffold_habtm_reflections ||= (scaffold_associations.collect do |association|
+          reflection = reflect_on_association(association.to_sym)
+          reflection if reflection && reflection.macro == :has_and_belongs_to_many
+        end).compact
       end
       
       # Returns the list of fields to display on the scaffolded forms. Defaults
@@ -179,7 +191,8 @@ module ActiveRecord # :nodoc:
         @scaffold_browse_include ||= scaffold_browse_fields.collect{|field| field.to_sym if reflection = reflect_on_association(field.to_sym)}.compact
       end
       
-      # If search pagination is enabled, scaffold_search_results_limit should be numeric
+      # If search pagination is enabled (by default it is if 
+      # scaffold_search_results_limit is not nil)
       def search_pagination_enabled?
         !scaffold_search_results_limit.nil?
       end
@@ -242,6 +255,11 @@ module ActiveRecord # :nodoc:
       # The maximum number of results to show on the scaffolded search results page
       def scaffold_search_results_limit
         @scaffold_search_results_limit ||= scaffold_search_results_default_limit
+      end
+      
+      # Whether to use Ajax when scaffolding habtm associations for this model
+      def scaffold_habtm_with_ajax
+        @scaffold_habtm_with_ajax ||= scaffold_habtm_with_ajax_default
       end
       
       # If the auto complete options have been setup, return them.  Otherwise,
@@ -369,43 +387,47 @@ module ActionView # :nodoc:
     # Changes the default scaffolding of new/edit forms to handle associated
     # records, and uses a table to display the form.
     module ActiveRecordHelper
-      # Uses a table to display the form widgets, so that everything lines up
-      # nicely.  Handles associated records. Also allows for a different set
-      # of fields to be specified instead of the default scaffold_fields.
+      # Takes record's scaffold_fields (or specified fields) and creates the 
+      # necessary form fields html fragment.  Uses a table by default so that
+      # everything lines up nicely.
       def all_input_tags(record, record_name, options)
         input_block = options[:input_block] || default_input_block
         rows = (options[:fields] || record.class.scaffold_fields).collect do |field|
           input_block.call(record_name, record.class.reflect_on_association(field.to_sym) || record.column_for_attribute(field) || field) 
         end
-        "\n<table class='#{record.class.scaffold_table_class :form}'><tbody>\n#{rows.join}</tbody></table><br />"
+        all_input_tags_wrapper(record, rows)
       end
       
-      # Get label and widget for column
-      def input_tag_label_and_widget(record, column)
+      # Get label and widget for record_name and column
+      def input_tag_label_and_widget(record_name, column)
           column_name = column.send(column.is_a?(String) || column.is_a?(Symbol) ? :to_s : :name)
           label_id, tag = if column.class.name =~ /Reflection/
             next unless column.macro == :belongs_to
-            ["#{record}_#{column.options[:foreign_key] || column.klass.table_name.classify.foreign_key}", association_select_tag(record, column_name)]
+            ["#{record_name}_#{column.options[:foreign_key] || column.klass.table_name.classify.foreign_key}", association_select_tag(record_name, column_name)]
           else
-            ["#{record}_#{column_name}", input(record, column_name) || text_field(record, column_name)]
+            ["#{record_name}_#{column_name}", input(record_name, column_name) || text_field(record_name, column_name)]
           end
           ["<label for='#{label_id}'>#{@scaffold_class ? @scaffold_class.scaffold_column_name(column_name) :  column_name.to_s.humanize}</label>", tag]
       end
+        
+      # Wrap all input tags (table rows) in a table
+      def all_input_tags_wrapper(record, rows)
+        "\n<table class='#{record.class.scaffold_table_class :form}'><tbody>\n#{rows.join}</tbody></table>\n"
+      end
       
       # Wrap label and widget in table row
-      def input_tag_row(label, tag)
+      def input_tag_wrapper(label, tag)
           "<tr><td>#{label}</td><td>#{tag}</td></tr>\n"
       end
       
-      # Assemble table row with label and widget
+      # Create html fragment for field for record_name and column
       def default_input_block
-        Proc.new{|record, column| input_tag_row(*input_tag_label_and_widget(record, column))}
+        Proc.new{|record_name, column| input_tag_wrapper(*input_tag_label_and_widget(record_name, column))}
       end
       
-      # Returns a select box displaying the possible records that can be associated.
-      # If scaffold autocompleting is turned on for the associated model, uses
-      # an autocompleting text box.  Otherwise, creates a select box using
-      # the associated model's scaffold_name and scaffold_select_order.
+      # Returns a select box displaying all possible records in the associated model
+      # that can be associated with this model.  If scaffold autocompleting is turned
+      # on for the associated model, uses an autocompleting text box. 
       def association_select_tag(record, association)
         reflection = record.camelize.constantize.reflect_on_association(association)
         foreign_key = reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key
@@ -413,14 +435,35 @@ module ActionView # :nodoc:
           scaffold_text_field_with_auto_complete(record, foreign_key, reflection.klass.name.underscore)
         else
           items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions => reflection.klass.interpolate_conditions(reflection.options[:conditions]), :include=>reflection.klass.scaffold_include)
-          items.sort! {|x,y| x.scaffold_name <=> y.scaffold_name} if reflection.klass.scaffold_include
           select(record, foreign_key, items.collect{|i| [i.scaffold_name, i.id]}, {:include_blank=>true})
+        end
+      end
+      
+      # Returns a select box displaying the records for the associated model that
+      # are not already associated with this record.  If scaffold autocompleting is
+      # used, uses an autocompleting text box.
+      def association_ajax_select_tag(id, record, reflection)
+        foreign_key = reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key
+        if reflection.klass.scaffold_use_auto_complete
+          scaffold_text_field_tag_with_auto_complete(id, reflection.klass)
+        else
+          singular_class = record.class
+          foreign_key = reflection.options[:foreign_key] || singular_class.table_name.classify.foreign_key
+          association_foreign_key = reflection.options[:association_foreign_key] || reflection.klass.table_name.classify.foreign_key
+          join_table = reflection.options[:join_table] || ( singular_class.name < reflection.klass.name ? '#{singular_class.name}_#{reflection.klass.table_name}' : '#{reflection.klass.table_name}_#{singular_class.name}')
+          items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions =>["#{reflection.klass.table_name}.#{reflection.klass.primary_key} NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", record.id], :include=>reflection.klass.scaffold_include)
+          select_tag(id, "<option></option>" << items.collect{|item| "<option value='#{item.id}' id='#{id}_#{item.id}'>#{h item.scaffold_name}</option>"}.join("\n"))
         end
       end
     end
     
     # Methods used to implement scaffold autocompleting
     module JavaScriptMacrosHelper
+      # Line item with button for removing the associated record from the current record
+      def scaffold_habtm_association_line_item(record, record_name, associated_record, associated_record_name)
+        "<li id='#{record_name}_#{record.id}_#{associated_record_name}_#{associated_record.id}'>#{associated_record_name.humanize} - #{associated_record.scaffold_name} #{button_to_remote('Remove', :url=>url_for(:action=>"remove_#{associated_record_name}_from_#{record_name}", :id=>record.id, "#{record_name}_#{associated_record_name}_id".to_sym=>associated_record.id))}</li>"
+      end
+      
       # Text field with autocompleting used for belongs_to associations of main object in scaffolded forms.
       def scaffold_text_field_with_auto_complete(object, method, associated_class, tag_options = {})
         klass = associated_class.to_s.camelize.constantize
@@ -444,10 +487,18 @@ module ActionView # :nodoc:
         javascript_tag("var #{field_id}_auto_completer = new Ajax.Autocompleter('#{field_id}', '#{options[:update] || "#{field_id}_scaffold_auto_complete"}', '#{url_for(options[:url])}', {paramName:'id'})")
       end
       
-      # Formats auto_complete_result using model's scaffold_name_with_id
+      # Formats the records returned by scaffold autocompleting to be displayed
+      # (an unordered list by default).
       def scaffold_auto_complete_result(entries)
         return unless entries
         content_tag("ul", entries.map{|entry| content_tag("li", h(entry.scaffold_name_with_id))}.uniq)
+      end
+    end
+    
+    module PrototypeHelper
+      # Button that submits via Ajax, similar to link_to_remote
+      def button_to_remote(name, options = {})  
+        "#{form_remote_tag(options)}<input type='submit' value=#{name.inspect} /></form>"
       end
     end
     
@@ -485,7 +536,7 @@ module ActionView # :nodoc:
         value ? " selected='selected'" : '' 
       end
       
-      # Allow overriding of the column type by asking the ActiveRecord for the appropriate column type.
+      # Allow overriding of the column type by asking the model for the appropriate column type.
       def column_type
         object.class.scaffold_column_type(@method_name)
       end
@@ -521,6 +572,14 @@ module ScaffoldHelper
   # The fragment will include links to scaffolded pages for the related items if the links would work.
   def association_links
     filename = (@scaffold_class.scaffold_associations_path || controller.scaffold_path("associations"))
+    controller.send(:render_to_string, {:file=>filename, :layout=>false}) if File.file?(filename)
+  end
+  
+  # Returns html fragment containing text/select boxes to add associated records
+  # to the current record, and line items with buttons to remove associated records
+  # from the current record.
+  def habtm_ajax_associations
+    filename = (@scaffold_class.scaffold_associations_path || controller.scaffold_path("habtm_ajax"))
     controller.send(:render_to_string, {:file=>filename, :layout=>false}) if File.file?(filename)
   end
   
@@ -592,7 +651,7 @@ module ActionController # :nodoc:
         end
       end
       
-      # Setup scaffold auto complete for them model if it is requested by model
+      # Setup scaffold auto complete for the model if it is requested by model
       # and it hasn't already been setup.
       def setup_scaffold_auto_complete_for(model_id)
         scaffold_auto_complete_for(model_id) if model_id.to_s.camelize.constantize.scaffold_use_auto_complete && !respond_to?("scaffold_auto_complete_for_#{model_id}")
@@ -743,15 +802,16 @@ module ActionController # :nodoc:
         options.assert_valid_keys(:class_name, :suffix, :except, :only, :habtm,
           :setup_auto_completes, :scaffold_all_models, :generate)
         
+        code = ''
         singular_name = model_id.to_s.underscore
         class_name    = options[:class_name] || singular_name.camelize
+        singular_class = class_name.constantize
         plural_name   = singular_name.pluralize
         suffix        = options[:suffix] ? "_#{singular_name}" : ""
         add_methods = options[:only] ? normalize_scaffold_options(options[:only]) : self.default_scaffold_methods
         add_methods -= normalize_scaffold_options(options[:except]) if options[:except]
-        normalize_scaffold_options(options[:habtm]).each{|habtm_association| scaffold_habtm(model_id, habtm_association, false)}
+        normalize_scaffold_options(options[:habtm]).each{|habtm_association| code << scaffold_habtm(model_id, habtm_association, (singular_class.scaffold_habtm_with_ajax ? {:ajax=>true, :suffix=>suffix} : {}).merge(:generate=>options[:generate])).to_s}
         setup_scaffold_auto_completes unless options[:setup_auto_completes] == false
-        code = ''
         
         if add_methods.include?(:manage)
           code << <<-"end_eval"
@@ -776,7 +836,7 @@ module ActionController # :nodoc:
         if add_methods.include?(:show) or add_methods.include?(:destroy) or add_methods.include?(:edit)
           code << <<-"end_eval"
             def list#{suffix}
-              unless #{class_name}.scaffold_use_auto_complete
+              unless #{singular_class.scaffold_use_auto_complete}
                 @#{plural_name} ||= #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
               end
               render#{suffix}_scaffold "list#{suffix}"
@@ -889,12 +949,12 @@ module ActionController # :nodoc:
               conditions = [[]]
               
               limit, offset = nil, nil
-              if #{class_name}.search_pagination_enabled?
+              if #{singular_class.search_pagination_enabled?}
                 @scaffold_search_results_form_params = {"#{singular_name}"=>{}, :notnull=>[], :null=>[]}
                 @scaffold_search_results_page = params[:page].to_i > 1 ? params[:page].to_i : 1
                 @scaffold_search_results_page -= 1 if params[:page_previous]
                 @scaffold_search_results_page += 1 if params[:page_next]
-                limit = #{class_name}.scaffold_search_results_limit + 1
+                limit = #{singular_class.scaffold_search_results_limit + 1}
                 offset = @scaffold_search_results_page > 1 ? (limit-1)*(@scaffold_search_results_page - 1) : nil
               end
               
@@ -902,25 +962,25 @@ module ActionController # :nodoc:
                 #{class_name}.scaffold_search_fields_replacing_associations.each do |field|
                   next if (params[:null] && params[:null].include?(field)) || (params[:notnull] && params[:notnull].include?(field)) || !params[:#{singular_name}][field] || params[:#{singular_name}][field].length == 0
                   scaffold_search_add_condition(conditions, record, field)
-                  @scaffold_search_results_form_params["#{singular_name}"][field] = params[:#{singular_name}][field] if #{class_name}.search_pagination_enabled?
+                  @scaffold_search_results_form_params["#{singular_name}"][field] = params[:#{singular_name}][field] if #{singular_class.search_pagination_enabled?}
                 end
               end
               
               #{class_name}.scaffold_search_fields_replacing_associations.each do |field|
                 if params[:null] && params[:null].include?(field)
-                  conditions[0] << #{class_name}.table_name + '.' + field + ' IS NULL'
-                  @scaffold_search_results_form_params[:null] << field if #{class_name}.search_pagination_enabled?
+                  conditions[0] << "#{singular_class.table_name}.\#{field} IS NULL"
+                  @scaffold_search_results_form_params[:null] << field if #{singular_class.search_pagination_enabled?}
                 end
                 if params[:notnull] && params[:notnull].include?(field)
-                  conditions[0] << #{class_name}.table_name + '.' + field + ' IS NOT NULL'
-                  @scaffold_search_results_form_params[:notnull] << field if #{class_name}.search_pagination_enabled?
+                  conditions[0] << "#{singular_class.table_name}.\#{field} IS NOT NULL"
+                  @scaffold_search_results_form_params[:notnull] << field if #{singular_class.search_pagination_enabled?}
                 end
               end
               
               conditions[0] = conditions[0].join(' AND ')
               conditions = nil if conditions[0].length == 0
               @#{plural_name} = #{class_name}.find(:all, :conditions=>conditions, :include=>#{class_name}.scaffold_search_include, :order=>#{class_name}.scaffold_search_select_order, :limit=>limit, :offset=>offset)
-              @scaffold_search_results_page_next = true if #{class_name}.search_pagination_enabled? && @#{plural_name}.length == #{class_name}.scaffold_search_results_limit+1 && @#{plural_name}.pop
+              @scaffold_search_results_page_next = true if #{singular_class.search_pagination_enabled?} && @#{plural_name}.length == #{singular_class.scaffold_search_results_limit+1} && @#{plural_name}.pop
               @scaffold_fields_method = :scaffold_search_fields
               render#{suffix}_scaffold('listtable#{suffix}')
             end
@@ -932,7 +992,7 @@ module ActionController # :nodoc:
         if add_methods.include?(:merge)
           code << <<-"end_eval"
             def _merge#{suffix}
-              unless #{class_name}.scaffold_use_auto_complete
+              unless #{singular_class.scaffold_use_auto_complete}
                 @#{plural_name} ||= #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
               end
               render#{suffix}_scaffold('merge#{suffix}')
@@ -954,7 +1014,7 @@ module ActionController # :nodoc:
         if add_methods.include?(:browse)
           code << <<-"end_eval"
             def _browse#{suffix}
-              @#{singular_name}_pages, @#{plural_name} = paginate(:#{plural_name}, :class_name=>'#{class_name}', :order=>#{class_name}.scaffold_browse_select_order, :include=>#{class_name}.scaffold_browse_include, :per_page => #{class_name}.scaffold_browse_records_per_page) unless @#{singular_name}_pages && @#{plural_name}
+              @#{singular_name}_pages, @#{plural_name} = paginate(:#{plural_name}, :class_name=>'#{class_name}', :order=>#{class_name}.scaffold_browse_select_order, :include=>#{class_name}.scaffold_browse_include, :per_page => #{singular_class.scaffold_browse_records_per_page}) unless @#{singular_name}_pages && @#{plural_name}
               @scaffold_fields_method = :scaffold_browse_fields
               render#{suffix}_scaffold('listtable#{suffix}')
             end
@@ -982,13 +1042,23 @@ module ActionController # :nodoc:
             end
         end_eval
         
-        options[:generate] ? code : module_eval(code, __FILE__, __LINE__)
+        options[:generate] ? code : module_eval(code, __FILE__)
       end
       
       # Scaffolds a habtm association for two classes using two select boxes, or
       # a select box for removing associations and an autocompleting text box for
       # adding associations. By default, scaffolds the association both ways.
-      def scaffold_habtm(singular, many, both_ways = true)
+      # 
+      # The new way of calling this is with symbols naming the model and the
+      # association, and an optional hash of options.  The old method of having
+      # an optional true/false flag still works.
+      #
+      # Possibly options:
+      # - :both_ways - scaffold the association both ways
+      # - :suffix - only needed for redirects for non-Ajax browsers using the ajax form, used by scaffold      
+      # - :generate - return code generated instead of evaluating it
+      def scaffold_habtm(singular, many, options = true)
+        options = options == true ? {:both_ways=>true} : Hash.new.merge(options)
         singular_class = singular.to_s.camelize.constantize
         singular_name = singular_class.name
         reflection = singular_class.reflect_on_association(many.to_s.pluralize.underscore.to_sym)
@@ -996,38 +1066,79 @@ module ActionController # :nodoc:
         many_class = (reflection.options[:class_name] || many.to_s.camelize).constantize
         many_class_name = many_class.name
         many_name = many.to_s.pluralize.underscore
+        setup_scaffold_auto_complete_for(many_class_name.underscore.to_sym)
         foreign_key = reflection.options[:foreign_key] || singular_class.table_name.classify.foreign_key
         association_foreign_key = reflection.options[:association_foreign_key] || many_class.table_name.classify.foreign_key
         join_table = reflection.options[:join_table] || ( singular_name < many_class_name ? '#{singular_name}_#{many_class_name}' : '#{many_class_name}_#{singular_name}')
-        suffix = "_#{singular_name.underscore}_#{many_name}" 
-        setup_scaffold_auto_complete_for(many_class_name.underscore.to_sym)
-        module_eval <<-"end_eval", __FILE__, __LINE__
-          def edit#{suffix}
-            @singular_name = "#{singular_name}" 
-            @many_name = "#{many_name.gsub('_',' ')}" 
-            @singular_object = #{singular_name}.find(params[:id])
-            @many_class = #{many_class_name}
-            @items_to_remove = #{many_class_name}.find(:all, :conditions=>["#{many_class.primary_key} IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i]#{', :order=>"'+many_class.scaffold_select_order+'"' if many_class.scaffold_select_order}).collect{|item| [item.scaffold_name, item.id]}
-            unless #{many_class}.scaffold_use_auto_complete
-              @items_to_add = #{many_class_name}.find(:all, :conditions=>["#{many_class.primary_key} NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i]#{', :order=>"'+many_class.scaffold_select_order+'"' if many_class.scaffold_select_order}).collect{|item| [item.scaffold_name, item.id]}
+        code = if options[:ajax]
+          suffix = options[:suffix]
+          <<-"end_eval"
+            def add_#{many}_to_#{singular}
+              @record = #{singular_name}.find(params[:id].to_i)
+              @associated_record = #{many_class_name}.find(params[:#{singular}_#{many}_id].to_i)
+              #{singular_name}.connection.execute("INSERT INTO #{join_table} (#{foreign_key}, #{association_foreign_key}) VALUES (\#{@record.id}, \#{@associated_record.id})")
+              if request.xhr?
+                render :update do |page|
+                  page.insert_html(:top, '#{singular}_associated_records_list', :inline=>"<%= scaffold_habtm_association_line_item(@record, '#{singular}', @associated_record, '#{many}') %>")
+                  page.remove("#{singular}_#{many}_id_\#{@associated_record.id}") unless #{reflection.klass.scaffold_use_auto_complete}
+                  page["#{singular}_#{many}_id"].#{reflection.klass.scaffold_use_auto_complete ? "value = ''" : "selectedIndex = 0"}
+                end
+              else redirect_to(:action=>"edit#{suffix}", :id=>@record.id)
+              end
             end
-            @scaffold_update_page = "update#{suffix}" 
-            render_scaffold_template("habtm")
-          end
-          
-          def update#{suffix}
-            flash[:notice], success = begin
-              singular_item = #{singular_name}.find(params[:id])
-              singular_item.#{many_name}.push(#{many_class_name}.find(multiple_select_ids(params[:add]))) if params[:add] && !params[:add].empty?
-              singular_item.#{many_name}.delete(#{many_class_name}.find(multiple_select_ids(params[:remove]))) if params[:remove] && !params[:remove].empty?
-              ["Updated #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase} successfully", true]
-            rescue ::ActiveRecord::StatementInvalid
-              ["Error updating #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase}", false]
+              
+            def remove_#{many}_from_#{singular}
+              @record = #{singular_name}.find(params[:id].to_i)
+              @associated_record = #{many_class_name}.find(params[:#{singular}_#{many}_id].to_i)
+              @record.#{many_name}.delete(@associated_record)
+              if request.xhr?
+                render(:update) do |page| 
+                  page.remove("#{singular}_\#{@record.id}_#{many}_\#{@associated_record.id}")
+                  page.insert_html(:bottom, '#{singular}_#{many}_id', "<option value='\#{@associated_record.id}' id='#{singular}_#{many}_id_\#{@associated_record.id}'>\#{@associated_record.scaffold_name}</option>") unless #{reflection.klass.scaffold_use_auto_complete}
+                end
+              else redirect_to(:action=>"edit#{suffix}", :id=>@record.id)
+              end
             end
-            scaffold_habtm_redirect('#{suffix}', success)
-          end
-        end_eval
-        (both_ways && !reflection.options[:class_name]) ? scaffold_habtm(many_class_name, singular_name, false) : true
+            
+          end_eval
+        else
+          suffix = "_#{singular_name.underscore}_#{many_name}" 
+          <<-"end_eval"
+            def edit#{suffix}
+              @singular_name = "#{singular_name}" 
+              @many_name = "#{many_name.gsub('_',' ')}" 
+              @singular_object = #{singular_name}.find(params[:id])
+              @many_class = #{many_class_name}
+              @items_to_remove = #{many_class_name}.find(:all, :conditions=>["#{many_class.primary_key} IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i], :order=>#{many_class_name}.scaffold_select_order).collect{|item| [item.scaffold_name, item.id]}
+              unless #{many_class.scaffold_use_auto_complete}
+                @items_to_add = #{many_class_name}.find(:all, :conditions=>["#{many_class.primary_key} NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i], :order=>#{many_class_name}.scaffold_select_order).collect{|item| [item.scaffold_name, item.id]}
+              end
+              @scaffold_update_page = "update#{suffix}" 
+              render_scaffold_template("habtm")
+            end
+            
+            def update#{suffix}
+              flash[:notice], success = begin
+                singular_item = #{singular_name}.find(params[:id])
+                if params[:add] && !params[:add].empty?
+                  #{singular_name}.transaction do
+                    multiple_select_ids(params[:add]).each do |associated_record_id|
+                      #{singular_name}.connection.execute("INSERT INTO #{join_table} (#{foreign_key}, #{association_foreign_key}) VALUES (\#{singular_item.id}, \#{associated_record_id})")
+                    end
+                  end 
+                end
+                singular_item.#{many_name}.delete(#{many_class_name}.find(multiple_select_ids(params[:remove]))) if params[:remove] && !params[:remove].empty?
+                ["Updated #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase} successfully", true]
+              rescue ::ActiveRecord::StatementInvalid
+                ["Error updating #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase}", false]
+              end
+              scaffold_habtm_redirect('#{suffix}', success)
+            end
+            
+          end_eval
+        end
+        code << scaffold_habtm(many_class_name, singular_name, options.merge(:both_ways=>false)).to_s if options[:both_ways] && !reflection.options[:class_name]
+        options[:generate] ? code : module_eval(code, __FILE__)
       end
       
       # Scaffolds all models in the Rails app, with all associations when called
@@ -1039,28 +1150,29 @@ module ActionController # :nodoc:
       # - One hash with the following symbols as keys:
       #   - :except => Array  # Don't scaffold these models
       #   - :only   => Array  # Only scaffold these models
+      #   - :generate => true/false # Emit code generated instead of evaluating it
       #   - * (Everything else) => Hash 
       #     - Key is a symbol with the class name underscored.
       #     - Value is a hash of scaffold options.
       #     - To use a different singular name, use :model_id=>'singular_name' inside the value hash
       def scaffold_all_models(*models)
         models = parse_scaffold_all_models_options(*models)
-        models.collect! do |model, options| 
-          scaffold(model, options)
-          model.to_s
-        end
-        module_eval <<-"end_eval", __FILE__, __LINE__
+        model_names = []
+        scaffold_results = models.collect{|model, options| model_names << model.to_s; scaffold(model, options)}.compact
+        code = <<-"end_eval"
           def index
-            @models = #{models.inspect}
+            @models = #{model_names.inspect}
             render_scaffold_template("index")
           end
         end_eval
+        scaffold_results.length > 0 ? scaffold_results.push(code).join("\n\n") : module_eval(code, __FILE__)
       end
       
       # Parse the arguments for scaffold_all_models.  Seperated so that it can
       # also be used in testing.
       def parse_scaffold_all_models_options(*models)
         options = models.pop if models.length > 0 && Hash === models[-1]
+        generate = options.delete(:generate) if options
         except = options.delete(:except) if options
         only = options.delete(:only) if options
         except.collect!(&:to_s) if except
@@ -1069,7 +1181,7 @@ module ActionController # :nodoc:
         models.delete_if{|model| except.include?(model)} if except
         models.delete_if{|model| !only.include?(model)} if only
         models.collect do |model|
-          scaffold_options = {:suffix=>true, :scaffold_all_models=>true, :habtm=>model.to_s.camelize.constantize.reflect_on_all_associations.collect{|r|r.name.to_s.singularize if r.macro == :has_and_belongs_to_many}.compact}
+          scaffold_options = {:suffix=>true, :scaffold_all_models=>true, :generate=>generate, :habtm=>model.to_s.camelize.constantize.scaffold_habtm_reflections.collect{|r|r.name.to_s.singularize}}
           scaffold_options.merge!(options[model.to_sym]) if options && options.include?(model.to_sym)
           scaffold_model = scaffold_options.delete(:model_id) || model.to_sym
           [scaffold_model, scaffold_options]
