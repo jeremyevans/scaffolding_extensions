@@ -461,7 +461,7 @@ module ActionView # :nodoc:
     module JavaScriptMacrosHelper
       # Line item with button for removing the associated record from the current record
       def scaffold_habtm_association_line_item(record, record_name, associated_record, associated_record_name)
-        "<li id='#{record_name}_#{record.id}_#{associated_record_name}_#{associated_record.id}'>#{associated_record_name.humanize} - #{associated_record.scaffold_name} #{button_to_remote('Remove', :url=>url_for(:action=>"remove_#{associated_record_name}_from_#{record_name}", :id=>record.id, "#{record_name}_#{associated_record_name}_id".to_sym=>associated_record.id))}</li>"
+        "<li id='#{record_name}_#{record.id}_#{associated_record_name}_#{associated_record.id}'>#{link_to_or_text(associated_record_name.humanize, :action=>"manage_#{associated_record.class.name.underscore}")} - #{link_to_or_text(h(associated_record.scaffold_name), :action=>"edit_#{associated_record.class.name.underscore}", :id=>associated_record.id)} #{button_to_remote('Remove', :url=>url_for(:action=>"remove_#{associated_record_name}_from_#{record_name}", :id=>record.id, "#{record_name}_#{associated_record_name}_id".to_sym=>associated_record.id))}</li>"
       end
       
       # Text field with autocompleting used for belongs_to associations of main object in scaffolded forms.
@@ -1058,7 +1058,7 @@ module ActionController # :nodoc:
       # - :suffix - only needed for redirects for non-Ajax browsers using the ajax form, used by scaffold      
       # - :generate - return code generated instead of evaluating it
       def scaffold_habtm(singular, many, options = true)
-        options = options == true ? {:both_ways=>true} : Hash.new.merge(options)
+        options = options.is_a?(Hash) ? Hash.new.merge(options) : {:both_ways=>options}
         singular_class = singular.to_s.camelize.constantize
         singular_name = singular_class.name
         reflection = singular_class.reflect_on_association(many.to_s.pluralize.underscore.to_sym)
