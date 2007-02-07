@@ -52,8 +52,11 @@ module ActiveRecord # :nodoc:
   # - scaffold_associations: List of associations to display on the scaffolded edit page for the object.
   #   Uses all associations if not specified (example: %w'artist albums')
   # - scaffold_associations_path: String path to the template to use to render the associations
-  #   for the edit page.  Uses the controller's scaffold path if not specified.
+  #   for the show/edit page.  Uses the controller's scaffold path if not specified.
   #   (example: "#{RAILS_ROOT}/lib/model_associations.rhtml")
+  # - scaffold_habtm_ajax_path: String path to the template to use to render the habtm ajax entries
+  #   for the edit page.  Uses the controller's scaffold path if not specified.
+  #   (example: "#{RAILS_ROOT}/lib/model_habtm_ajax.rhtml")
   # - scaffold_browse_records_per_page - The number of records per page to show in the
   #   browse scaffold.  Uses scaffold_browse_default_records_per_page if not specified (example: 25)
   # - scaffold_search_results_limit - The limit on the number of records in the scaffolded search
@@ -81,10 +84,10 @@ module ActiveRecord # :nodoc:
     @@scaffold_auto_complete_default_options = {:enable=>false, :sql_name=>'LOWER(name)',
       :text_field_options=>{:size=>50}, :format_string=>:substring, :search_operator=>'LIKE',
       :results_limit=>10, :phrase_modifier=>:downcase, :skip_style=>false}
-    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options, :scaffold_browse_default_records_per_page, :scaffold_search_results_default_limit, :scaffold_default_column_names, :scaffold_habtm_with_ajax_default
+    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options, :scaffold_browse_default_records_per_page, :scaffold_search_results_default_limit, :scaffold_default_column_names, :scaffold_habtm_with_ajax_default, :instance_writer => false
     
     class << self
-      attr_accessor :scaffold_select_order, :scaffold_include, :scaffold_associations_path
+      attr_accessor :scaffold_select_order, :scaffold_include, :scaffold_associations_path, :scaffold_habtm_ajax_path
       
       # Checks all files in the models directory to return strings for all models
       # that are a subclass of the current class
@@ -450,7 +453,7 @@ module ActionView # :nodoc:
           singular_class = record.class
           foreign_key = reflection.options[:foreign_key] || singular_class.table_name.classify.foreign_key
           association_foreign_key = reflection.options[:association_foreign_key] || reflection.klass.table_name.classify.foreign_key
-          join_table = reflection.options[:join_table] || ( singular_class.name < reflection.klass.name ? '#{singular_class.name}_#{reflection.klass.table_name}' : '#{reflection.klass.table_name}_#{singular_class.name}')
+          join_table = reflection.options[:join_table] || ( singular_class.table_name < reflection.klass.table_name ? '#{singular_class.table_name}_#{reflection.klass.table_name}' : '#{reflection.klass.table_name}_#{singular_class.table_name}')
           items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions =>["#{reflection.klass.table_name}.#{reflection.klass.primary_key} NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", record.id], :include=>reflection.klass.scaffold_include)
           select_tag(id, "<option></option>" << items.collect{|item| "<option value='#{item.id}' id='#{id}_#{item.id}'>#{h item.scaffold_name}</option>"}.join("\n"))
         end
@@ -579,7 +582,7 @@ module ScaffoldHelper
   # to the current record, and line items with buttons to remove associated records
   # from the current record.
   def habtm_ajax_associations
-    filename = (@scaffold_class.scaffold_associations_path || controller.scaffold_path("habtm_ajax"))
+    filename = (@scaffold_class.scaffold_habtm_ajax_path || controller.scaffold_path("habtm_ajax"))
     controller.send(:render_to_string, {:file=>filename, :layout=>false}) if File.file?(filename)
   end
   
@@ -611,7 +614,7 @@ module ActionController # :nodoc:
   class Base
     @@scaffold_template_dir = "#{File.dirname(__FILE__)}/../scaffolds"
     @@default_scaffold_methods = [:manage, :show, :destroy, :edit, :new, :search, :merge, :browse]
-    cattr_accessor = :scaffold_template_dir, :default_scaffold_methods
+    cattr_accessor :scaffold_template_dir, :default_scaffold_methods, :instance_writer => false
     
     class << self
       # The location of the scaffold templates
@@ -1069,7 +1072,7 @@ module ActionController # :nodoc:
         setup_scaffold_auto_complete_for(many_class_name.underscore.to_sym)
         foreign_key = reflection.options[:foreign_key] || singular_class.table_name.classify.foreign_key
         association_foreign_key = reflection.options[:association_foreign_key] || many_class.table_name.classify.foreign_key
-        join_table = reflection.options[:join_table] || ( singular_name < many_class_name ? '#{singular_name}_#{many_class_name}' : '#{many_class_name}_#{singular_name}')
+        join_table = reflection.options[:join_table] || ( singular_class.table_name < many_class.table_name ? '#{singular_class.table_name}_#{many_class.table_name}' : '#{many_class.table_name}_#{singular_class.table_name}')
         code = if options[:ajax]
           suffix = options[:suffix]
           <<-"end_eval"
