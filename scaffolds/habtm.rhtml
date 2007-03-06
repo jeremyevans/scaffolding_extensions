@@ -7,12 +7,12 @@
   <%= scaffold_text_field_tag_with_auto_complete('add', @many_class) %>
 <% elsif @items_to_add.length > 0 %>
   <h4>Add These <%= @many_name.humanize %></h4>
-  <%= select('add', '', @items_to_add, {}, :multiple=>true) %>
+  <%= select_tag('add[]', options_for_select(@items_to_add), :id=>'add', :multiple=>'multiple') %>
 <% end %>
 
 <% if @items_to_remove.length > 0 %> 
   <h4>Remove These <%= @many_name.humanize %></h4>
-  <%= select('remove', '', @items_to_remove, {}, :multiple=>true) %>
+  <%= select_tag('remove[]', options_for_select(@items_to_remove), :id=>'remove', :multiple=>'multiple') %>
 <% end %>
 
 <br /><br />
