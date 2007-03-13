@@ -7,7 +7,7 @@
   <% end %>
 <% end %>
 </div>
-<div class="habtm_ajax_associations remove_associations" id="<%= @scaffold_singular_name %>_habtm_ajax_remove_associations">
+<div class="habtm_ajax_remove_associations" id="<%= @scaffold_singular_name %>_habtm_ajax_remove_associations">
 <ul class="scaffold_associated_records_list" id="<%= @scaffold_singular_name %>_associated_records_list">
 <% @scaffold_class.scaffold_habtm_reflections.each do |reflection| %>
   <% @scaffold_singular_object.send(reflection.name).each do |associated_record| %>

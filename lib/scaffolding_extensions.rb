@@ -22,6 +22,8 @@ module ActiveRecord # :nodoc:
   #   the search results will be displayed on one page instead of being paginated (default: 10)
   # - scaffold_habtm_with_ajax_default - Whether or not to use Ajax (instead of a separate page) for 
   #   habtm associations for all models (default: false)
+  # - scaffold_load_associations_with_ajax_default - Whether or not to use Ajax to load the display of
+  #   associations on the edit page, used if the default display is too slow (default: false)
   # - scaffold_auto_complete_default_options: Hash containing the default options to use for the scaffold
   #   autocompleter (default: {:enable=>false, :sql_name=>'LOWER(name)', :text_field_options=>{:size=>50},
   #   :format_string=>:substring, :search_operator=>'LIKE', :results_limit=>10, :phrase_modifier=>:downcase,
@@ -81,10 +83,11 @@ module ActiveRecord # :nodoc:
     @@scaffold_browse_default_records_per_page = 10
     @@scaffold_search_results_default_limit = 10
     @@scaffold_habtm_with_ajax_default = false
+    @@scaffold_load_associations_with_ajax_default = false
     @@scaffold_auto_complete_default_options = {:enable=>false, :sql_name=>'LOWER(name)',
       :text_field_options=>{:size=>50}, :format_string=>:substring, :search_operator=>'LIKE',
       :results_limit=>10, :phrase_modifier=>:downcase, :skip_style=>false}
-    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options, :scaffold_browse_default_records_per_page, :scaffold_search_results_default_limit, :scaffold_default_column_names, :scaffold_habtm_with_ajax_default, :instance_writer => false
+    cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options, :scaffold_browse_default_records_per_page, :scaffold_search_results_default_limit, :scaffold_default_column_names, :scaffold_habtm_with_ajax_default, :scaffold_load_associations_with_ajax_default, :instance_writer => false
     
     class << self
       attr_accessor :scaffold_select_order, :scaffold_include, :scaffold_associations_path, :scaffold_habtm_ajax_path
@@ -263,6 +266,11 @@ module ActiveRecord # :nodoc:
       # Whether to use Ajax when scaffolding habtm associations for this model
       def scaffold_habtm_with_ajax
         @scaffold_habtm_with_ajax ||= scaffold_habtm_with_ajax_default
+      end
+      
+      # Whether to use Ajax when loading associations on the edit page
+      def scaffold_load_associations_with_ajax
+        @scaffold_load_associations_with_ajax ||= scaffold_load_associations_with_ajax_default
       end
       
       # If the auto complete options have been setup, return them.  Otherwise,
@@ -446,7 +454,6 @@ module ActionView # :nodoc:
       # are not already associated with this record.  If scaffold autocompleting is
       # used, uses an autocompleting text box.
       def association_ajax_select_tag(id, record, reflection)
-        foreign_key = reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key
         if reflection.klass.scaffold_use_auto_complete
           scaffold_text_field_tag_with_auto_complete(id, reflection.klass)
         else
@@ -732,6 +739,8 @@ module ActionController # :nodoc:
     def render_scaffold_template(action, options = {}) # :doc:
       options = if template_exists?("#{self.class.controller_path}/#{action}")
         {:action=>action}.merge(options)
+      elsif options.include?(:inline)
+        options
       else
         if active_layout || options.include?(:layout)
           {:file=>scaffold_path(action.split('_')[0]), :layout=>active_layout}.merge(options)
@@ -910,6 +919,17 @@ module ActionController # :nodoc:
             #{scaffold_method("update#{suffix}")}
             
           end_eval
+          
+          if singular_class.scaffold_load_associations_with_ajax
+            code << <<-"end_eval"
+            def _associations#{suffix}
+              @#{singular_name} ||= #{class_name}.find(params[:id].to_i)
+              render#{suffix}_scaffold('associations', :inline=>"<%= habtm_ajax_associations if @scaffold_class.scaffold_habtm_with_ajax %>\n<%= association_links %>\n", :layout=>false)
+            end
+            #{scaffold_method("associations#{suffix}")}
+            
+            end_eval
+          end
         end
         
         if add_methods.include?(:new)
