@@ -135,7 +135,7 @@ module ActiveRecord # :nodoc:
       
       # List of strings for associations to display on the scaffolded edit page
       def scaffold_associations
-        @scaffold_associations ||= reflect_on_all_associations.collect{|r|r.name.to_s unless (r.options.include?(:through) || r.options.include?(:as) || r.options.include?(:polymorphic))}.compact.sort
+        @scaffold_associations ||= reflect_on_all_associations.collect{|r|r.name.to_s unless (r.options.include?(:through) || r.options.include?(:polymorphic))}.compact.sort
       end
       
       # Array of all habtm reflections for this model's scaffold_associations
@@ -158,9 +158,8 @@ module ActiveRecord # :nodoc:
         return @scaffold_fields if @scaffold_fields
         @scaffold_fields = columns.reject{|c| c.primary || c.name =~ /_count$/ || c.name == inheritance_column }.collect{|c| c.name}
         reflect_on_all_associations.each do |reflection|
-          next unless reflection.macro == :belongs_to
+          next if reflection.macro != :belongs_to || reflection.options.include?(:polymorphic)
           @scaffold_fields.delete((reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key).to_s)
-          next if reflection.options.include?(:polymorphic)
           @scaffold_fields.push(reflection.name.to_s)
         end
         @scaffold_fields.sort!
@@ -530,6 +529,8 @@ module ActionView # :nodoc:
             to_datetime_select_tag(options)
           when :boolean
             to_boolean_select_tag(options)
+          when :file
+            to_input_field_tag("file", options)
         end
       end
       
@@ -598,9 +599,16 @@ module ScaffoldHelper
     "<br />#{link_to("Manage #{@scaffold_plural_name.humanize.downcase}", :action => "manage#{@scaffold_suffix}")}" if @scaffold_methods.include?(:manage)
   end
   
+  # Whether the form should be a multipart form (i.e. contains a file field)
+  def multipart?(column_names)
+    return false unless column_names
+    column_names.each { |column_name| return true if @scaffold_class.scaffold_column_type(column_name) == :file }
+    false
+  end
+  
   # Returns an appropriate scaffolded data entry form for the model, with any related error messages.
   def scaffold_form(action, options = {})
-    "#{error_messages_for(@scaffold_singular_name)}\n#{form(@scaffold_singular_name, {:action=>"#{action}#{@scaffold_suffix}", :submit_value=>"#{action.capitalize} #{@scaffold_singular_name.humanize.downcase}"}.merge(options))}"
+    "#{error_messages_for(@scaffold_singular_name)}\n#{form(@scaffold_singular_name, {:action=>"#{action}#{@scaffold_suffix}", :submit_value=>"#{action.capitalize} #{@scaffold_singular_name.humanize.downcase}", :multipart=>multipart?(options[:fields])}.merge(options))}"
   end
   
   # Returns associated object's scaffold_name if column is an association, otherwise returns column value.

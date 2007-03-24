@@ -12,7 +12,7 @@
       <% if reflection.macro == :has_and_belongs_to_many %>
         <%= link_to_or_blank('(edit)', :action=>"edit_#{@scaffold_singular_name}_#{reflection.name.to_s.underscore}", :id=>@scaffold_singular_object.id) unless @scaffold_associations_readonly %>
       <% else %>
-        <%= link_to_or_blank('(new)', :action=>"new_#{reflection.klass.name.underscore}", "#{reflection.klass.name.underscore}[#{reflection.options[:foreign_key] || @scaffold_class.name.foreign_key}]"=>@scaffold_singular_object.id) unless @scaffold_associations_readonly %>
+        <%= link_to_or_blank('(new)', {:action=>"new_#{reflection.klass.name.underscore}"}.merge(reflection.options.include?(:as) ? {"#{reflection.klass.name.underscore}[#{reflection.options[:as]}_id]"=>@scaffold_singular_object.id, "#{reflection.klass.name.underscore}[#{reflection.options[:as]}_type]"=>@scaffold_class.name} : {"#{reflection.klass.name.underscore}[#{reflection.options[:foreign_key] || @scaffold_class.name.foreign_key}]"=>@scaffold_singular_object.id})) unless @scaffold_associations_readonly %>
       <% end %>
       <% if (records = @scaffold_singular_object.send(reflection.name)).length > 0 %>
         <ul>
