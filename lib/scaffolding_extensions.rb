@@ -699,13 +699,13 @@ module ActionController # :nodoc:
     # So if you to redirect to the edit page of an object just after creating it,
     # you may want to redefine scaffold_new_redirect:
     #
-    #  def scaffold_new_redirect(suffix)
+    #  def scaffold_edit_redirect(suffix)
     #    redirect_to({:action => "edit#{suffix}", :id=>params[:id].to_i})
     #  end
     #
     # You can also define redirects for a given action and a model:
     #
-    #  def scaffold_new_artist_redirect
+    #  def scaffold_edit_artist_redirect
     #    redirect_to({:controller=>'artists', :action=>"profile", :id=>params[:id].to_i})
     #  end
     def scaffold_redirect(action, suffix)
@@ -953,6 +953,7 @@ module ActionController # :nodoc:
               @#{singular_name}.update_scaffold_attributes(#{class_name}.scaffold_new_fields_replacing_associations, params[:#{singular_name}])
               if @#{singular_name}.save
                 flash[:notice] = "#{singular_name.humanize} was successfully created"
+                params[:id] = @#{singular_name}.id
                 scaffold_new_redirect('#{suffix}')
               else
                 render#{suffix}_scaffold('new')
