@@ -1146,7 +1146,7 @@ module ActionController # :nodoc:
                 @items_to_add = #{many_class_name}.find(:all, :conditions=>["#{many_class.primary_key} NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i], :order=>#{many_class_name}.scaffold_select_order).collect{|item| [item.scaffold_name, item.id]}
               end
               @scaffold_update_page = "update#{suffix}" 
-              render_scaffold_template("habtm")
+              render_scaffold_template("habtm#{suffix}")
             end
             
             def update#{suffix}
