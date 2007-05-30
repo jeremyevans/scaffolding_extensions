@@ -1046,7 +1046,9 @@ module ActionController # :nodoc:
         if add_methods.include?(:browse)
           code << <<-"end_eval"
             def _browse#{suffix}
-              @#{singular_name}_pages, @#{plural_name} = paginate(:#{plural_name}, :class_name=>'#{class_name}', :order=>#{class_name}.scaffold_browse_select_order, :include=>#{class_name}.scaffold_browse_include, :per_page => #{singular_class.scaffold_browse_records_per_page}) unless @#{singular_name}_pages && @#{plural_name}
+              @page ||= params[:page].to_i > 1 ? params[:page].to_i : 1
+              @#{plural_name} ||= #{class_name}.find(:all, :order=>#{class_name}.scaffold_browse_select_order, :include=>#{class_name}.scaffold_browse_include, :limit => #{singular_class.scaffold_browse_records_per_page+1}, :offset=>((@page-1)*#{singular_class.scaffold_browse_records_per_page}))
+              @next_page ||= true if @#{plural_name}.length == #{singular_class.scaffold_search_results_limit+1} && @#{plural_name}.pop
               @scaffold_fields_method = :scaffold_browse_fields
               render#{suffix}_scaffold('listtable#{suffix}')
             end

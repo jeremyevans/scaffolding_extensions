@@ -21,9 +21,9 @@
 <% end %>
 </tbody></table>
 
-<% if pages = instance_variable_get("@#{@scaffold_singular_name}_pages") %>
-  <%= link_to("Previous page", {:page=>pages.current.previous}) if pages.current.previous %>
-  <%= link_to("Next page", {:page=>pages.current.next}) if pages.current.next %> 
+<% if @page %>
+  <%= link_to("Previous page", {:page=>@page-1})  if @page > 1 %>
+  <%= link_to("Next page", {:page=>@page+1}) if @next_page %> 
 <% end %>
 
 <% if @scaffold_search_results_form_params %>
