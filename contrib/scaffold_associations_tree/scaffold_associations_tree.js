@@ -1,5 +1,5 @@
 /* Based on aqtree3clickable from http://www.kryogenix.org/code/browser/aqlists/
-Modifications by Jeremy Evans (jeremyevans0@gmail.com) */
+Modifications by Jeremy Evans (code@jeremyevans.net) */
 
 addEvent(window, "load", makeTreesC);
 

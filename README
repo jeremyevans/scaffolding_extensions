@@ -35,8 +35,8 @@ compatible with Rails 1.1.x (svn revision 61), but the current version is
 not. It is not tested on Edge Rails, it always targets the latest stable 
 Rails version.
 
-svn: svn://suven.no-ip.org/rails/plugins/scaffolding_extensions
-file: http://suven.no-ip.org/scaffolding_extensions.tar.gz
+svn: svn://code.jeremyevans.net/rails/plugins/scaffolding_extensions
+file: http://code.jeremyevans.net/code/scaffolding_extensions.tar.gz
 
 Quick Start
 ===========
@@ -269,5 +269,5 @@ or this for all models:
 Questions?
 ==========
 
-Feel free to contact me at jeremyevans0@gmail.com if you have any questions
+Feel free to contact me at code@jeremyevans.net if you have any questions
 about this plugin.
