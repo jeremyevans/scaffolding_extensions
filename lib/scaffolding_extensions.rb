@@ -733,7 +733,7 @@ module ActionController # :nodoc:
     #  end
     #
     def scaffold_habtm_redirect(suffix, success)
-      action = 'scaffold_habtm#{suffix}_redirect'
+      action = "scaffold_habtm#{suffix}_redirect"
       respond_to?(action) ? send(action, success) : redirect_to(:action=>"edit#{suffix}", :id=>params[:id].to_i)
     end
 
