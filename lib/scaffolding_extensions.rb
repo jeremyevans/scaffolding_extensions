@@ -124,7 +124,9 @@ module ActiveRecord # :nodoc:
         foreign_key = reflection.options[:foreign_key] || table_name.classify.foreign_key
         sql = case reflection.macro
           when :has_one, :has_many
-            "UPDATE #{reflection.klass.table_name} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}\n" 
+            return if reflection.options[:through]
+            foreign_key = "#{reflection.options[:as]}_id" if reflection.options[:as]
+            "UPDATE #{reflection.klass.table_name} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}#{" AND #{reflection.options[:as]}_type = #{quote_value(name.to_s)}" if reflection.options[:as]}\n"
           when :has_and_belongs_to_many
             join_table = reflection.options[:join_table] || ( table_name < reflection.klass.table_name ? '#{table_name}_#{reflection.klass.table_name}' : '#{reflection.klass.table_name}_#{table_name}')
             "UPDATE #{join_table} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}\n" 
