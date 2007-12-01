@@ -349,6 +349,7 @@ module ActiveRecord # :nodoc:
           conditions[0] << " AND #{scaffold_session_value} = ?"
           conditions << session_value
         end
+        conditions
       end
       
       # Return all records that match the given phrase (usually a substring of
