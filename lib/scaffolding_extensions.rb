@@ -63,6 +63,8 @@ module ActiveRecord # :nodoc:
   #   browse scaffold.  Uses scaffold_browse_default_records_per_page if not specified (example: 25)
   # - scaffold_search_results_limit - The limit on the number of records in the scaffolded search
   #   results page (example: 25)
+  # - scaffold_session_value - Use a value from the session to populate new values and control access
+  #    to current values (example: :user_id)
   # - scaffold_habtm_with_ajax - Whether to use Ajax for habtm associations for this class (example: true)
   # - scaffold_auto_complete_options - Hash merged with the auto complete default options to set
   #   the auto complete options for the model.  If the auto complete default options are set
@@ -90,7 +92,7 @@ module ActiveRecord # :nodoc:
     cattr_accessor :scaffold_convert_text_to_string, :scaffold_table_classes, :scaffold_column_types, :scaffold_column_options_hash, :scaffold_association_list_class, :scaffold_auto_complete_default_options, :scaffold_browse_default_records_per_page, :scaffold_search_results_default_limit, :scaffold_default_column_names, :scaffold_habtm_with_ajax_default, :scaffold_load_associations_with_ajax_default, :instance_writer => false
     
     class << self
-      attr_accessor :scaffold_select_order, :scaffold_include, :scaffold_associations_path, :scaffold_habtm_ajax_path
+      attr_accessor :scaffold_select_order, :scaffold_include, :scaffold_associations_path, :scaffold_habtm_ajax_path, :scaffold_session_value
       
       # Checks all files in the models directory to return strings for all models
       # that are a subclass of the current class
@@ -341,15 +343,19 @@ module ActiveRecord # :nodoc:
       end
       
       # The conditions to use for the scaffolded autocomplete find.
-      def scaffold_auto_complete_conditions(phrase)
-        [scaffold_auto_complete_conditions_phrase, (scaffold_auto_complete_search_format_string % phrase.send(scaffold_auto_complete_phrase_modifier))]
+      def scaffold_auto_complete_conditions(phrase, session_value = nil)
+        conditions = [scaffold_auto_complete_conditions_phrase, (scaffold_auto_complete_search_format_string % phrase.send(scaffold_auto_complete_phrase_modifier))]
+        if scaffold_session_value && session_value
+          conditions[0] << " AND #{scaffold_session_value} = ?"
+          conditions << session_value
+        end
       end
       
       # Return all records that match the given phrase (usually a substring of
       # the most important column).
       def scaffold_auto_complete_find(phrase, options = {})
         find_options = { :limit => scaffold_auto_complete_results_limit,
-            :conditions => scaffold_auto_complete_conditions(phrase), 
+            :conditions => scaffold_auto_complete_conditions(phrase, options.delete(:session_value)), 
             :order => scaffold_select_order,
             :include => scaffold_include}.merge(options)
         find(:all, find_options)
@@ -665,8 +671,10 @@ module ActionController # :nodoc:
       # Create controller instance method for returning results to the scaffold autocompletor
       # for the given model.
       def scaffold_auto_complete_for(object, options = {})
+        klass = object.to_s.camelize.constantize
         define_method("scaffold_auto_complete_for_#{object}") do
-          @items = object.to_s.camelize.constantize.scaffold_auto_complete_find(params[:id], options)
+          options[:session_value] = session[klass.scaffold_session_value] if klass.scaffold_session_value
+          @items = klass.scaffold_auto_complete_find(params[:id], options)
           render :inline => "<%= scaffold_auto_complete_result(@items) %>"
         end
       end
@@ -834,6 +842,10 @@ module ActionController # :nodoc:
         add_methods -= normalize_scaffold_options(options[:except]) if options[:except]
         normalize_scaffold_options(options[:habtm]).each{|habtm_association| code << scaffold_habtm(model_id, habtm_association, (singular_class.scaffold_habtm_with_ajax ? {:ajax=>true, :suffix=>suffix} : {}).merge(:generate=>options[:generate])).to_s}
         setup_scaffold_auto_completes unless options[:setup_auto_completes] == false
+        session_value = singular_class.scaffold_session_value
+        session_ivalue = "session[#{session_value.inspect}]" if session_value
+        session_conditions = ", :conditions=>['#{singular_class.table_name}.#{session_value} = ?', #{session_ivalue}]" if session_value
+        scaffold_raise = "raise ActiveRecord::RecordNotFound unless @#{singular_name}.#{session_value} == #{session_ivalue}" if session_value
         
         if add_methods.include?(:manage)
           code << <<-"end_eval"
@@ -859,7 +871,7 @@ module ActionController # :nodoc:
           code << <<-"end_eval"
             def list#{suffix}
               unless #{singular_class.scaffold_use_auto_complete}
-                @#{plural_name} ||= #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
+                @#{plural_name} ||= #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include #{session_conditions})
               end
               render#{suffix}_scaffold "list#{suffix}"
             end
@@ -873,6 +885,7 @@ module ActionController # :nodoc:
             def _show#{suffix}
               if params[:id]
                 @#{singular_name} ||= #{class_name}.find(params[:id].to_i)
+                #{scaffold_raise}
                 @scaffold_associations_readonly = true
                 render#{suffix}_scaffold
               else
@@ -889,7 +902,9 @@ module ActionController # :nodoc:
           code << <<-"end_eval"
             def _destroy#{suffix}
               if params[:id]
-                #{class_name}.find(params[:id].to_i).destroy
+                @#{singular_name} ||= #{class_name}.find(params[:id].to_i)
+                #{scaffold_raise}
+                @#{singular_name}.destroy
                 flash[:notice] = "#{singular_name.humanize} was successfully destroyed"
                 scaffold_destroy_redirect('#{suffix}')
               else
@@ -907,6 +922,7 @@ module ActionController # :nodoc:
             def _edit#{suffix}
               if params[:id]
                 @#{singular_name} ||= #{class_name}.find(params[:id].to_i)
+                #{scaffold_raise}
                 render#{suffix}_scaffold
               else
                 @scaffold_action = 'edit'
@@ -917,6 +933,7 @@ module ActionController # :nodoc:
             
             def _update#{suffix}
               @#{singular_name} ||= #{class_name}.find(params[:id])
+              #{scaffold_raise}
               @#{singular_name}.update_scaffold_attributes(#{class_name}.scaffold_edit_fields_replacing_associations, params[:#{singular_name}])
               
               if @#{singular_name}.save
@@ -934,6 +951,7 @@ module ActionController # :nodoc:
             code << <<-"end_eval"
             def _associations#{suffix}
               @#{singular_name} ||= #{class_name}.find(params[:id].to_i)
+              #{scaffold_raise}
               render#{suffix}_scaffold('associations', :inline=>"<%= habtm_ajax_associations if @scaffold_class.scaffold_habtm_with_ajax %>\n<%= association_links %>\n", :layout=>false)
             end
             #{scaffold_method("associations#{suffix}")}
@@ -953,6 +971,7 @@ module ActionController # :nodoc:
             def _create#{suffix}
               @#{singular_name} ||= #{class_name}.new
               @#{singular_name}.update_scaffold_attributes(#{class_name}.scaffold_new_fields_replacing_associations, params[:#{singular_name}])
+              #{"@#{singular_name}.#{session_value} = #{session_ivalue}" if session_value}
               if @#{singular_name}.save
                 flash[:notice] = "#{singular_name.humanize} was successfully created"
                 params[:id] = @#{singular_name}.id
@@ -1011,6 +1030,7 @@ module ActionController # :nodoc:
                 end
               end
               
+              #{"conditions[0] << '#{singular_class.table_name}.#{session_value} = ?'; conditions << #{session_ivalue}" if session_value}
               conditions[0] = conditions[0].join(' AND ')
               conditions = nil if conditions[0].length == 0
               @#{plural_name} = #{class_name}.find(:all, :conditions=>conditions, :include=>#{class_name}.scaffold_search_include, :order=>#{class_name}.scaffold_search_select_order, :limit=>limit, :offset=>offset)
@@ -1027,13 +1047,17 @@ module ActionController # :nodoc:
           code << <<-"end_eval"
             def _merge#{suffix}
               unless #{singular_class.scaffold_use_auto_complete}
-                @#{plural_name} ||= #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include)
+                @#{plural_name} ||= #{class_name}.find(:all, :order=>#{class_name}.scaffold_select_order, :include=>#{class_name}.scaffold_include #{session_conditions})
               end
               render#{suffix}_scaffold('merge#{suffix}')
             end
             #{scaffold_method("merge#{suffix}")}
             
             def _merge_update#{suffix}
+              #{"@#{singular_name} ||= #{class_name}.find(params[:from].to_i)" if session_value}
+              #{scaffold_raise}
+              #{"@#{singular_name} ||= #{class_name}.find(params[:to].to_i)" if session_value}
+              #{scaffold_raise}
               flash[:notice] = if #{class_name}.merge_records(params[:from].to_i, params[:to].to_i)
                 "#{plural_name.humanize} were successfully merged"
               else "Error merging #{plural_name.humanize.downcase}"
@@ -1049,7 +1073,7 @@ module ActionController # :nodoc:
           code << <<-"end_eval"
             def _browse#{suffix}
               @page ||= params[:page].to_i > 1 ? params[:page].to_i : 1
-              @#{plural_name} ||= #{class_name}.find(:all, :order=>#{class_name}.scaffold_browse_select_order, :include=>#{class_name}.scaffold_browse_include, :limit => #{singular_class.scaffold_browse_records_per_page+1}, :offset=>((@page-1)*#{singular_class.scaffold_browse_records_per_page}))
+              @#{plural_name} ||= #{class_name}.find(:all, :order=>#{class_name}.scaffold_browse_select_order, :include=>#{class_name}.scaffold_browse_include, :limit => #{singular_class.scaffold_browse_records_per_page+1}, :offset=>((@page-1)*#{singular_class.scaffold_browse_records_per_page}) #{session_conditions})
               @next_page ||= true if @#{plural_name}.length == #{singular_class.scaffold_search_results_limit+1} && @#{plural_name}.pop
               @scaffold_fields_method = :scaffold_browse_fields
               render#{suffix}_scaffold('listtable#{suffix}')
@@ -1106,12 +1130,18 @@ module ActionController # :nodoc:
         foreign_key = reflection.options[:foreign_key] || singular_class.table_name.classify.foreign_key
         association_foreign_key = reflection.options[:association_foreign_key] || many_class.table_name.classify.foreign_key
         join_table = reflection.options[:join_table] || ( singular_class.table_name < many_class.table_name ? '#{singular_class.table_name}_#{many_class.table_name}' : '#{many_class.table_name}_#{singular_class.table_name}')
+        session_svalue = singular_class.scaffold_session_value
+        session_mvalue = many_class.scaffold_session_value
         code = if options[:ajax]
           suffix = options[:suffix]
+          scaffold_sraise = "raise ActiveRecord::RecordNotFound unless @record.#{session_svalue} == session[#{session_svalue.inspect}]" if session_svalue
+          scaffold_mraise = "raise ActiveRecord::RecordNotFound unless @associated_record.#{session_mvalue} == session[#{session_mvalue.inspect}]" if session_mvalue
           <<-"end_eval"
             def add_#{many}_to_#{singular}
               @record = #{singular_name}.find(params[:id].to_i)
+              #{scaffold_sraise}
               @associated_record = #{many_class_name}.find(params[:#{singular}_#{many}_id].to_i)
+              #{scaffold_mraise}
               #{singular_name}.connection.execute("INSERT INTO #{join_table} (#{foreign_key}, #{association_foreign_key}) VALUES (\#{@record.id}, \#{@associated_record.id})")
               if request.xhr?
                 render :update do |page|
@@ -1125,7 +1155,9 @@ module ActionController # :nodoc:
               
             def remove_#{many}_from_#{singular}
               @record = #{singular_name}.find(params[:id].to_i)
+              #{scaffold_sraise}
               @associated_record = #{many_class_name}.find(params[:#{singular}_#{many}_id].to_i)
+              #{scaffold_mraise}
               @record.#{many_name}.delete(@associated_record)
               if request.xhr?
                 render(:update) do |page| 
@@ -1139,15 +1171,22 @@ module ActionController # :nodoc:
           end_eval
         else
           suffix = "_#{singular_name.underscore}_#{many_name}" 
+          scaffold_mraise = "raise ActiveRecord::RecordNotFound unless @associated_record.#{session_mvalue} == session[#{session_mvalue.inspect}]" if session_mvalue
+          scaffold_mconditions = "conditions[0] << 'AND #{session_mvalue} = ?'; conditions << session[#{session_mvalue.inspect}]" if scaffold_mvalue
           <<-"end_eval"
             def edit#{suffix}
               @singular_name = "#{singular_name}" 
               @many_name = "#{many_name.gsub('_',' ')}" 
               @singular_object = #{singular_name}.find(params[:id])
+              #{"raise ActiveRecord::RecordNotFound unless @singular_object.#{session_svalue} == session[#{session_svalue.inspect}]" if session_svalue}
               @many_class = #{many_class_name}
-              @items_to_remove = #{many_class_name}.find(:all, :conditions=>["#{many_class.primary_key} IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i], :order=>#{many_class_name}.scaffold_select_order).collect{|item| [item.scaffold_name, item.id]}
+              conditions = ["#{many_class.primary_key} IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i]
+              #{scaffold_mconditions}
+              @items_to_remove = #{many_class_name}.find(:all, :conditions=>conditions, :order=>#{many_class_name}.scaffold_select_order).collect{|item| [item.scaffold_name, item.id]}
               unless #{many_class.scaffold_use_auto_complete}
-                @items_to_add = #{many_class_name}.find(:all, :conditions=>["#{many_class.primary_key} NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i], :order=>#{many_class_name}.scaffold_select_order).collect{|item| [item.scaffold_name, item.id]}
+                conditions = ["#{many_class.primary_key} NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", params[:id].to_i]
+                #{scaffold_mconditions}
+                @items_to_add = #{many_class_name}.find(:all, :conditions=>conditions, :order=>#{many_class_name}.scaffold_select_order).collect{|item| [item.scaffold_name, item.id]}
               end
               @scaffold_update_page = "update#{suffix}" 
               render_scaffold_template("habtm#{suffix}")
@@ -1156,14 +1195,20 @@ module ActionController # :nodoc:
             def update#{suffix}
               flash[:notice], success = begin
                 singular_item = #{singular_name}.find(params[:id])
+                #{"raise ActiveRecord::RecordNotFound unless singular_item.#{session_svalue} == session[#{session_svalue.inspect}]" if session_svalue}
                 if params[:add] && !params[:add].empty?
                   #{singular_name}.transaction do
                     multiple_select_ids(params[:add]).each do |associated_record_id|
+                      #{"raise ActiveRecord::RecordNotFound unless #{many_class_name}.find(associated_record_id).#{scaffold_mvalue} == session[#{session_mvalue.inspect}]" if scaffold_mvalue}
                       #{singular_name}.connection.execute("INSERT INTO #{join_table} (#{foreign_key}, #{association_foreign_key}) VALUES (\#{singular_item.id}, \#{associated_record_id})")
                     end
                   end 
                 end
-                singular_item.#{many_name}.delete(#{many_class_name}.find(multiple_select_ids(params[:remove]))) if params[:remove] && !params[:remove].empty?
+                if params[:remove] && !params[:remove].empty?
+                  many_items = #{many_class_name}.find(multiple_select_ids(params[:remove]))
+                  #{"many_items.each{|item| raise ActiveRecord::RecordNotFound unless item.#{scaffold_mvalue} == session[#{session_mvalue.inspect}]}" if scaffold_mvalue}
+                  singular_item.#{many_name}.delete(many_items)
+                end
                 ["Updated #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase} successfully", true]
               rescue ::ActiveRecord::StatementInvalid
                 ["Error updating #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase}", false]

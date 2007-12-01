@@ -17,6 +17,7 @@
       <% if (records = @scaffold_singular_object.send(reflection.name)).length > 0 %>
         <ul>
         <% records.each do |associated| %>
+          <% next if associated.class.scaffold_session_value && associated.send(associated.class.scaffold_session_value) != session[associated.class.scaffold_session_value] %>
           <li><%= link_to_or_text(h(associated.scaffold_name), :action=>"#{@scaffold_associations_readonly ? 'show' : 'edit'}_#{reflection.klass.name.underscore}", :id=>(reflection.macro == :has_and_belongs_to_many ? associated.send(reflection.options[:association_foreign_key] || reflection.klass.name.foreign_key) : associated.id)) %></li>
         <% end %>
         </ul>
