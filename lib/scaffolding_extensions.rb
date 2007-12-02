@@ -453,7 +453,12 @@ module ActionView # :nodoc:
         if reflection.klass.scaffold_use_auto_complete
           scaffold_text_field_with_auto_complete(record, foreign_key, reflection.klass.name.underscore)
         else
-          items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions => reflection.klass.interpolate_conditions(reflection.options[:conditions]), :include=>reflection.klass.scaffold_include)
+          conditions = reflection.klass.interpolate_conditions(reflection.options[:conditions])
+          if reflection.klass.scaffold_session_value
+            session_conditions = "#{reflection.klass.table_name}.#{reflection.klass.scaffold_session_value} = #{session[reflection.klass.scaffold_session_value]}"
+            conditions = conditions ? "#{conditions} AND #{session_conditions}" : session_conditions
+          end
+          items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions => conditions, :include=>reflection.klass.scaffold_include)
           select(record, foreign_key, items.collect{|i| [i.scaffold_name, i.id]}, {:include_blank=>true})
         end
       end
@@ -469,7 +474,7 @@ module ActionView # :nodoc:
           foreign_key = reflection.options[:foreign_key] || singular_class.table_name.classify.foreign_key
           association_foreign_key = reflection.options[:association_foreign_key] || reflection.klass.table_name.classify.foreign_key
           join_table = reflection.options[:join_table] || ( singular_class.table_name < reflection.klass.table_name ? '#{singular_class.table_name}_#{reflection.klass.table_name}' : '#{reflection.klass.table_name}_#{singular_class.table_name}')
-          items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions =>["#{reflection.klass.table_name}.#{reflection.klass.primary_key} NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?)", record.id], :include=>reflection.klass.scaffold_include)
+          items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions =>["#{reflection.klass.table_name}.#{reflection.klass.primary_key} NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?) #{"AND #{reflection.klass.table_name}.#{reflection.klass.scaffold_session_value} = #{session[reflection.klass.scaffold_session_value]}" if reflection.klass.scaffold_session_value}", record.id], :include=>reflection.klass.scaffold_include)
           select_tag(id, "<option></option>" << items.collect{|item| "<option value='#{item.id}' id='#{id}_#{item.id}'>#{h item.scaffold_name}</option>"}.join("\n"))
         end
       end
