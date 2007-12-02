@@ -1173,7 +1173,7 @@ module ActionController # :nodoc:
         else
           suffix = "_#{singular_name.underscore}_#{many_name}" 
           scaffold_mraise = "raise ActiveRecord::RecordNotFound unless @associated_record.#{session_mvalue} == session[#{session_mvalue.inspect}]" if session_mvalue
-          scaffold_mconditions = "conditions[0] << 'AND #{session_mvalue} = ?'; conditions << session[#{session_mvalue.inspect}]" if scaffold_mvalue
+          scaffold_mconditions = "conditions[0] << 'AND #{session_mvalue} = ?'; conditions << session[#{session_mvalue.inspect}]" if session_mvalue
           <<-"end_eval"
             def edit#{suffix}
               @singular_name = "#{singular_name}" 
@@ -1200,14 +1200,14 @@ module ActionController # :nodoc:
                 if params[:add] && !params[:add].empty?
                   #{singular_name}.transaction do
                     multiple_select_ids(params[:add]).each do |associated_record_id|
-                      #{"raise ActiveRecord::RecordNotFound unless #{many_class_name}.find(associated_record_id).#{scaffold_mvalue} == session[#{session_mvalue.inspect}]" if scaffold_mvalue}
+                      #{"raise ActiveRecord::RecordNotFound unless #{many_class_name}.find(associated_record_id).#{session_mvalue} == session[#{session_mvalue.inspect}]" if session_mvalue}
                       #{singular_name}.connection.execute("INSERT INTO #{join_table} (#{foreign_key}, #{association_foreign_key}) VALUES (\#{singular_item.id}, \#{associated_record_id})")
                     end
                   end 
                 end
                 if params[:remove] && !params[:remove].empty?
                   many_items = #{many_class_name}.find(multiple_select_ids(params[:remove]))
-                  #{"many_items.each{|item| raise ActiveRecord::RecordNotFound unless item.#{scaffold_mvalue} == session[#{session_mvalue.inspect}]}" if scaffold_mvalue}
+                  #{"many_items.each{|item| raise ActiveRecord::RecordNotFound unless item.#{session_mvalue} == session[#{session_mvalue.inspect}]}" if session_mvalue}
                   singular_item.#{many_name}.delete(many_items)
                 end
                 ["Updated #{singular_name.underscore.humanize.downcase}'s #{many_name.humanize.downcase} successfully", true]
