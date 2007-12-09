@@ -1,4 +1,6 @@
 # Scaffolding Extensions
+require 'set'
+
 module ActiveRecord # :nodoc:
   # Modifying class variables allows you to set various defaults for scaffolding. 
   # Note that if multiple subclasses each modify the class variables, chaos will ensue.
@@ -478,15 +480,15 @@ module ActionView # :nodoc:
           select_tag(id, "<option></option>" << items.collect{|item| "<option value='#{item.id}' id='#{id}_#{item.id}'>#{h item.scaffold_name}</option>"}.join("\n"))
         end
       end
-    end
-    
-    # Methods used to implement scaffold autocompleting
-    module JavaScriptMacrosHelper
+      
       # Line item with button for removing the associated record from the current record
       def scaffold_habtm_association_line_item(record, record_name, associated_record, associated_record_name)
         "<li id='#{record_name}_#{record.id}_#{associated_record_name}_#{associated_record.id}'>#{link_to_or_text(associated_record_name.humanize, :action=>"manage_#{associated_record.class.name.underscore}")} - #{link_to_or_text(h(associated_record.scaffold_name), :action=>"edit_#{associated_record.class.name.underscore}", :id=>associated_record.id)} #{button_to_remote('Remove', :url=>url_for(:action=>"remove_#{associated_record_name}_from_#{record_name}", :id=>record.id, "#{record_name}_#{associated_record_name}_id".to_sym=>associated_record.id))}</li>"
       end
-      
+    end
+        
+    # Methods used to implement scaffold autocompleting
+    module ScaffoldAutoCompleteMacrosHelper
       # Text field with autocompleting used for belongs_to associations of main object in scaffolded forms.
       def scaffold_text_field_with_auto_complete(object, method, associated_class, tag_options = {})
         klass = associated_class.to_s.camelize.constantize
@@ -645,66 +647,16 @@ module ActionController # :nodoc:
     @@default_scaffold_methods = [:manage, :show, :destroy, :edit, :new, :search, :merge, :browse]
     cattr_accessor :scaffold_template_dir, :default_scaffold_methods, :instance_writer => false
     
-    class << self
-      # The location of the scaffold templates
-      def scaffold_template_dir
-        @scaffold_template_dir ||= @@scaffold_template_dir
-      end
-      
-      # The methods that should be added by the scaffolding function by default
-      def default_scaffold_methods
-        @default_scaffold_methods ||= @@default_scaffold_methods
-      end
-      
-      # Returns path to the given scaffold rhtml file
-      def scaffold_path(template_name)
-        File.join(scaffold_template_dir, template_name+'.rhtml')
-      end
-      
-      def scaffold_method(method_name) # :nodoc:
-        "alias_method :#{method_name}, :_#{method_name}; private :_#{method_name};"
-      end
-      
-      # Normalizes scaffold options, allowing submission of symbols or arrays
-      def normalize_scaffold_options(options)
-        case options
-          when Array then options
-          when Symbol then [options]
-          else []
-        end
-      end
-      
-      # Create controller instance method for returning results to the scaffold autocompletor
-      # for the given model.
-      def scaffold_auto_complete_for(object, options = {})
-        klass = object.to_s.camelize.constantize
-        define_method("scaffold_auto_complete_for_#{object}") do
-          options[:session_value] = session[klass.scaffold_session_value] if klass.scaffold_session_value
-          @items = klass.scaffold_auto_complete_find(params[:id], options)
-          render :inline => "<%= scaffold_auto_complete_result(@items) %>"
-        end
-      end
-      
-      # Setup scaffold auto complete for the model if it is requested by model
-      # and it hasn't already been setup.
-      def setup_scaffold_auto_complete_for(model_id)
-        scaffold_auto_complete_for(model_id) if model_id.to_s.camelize.constantize.scaffold_use_auto_complete && !respond_to?("scaffold_auto_complete_for_#{model_id}")
-      end
-      
-      # Setup scaffold_auto_complete_for for the given controller for all models
-      # implementing scaffold autocompleting.  If scaffolding is used in multiple
-      # controllers, scaffold_auto_complete_for methods for all models will be added
-      # to all controllers.
-      def setup_scaffold_auto_completes
-        return if @scaffold_auto_completes_are_setup
-        ActiveRecord::Base.all_models.each{|model| setup_scaffold_auto_complete_for(model.to_sym)}
-        @scaffold_auto_completes_are_setup = true
-      end
-    end
+    helper ActionView::Helpers::ScaffoldAutoCompleteMacrosHelper
     
     # Returns path to the given scaffold rhtml file
     def scaffold_path(template_name)
       self.class.scaffold_path(template_name)
+    end
+    
+    # Return whether scaffolding provided the method, whether or not it was overwritten
+    def scaffolded_method?(method_name)
+      self.class.scaffolded_methods.include?(method_name)
     end
     
     private
@@ -798,10 +750,66 @@ module ActionController # :nodoc:
         conditions << record.send(field)
       end
     end
-  end
   
-  module Scaffolding # :nodoc:
-    module ClassMethods
+    class << self
+      attr_accessor :scaffolded_methods
+      
+      # The location of the scaffold templates
+      def scaffold_template_dir
+        @scaffold_template_dir ||= @@scaffold_template_dir
+      end
+      
+      # The methods that should be added by the scaffolding function by default
+      def default_scaffold_methods
+        @default_scaffold_methods ||= @@default_scaffold_methods
+      end
+      
+      # Returns path to the given scaffold rhtml file
+      def scaffold_path(template_name)
+        File.join(scaffold_template_dir, template_name+'.rhtml')
+      end
+      
+      def scaffold_method(method_name) # :nodoc:
+        scaffolded_methods.add(method_name)
+        "alias_method :#{method_name}, :_#{method_name}; private :_#{method_name};"
+      end
+      
+      # Normalizes scaffold options, allowing submission of symbols or arrays
+      def normalize_scaffold_options(options)
+        case options
+          when Array then options
+          when Symbol then [options]
+          else []
+        end
+      end
+      
+      # Create controller instance method for returning results to the scaffold autocompletor
+      # for the given model.
+      def scaffold_auto_complete_for(object, options = {})
+        klass = object.to_s.camelize.constantize
+        define_method("scaffold_auto_complete_for_#{object}") do
+          options[:session_value] = session[klass.scaffold_session_value] if klass.scaffold_session_value
+          @items = klass.scaffold_auto_complete_find(params[:id], options)
+          render :inline => "<%= scaffold_auto_complete_result(@items) %>"
+        end
+      end
+      
+      # Setup scaffold auto complete for the model if it is requested by model
+      # and it hasn't already been setup.
+      def setup_scaffold_auto_complete_for(model_id)
+        scaffold_auto_complete_for(model_id) if model_id.to_s.camelize.constantize.scaffold_use_auto_complete && !respond_to?("scaffold_auto_complete_for_#{model_id}")
+      end
+      
+      # Setup scaffold_auto_complete_for for the given controller for all models
+      # implementing scaffold autocompleting.  If scaffolding is used in multiple
+      # controllers, scaffold_auto_complete_for methods for all models will be added
+      # to all controllers.
+      def setup_scaffold_auto_completes
+        return if @scaffold_auto_completes_are_setup
+        ActiveRecord::Base.all_models.each{|model| setup_scaffold_auto_complete_for(model.to_sym)}
+        @scaffold_auto_completes_are_setup = true
+      end
+        
       # Expands on the default Rails scaffold function.
       # Takes the following additional options:
       #
@@ -839,6 +847,7 @@ module ActionController # :nodoc:
           :setup_auto_completes, :scaffold_all_models, :generate)
         
         code = ''
+        self.scaffolded_methods ||= Set.new
         singular_name = model_id.to_s.underscore
         class_name    = options[:class_name] || singular_name.camelize
         singular_class = class_name.constantize
@@ -864,6 +873,7 @@ module ActionController # :nodoc:
           end_eval
           
           unless options[:suffix]
+            scaffolded_methods.add("index")
             code << <<-"end_eval"
               def index
                 manage
@@ -874,6 +884,7 @@ module ActionController # :nodoc:
         end
         
         if add_methods.include?(:show) or add_methods.include?(:destroy) or add_methods.include?(:edit)
+          scaffolded_methods.add("list#{suffix}")
           code << <<-"end_eval"
             def list#{suffix}
               unless #{singular_class.scaffold_use_auto_complete}
@@ -1124,6 +1135,7 @@ module ActionController # :nodoc:
       # - :suffix - only needed for redirects for non-Ajax browsers using the ajax form, used by scaffold      
       # - :generate - return code generated instead of evaluating it
       def scaffold_habtm(singular, many, options = true)
+        self.scaffolded_methods ||= Set.new
         options = options.is_a?(Hash) ? Hash.new.merge(options) : {:both_ways=>options}
         singular_class = singular.to_s.camelize.constantize
         singular_name = singular_class.name
@@ -1139,6 +1151,8 @@ module ActionController # :nodoc:
         session_svalue = singular_class.scaffold_session_value
         session_mvalue = many_class.scaffold_session_value
         code = if options[:ajax]
+          scaffolded_methods.add("add_#{many}_to_#{singular}")
+          scaffolded_methods.add("remove_#{many}_from_#{singular}")
           suffix = options[:suffix]
           scaffold_sraise = "raise ActiveRecord::RecordNotFound unless @record.#{session_svalue} == session[#{session_svalue.inspect}]" if session_svalue
           scaffold_mraise = "raise ActiveRecord::RecordNotFound unless @associated_record.#{session_mvalue} == session[#{session_mvalue.inspect}]" if session_mvalue
@@ -1177,6 +1191,8 @@ module ActionController # :nodoc:
           end_eval
         else
           suffix = "_#{singular_name.underscore}_#{many_name}" 
+          scaffolded_methods.add("edit#{suffix}")
+          scaffolded_methods.add("update#{suffix}")
           scaffold_mraise = "raise ActiveRecord::RecordNotFound unless @associated_record.#{session_mvalue} == session[#{session_mvalue.inspect}]" if session_mvalue
           scaffold_mconditions = "conditions[0] << 'AND #{session_mvalue} = ?'; conditions << session[#{session_mvalue.inspect}]" if session_mvalue
           <<-"end_eval"
@@ -1243,6 +1259,7 @@ module ActionController # :nodoc:
       #     - Value is a hash of scaffold options.
       #     - To use a different singular name, use :model_id=>'singular_name' inside the value hash
       def scaffold_all_models(*models)
+        self.scaffolded_methods ||= Set.new
         models = parse_scaffold_all_models_options(*models)
         model_names = []
         scaffold_results = models.collect{|model, options| model_names << model.to_s; scaffold(model, options)}.compact
