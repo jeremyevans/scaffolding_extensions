@@ -125,15 +125,13 @@ module ActiveRecord # :nodoc:
       # Updates associated records for a given reflection and from record to point to the
       # to record
       def reflection_merge(reflection, from, to)
-        foreign_key = reflection.options[:foreign_key] || table_name.classify.foreign_key
+        foreign_key = reflection.primary_key_name
         sql = case reflection.macro
           when :has_one, :has_many
             return if reflection.options[:through]
-            foreign_key = "#{reflection.options[:as]}_id" if reflection.options[:as]
             "UPDATE #{reflection.klass.table_name} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}#{" AND #{reflection.options[:as]}_type = #{quote_value(name.to_s)}" if reflection.options[:as]}\n"
           when :has_and_belongs_to_many
-            join_table = reflection.options[:join_table] || ( table_name < reflection.klass.table_name ? '#{table_name}_#{reflection.klass.table_name}' : '#{reflection.klass.table_name}_#{table_name}')
-            "UPDATE #{join_table} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}\n" 
+            "UPDATE #{reflection.options[:join_table]} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}\n" 
           else return
         end
         connection.update(sql)
@@ -165,7 +163,7 @@ module ActiveRecord # :nodoc:
         @scaffold_fields = columns.reject{|c| c.primary || c.name =~ /_count$/ || c.name == inheritance_column }.collect{|c| c.name}
         reflect_on_all_associations.each do |reflection|
           next if reflection.macro != :belongs_to || reflection.options.include?(:polymorphic)
-          @scaffold_fields.delete((reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key).to_s)
+          @scaffold_fields.delete(reflection.primary_key_name)
           @scaffold_fields.push(reflection.name.to_s)
         end
         @scaffold_fields.sort!
@@ -215,7 +213,7 @@ module ActiveRecord # :nodoc:
         else
           fields.collect do |field|
             reflection = reflect_on_association(field.to_sym)
-            reflection ? (reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key) : field
+            reflection ? reflection.primary_key_name : field
           end
         end
       end
@@ -424,7 +422,7 @@ module ActionView # :nodoc:
           column_name = column.send(column.is_a?(String) || column.is_a?(Symbol) ? :to_s : :name)
           label_id, tag = if column.class.name =~ /Reflection/
             next unless column.macro == :belongs_to
-            ["#{record_name}_#{column.options[:foreign_key] || column.klass.table_name.classify.foreign_key}", association_select_tag(record_name, column_name)]
+            ["#{record_name}_#{column.primary_key_name}", association_select_tag(record_name, column_name)]
           else
             ["#{record_name}_#{column_name}", input(record_name, column_name) || text_field(record_name, column_name)]
           end
@@ -451,9 +449,8 @@ module ActionView # :nodoc:
       # on for the associated model, uses an autocompleting text box. 
       def association_select_tag(record, association)
         reflection = record.camelize.constantize.reflect_on_association(association)
-        foreign_key = reflection.options[:foreign_key] || reflection.klass.table_name.classify.foreign_key
         if reflection.klass.scaffold_use_auto_complete
-          scaffold_text_field_with_auto_complete(record, foreign_key, reflection.klass.name.underscore)
+          scaffold_text_field_with_auto_complete(record, reflection.primary_key_name, reflection.klass.name.underscore)
         else
           conditions = reflection.klass.interpolate_conditions(reflection.options[:conditions])
           if reflection.klass.scaffold_session_value
@@ -461,7 +458,7 @@ module ActionView # :nodoc:
             conditions = conditions ? "#{conditions} AND #{session_conditions}" : session_conditions
           end
           items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions => conditions, :include=>reflection.klass.scaffold_include)
-          select(record, foreign_key, items.collect{|i| [i.scaffold_name, i.id]}, {:include_blank=>true})
+          select(record, reflection.primary_key_name, items.collect{|i| [i.scaffold_name, i.id]}, {:include_blank=>true})
         end
       end
       
@@ -473,10 +470,9 @@ module ActionView # :nodoc:
           scaffold_text_field_tag_with_auto_complete(id, reflection.klass)
         else
           singular_class = record.class
-          foreign_key = reflection.options[:foreign_key] || singular_class.table_name.classify.foreign_key
-          association_foreign_key = reflection.options[:association_foreign_key] || reflection.klass.table_name.classify.foreign_key
-          join_table = reflection.options[:join_table] || ( singular_class.table_name < reflection.klass.table_name ? '#{singular_class.table_name}_#{reflection.klass.table_name}' : '#{reflection.klass.table_name}_#{singular_class.table_name}')
-          items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions =>["#{reflection.klass.table_name}.#{reflection.klass.primary_key} NOT IN (SELECT #{association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?) #{"AND #{reflection.klass.table_name}.#{reflection.klass.scaffold_session_value} = #{session[reflection.klass.scaffold_session_value]}" if reflection.klass.scaffold_session_value}", record.id], :include=>reflection.klass.scaffold_include)
+          foreign_key = reflection.primary_key_name
+          join_table = reflection.options[:join_table]
+          items = reflection.klass.find(:all, :order => reflection.klass.scaffold_select_order, :conditions =>["#{reflection.klass.table_name}.#{reflection.klass.primary_key} NOT IN (SELECT #{reflection.association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{foreign_key} = ?) #{"AND #{reflection.klass.table_name}.#{reflection.klass.scaffold_session_value} = #{session[reflection.klass.scaffold_session_value]}" if reflection.klass.scaffold_session_value}", record.id], :include=>reflection.klass.scaffold_include)
           select_tag(id, "<option></option>" << items.collect{|item| "<option value='#{item.id}' id='#{id}_#{item.id}'>#{h item.scaffold_name}</option>"}.join("\n"))
         end
       end
@@ -1145,9 +1141,9 @@ module ActionController # :nodoc:
         many_class_name = many_class.name
         many_name = many.to_s.pluralize.underscore
         setup_scaffold_auto_complete_for(many_class_name.underscore.to_sym)
-        foreign_key = reflection.options[:foreign_key] || singular_class.table_name.classify.foreign_key
-        association_foreign_key = reflection.options[:association_foreign_key] || many_class.table_name.classify.foreign_key
-        join_table = reflection.options[:join_table] || ( singular_class.table_name < many_class.table_name ? '#{singular_class.table_name}_#{many_class.table_name}' : '#{many_class.table_name}_#{singular_class.table_name}')
+        foreign_key = reflection.primary_key_name
+        association_foreign_key = reflection.association_foreign_key
+        join_table = reflection.options[:join_table]
         session_svalue = singular_class.scaffold_session_value
         session_mvalue = many_class.scaffold_session_value
         code = if options[:ajax]

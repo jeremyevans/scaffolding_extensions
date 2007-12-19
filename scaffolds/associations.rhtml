@@ -12,13 +12,13 @@
       <% if reflection.macro == :has_and_belongs_to_many %>
         <%= link_to_or_blank('(edit)', :action=>"edit_#{@scaffold_singular_name}_#{reflection.name.to_s.underscore}", :id=>@scaffold_singular_object.id) unless @scaffold_associations_readonly %>
       <% else %>
-        <%= link_to_or_blank('(new)', {:action=>"new_#{reflection.klass.name.underscore}"}.merge(reflection.options.include?(:as) ? {"#{reflection.klass.name.underscore}[#{reflection.options[:as]}_id]"=>@scaffold_singular_object.id, "#{reflection.klass.name.underscore}[#{reflection.options[:as]}_type]"=>@scaffold_class.name} : {"#{reflection.klass.name.underscore}[#{reflection.options[:foreign_key] || @scaffold_class.name.foreign_key}]"=>@scaffold_singular_object.id})) unless @scaffold_associations_readonly %>
+        <%= link_to_or_blank('(new)', {:action=>"new_#{reflection.klass.name.underscore}", "#{reflection.klass.name.underscore}[#{reflection.primary_key_name}]"=>@scaffold_singular_object.id}.merge(reflection.options.include?(:as) ? {"#{reflection.klass.name.underscore}[#{reflection.options[:as]}_type]"=>@scaffold_class.name} : {})) unless @scaffold_associations_readonly %>
       <% end %>
       <% if (records = @scaffold_singular_object.send(reflection.name)).length > 0 %>
         <ul>
         <% records.each do |associated| %>
           <% next if associated.class.scaffold_session_value && associated.send(associated.class.scaffold_session_value) != session[associated.class.scaffold_session_value] %>
-          <li><%= link_to_or_text(h(associated.scaffold_name), :action=>"#{@scaffold_associations_readonly ? 'show' : 'edit'}_#{reflection.klass.name.underscore}", :id=>(reflection.macro == :has_and_belongs_to_many ? associated.send(reflection.options[:association_foreign_key] || reflection.klass.name.foreign_key) : associated.id)) %></li>
+          <li><%= link_to_or_text(h(associated.scaffold_name), :action=>"#{@scaffold_associations_readonly ? 'show' : 'edit'}_#{reflection.klass.name.underscore}", :id=>(reflection.macro == :has_and_belongs_to_many ? associated.send(reflection.association_foreign_key) : associated.id)) %></li>
         <% end %>
         </ul>
       <% end %>
