@@ -160,7 +160,7 @@ module ActiveRecord # :nodoc:
       # class method or class instance variable.
       def scaffold_fields
         return @scaffold_fields if @scaffold_fields
-        @scaffold_fields = columns.reject{|c| c.primary || c.name =~ /_count$/ || c.name == inheritance_column }.collect{|c| c.name}
+        @scaffold_fields = columns.reject{|c| c.primary || c.name =~ /(\A(created|updated)_at|_count)\z/ || c.name == inheritance_column}.collect{|c| c.name}
         reflect_on_all_associations.each do |reflection|
           next if reflection.macro != :belongs_to || reflection.options.include?(:polymorphic)
           @scaffold_fields.delete(reflection.primary_key_name)
@@ -431,7 +431,7 @@ module ActionView # :nodoc:
         
       # Wrap all input tags (table rows) in a table
       def all_input_tags_wrapper(record, rows)
-        "\n<table class='#{record.class.scaffold_table_class :form}'><tbody>\n#{rows.join}</tbody></table>\n"
+        "\n#{token_tag}\n<table class='#{record.class.scaffold_table_class :form}'><tbody>\n#{rows.join}</tbody></table>\n"
       end
       
       # Wrap label and widget in table row
@@ -505,7 +505,7 @@ module ActionView # :nodoc:
       
       # Javascript code for setting up autocomplete for given field_id
       def scaffold_auto_complete_field(field_id, options = {})
-        javascript_tag("var #{field_id}_auto_completer = new Ajax.Autocompleter('#{field_id}', '#{options[:update] || "#{field_id}_scaffold_auto_complete"}', '#{url_for(options[:url])}', {paramName:'id'})")
+        javascript_tag("var #{field_id}_auto_completer = new Ajax.Autocompleter('#{field_id}', '#{options[:update] || "#{field_id}_scaffold_auto_complete"}', '#{url_for(options[:url])}', {paramName:'id', method:'get'})")
       end
       
       # Formats the records returned by scaffold autocompleting to be displayed
@@ -640,7 +640,7 @@ module ActionController # :nodoc:
   #   (default: [:manage, :show, :destroy, :edit, :new, :search, :merge, :browse] # all methods)
   class Base
     @@scaffold_template_dir = "#{File.dirname(__FILE__)}/../scaffolds"
-    @@default_scaffold_methods = [:manage, :show, :destroy, :edit, :new, :search, :merge, :browse]
+    @@default_scaffold_methods = [:manage, :show, :delete, :edit, :new, :search, :merge, :browse]
     cattr_accessor :scaffold_template_dir, :default_scaffold_methods, :instance_writer => false
     
     helper ActionView::Helpers::ScaffoldAutoCompleteMacrosHelper
@@ -653,6 +653,11 @@ module ActionController # :nodoc:
     # Return whether scaffolding provided the method, whether or not it was overwritten
     def scaffolded_method?(method_name)
       self.class.scaffolded_methods.include?(method_name)
+    end
+    
+    # Return whether scaffolding provided the method, if the method is nonidempotent
+    def scaffolded_nonidempotent_method?(method_name)
+      self.class.scaffolded_nonidempotent_methods.include?(method_name)
     end
     
     private
@@ -676,7 +681,7 @@ module ActionController # :nodoc:
       redirect_to({:action => "#{action}#{suffix}", :id=>nil})
     end
     
-    %w'destroy edit new merge'.each do |action|
+    %w'delete edit new merge'.each do |action|
       module_eval <<-"end_eval", __FILE__, __LINE__
         def scaffold_#{action}_redirect(suffix)
           action = 'scaffold_#{action}\#{suffix}_redirect'
@@ -746,9 +751,14 @@ module ActionController # :nodoc:
         conditions << record.send(field)
       end
     end
+    
+    # Return an errorpage if the action requested is nonidempotent and the method used isn't POST
+    def scaffold_check_nonidempotent_requests
+      head(:method_not_allowed) if scaffolded_nonidempotent_method?(params[:action]) && request.method != :post
+    end
   
     class << self
-      attr_accessor :scaffolded_methods
+      attr_accessor :scaffolded_methods, :scaffolded_nonidempotent_methods
       
       # The location of the scaffold templates
       def scaffold_template_dir
@@ -805,6 +815,15 @@ module ActionController # :nodoc:
         ActiveRecord::Base.all_models.each{|model| setup_scaffold_auto_complete_for(model.to_sym)}
         @scaffold_auto_completes_are_setup = true
       end
+      
+      # Setup resources used by both scaffold and scaffold_habtm
+      def setup_shared_scaffolding
+        return if @scaffolding_shared_resources_are_setup
+        self.scaffolded_methods ||= Set.new
+        self.scaffolded_nonidempotent_methods ||= Set.new
+        before_filter :scaffold_check_nonidempotent_requests
+        @scaffolding_shared_resources_are_setup = true
+      end
         
       # Expands on the default Rails scaffold function.
       # Takes the following additional options:
@@ -843,7 +862,7 @@ module ActionController # :nodoc:
           :setup_auto_completes, :scaffold_all_models, :generate)
         
         code = ''
-        self.scaffolded_methods ||= Set.new
+        setup_shared_scaffolding
         singular_name = model_id.to_s.underscore
         class_name    = options[:class_name] || singular_name.camelize
         singular_class = class_name.constantize
@@ -911,19 +930,21 @@ module ActionController # :nodoc:
           end_eval
         end
         
-        if add_methods.include?(:destroy)
+        if add_methods.include?(:delete)
+          scaffolded_nonidempotent_methods.add("destroy#{suffix}")
           code << <<-"end_eval"
+            def _delete#{suffix}
+              @scaffold_action = 'destroy'
+              list#{suffix}
+            end
+            #{scaffold_method("delete#{suffix}")}
+            
             def _destroy#{suffix}
-              if params[:id]
-                @#{singular_name} ||= #{class_name}.find(params[:id].to_i)
-                #{scaffold_raise}
-                @#{singular_name}.destroy
-                flash[:notice] = "#{singular_name.humanize} was successfully destroyed"
-                scaffold_destroy_redirect('#{suffix}')
-              else
-                @scaffold_action = 'destroy'
-                list#{suffix}
-              end
+              @#{singular_name} ||= #{class_name}.find(params[:id].to_i)
+              #{scaffold_raise}
+              @#{singular_name}.destroy
+              flash[:notice] = "#{singular_name.humanize} was successfully destroyed"
+              scaffold_delete_redirect('#{suffix}')
             end
             #{scaffold_method("destroy#{suffix}")}
             
@@ -931,6 +952,7 @@ module ActionController # :nodoc:
         end
         
         if add_methods.include?(:edit)
+          scaffolded_nonidempotent_methods.add("update#{suffix}")
           code << <<-"end_eval"
             def _edit#{suffix}
               if params[:id]
@@ -965,7 +987,7 @@ module ActionController # :nodoc:
             def _associations#{suffix}
               @#{singular_name} ||= #{class_name}.find(params[:id].to_i)
               #{scaffold_raise}
-              render#{suffix}_scaffold('associations', :inline=>"<%= habtm_ajax_associations if @scaffold_class.scaffold_habtm_with_ajax %>\n<%= association_links %>\n", :layout=>false)
+              render#{suffix}_scaffold('associations', :inline=>"<%= habtm_ajax_associations if @scaffold_class.scaffold_habtm_with_ajax %>\\n<%= association_links %>\\n", :layout=>false)
             end
             #{scaffold_method("associations#{suffix}")}
             
@@ -974,6 +996,7 @@ module ActionController # :nodoc:
         end
         
         if add_methods.include?(:new)
+          scaffolded_nonidempotent_methods.add("create#{suffix}")
           code << <<-"end_eval"
             def _new#{suffix}
               @#{singular_name} ||= #{class_name}.new(params[:#{singular_name}])
@@ -1057,6 +1080,7 @@ module ActionController # :nodoc:
         end
       
         if add_methods.include?(:merge)
+          scaffolded_nonidempotent_methods.add("merge_update#{suffix}")
           code << <<-"end_eval"
             def _merge#{suffix}
               unless #{singular_class.scaffold_use_auto_complete}
@@ -1131,7 +1155,7 @@ module ActionController # :nodoc:
       # - :suffix - only needed for redirects for non-Ajax browsers using the ajax form, used by scaffold      
       # - :generate - return code generated instead of evaluating it
       def scaffold_habtm(singular, many, options = true)
-        self.scaffolded_methods ||= Set.new
+        setup_shared_scaffolding
         options = options.is_a?(Hash) ? Hash.new.merge(options) : {:both_ways=>options}
         singular_class = singular.to_s.camelize.constantize
         singular_name = singular_class.name
@@ -1149,6 +1173,8 @@ module ActionController # :nodoc:
         code = if options[:ajax]
           scaffolded_methods.add("add_#{many}_to_#{singular}")
           scaffolded_methods.add("remove_#{many}_from_#{singular}")
+          scaffolded_nonidempotent_methods.add("add_#{many}_to_#{singular}")
+          scaffolded_nonidempotent_methods.add("remove_#{many}_from_#{singular}")
           suffix = options[:suffix]
           scaffold_sraise = "raise ActiveRecord::RecordNotFound unless @record.#{session_svalue} == session[#{session_svalue.inspect}]" if session_svalue
           scaffold_mraise = "raise ActiveRecord::RecordNotFound unless @associated_record.#{session_mvalue} == session[#{session_mvalue.inspect}]" if session_mvalue
@@ -1162,7 +1188,7 @@ module ActionController # :nodoc:
               if request.xhr?
                 render :update do |page|
                   page.insert_html(:top, '#{singular}_associated_records_list', :inline=>"<%= scaffold_habtm_association_line_item(@record, '#{singular}', @associated_record, '#{many}') %>")
-                  page.remove("#{singular}_#{many}_id_\#{@associated_record.id}") unless #{reflection.klass.scaffold_use_auto_complete}
+                  #{"page.remove(\"#{singular}_#{many}_id_\#{@associated_record.id}\")" unless reflection.klass.scaffold_use_auto_complete}
                   page["#{singular}_#{many}_id"].#{reflection.klass.scaffold_use_auto_complete ? "value = ''" : "selectedIndex = 0"}
                 end
               else redirect_to(:action=>"edit#{suffix}", :id=>@record.id)
@@ -1178,7 +1204,7 @@ module ActionController # :nodoc:
               if request.xhr?
                 render(:update) do |page| 
                   page.remove("#{singular}_\#{@record.id}_#{many}_\#{@associated_record.id}")
-                  page.insert_html(:bottom, '#{singular}_#{many}_id', "<option value='\#{@associated_record.id}' id='#{singular}_#{many}_id_\#{@associated_record.id}'>\#{@associated_record.scaffold_name}</option>") unless #{reflection.klass.scaffold_use_auto_complete}
+                  #{"page.insert_html(:bottom, '#{singular}_#{many}_id', \"<option value='\#{@associated_record.id}' id='#{singular}_#{many}_id_\#{@associated_record.id}'>\#{@associated_record.scaffold_name}</option>\")" unless reflection.klass.scaffold_use_auto_complete}
                 end
               else redirect_to(:action=>"edit#{suffix}", :id=>@record.id)
               end
@@ -1189,6 +1215,7 @@ module ActionController # :nodoc:
           suffix = "_#{singular_name.underscore}_#{many_name}" 
           scaffolded_methods.add("edit#{suffix}")
           scaffolded_methods.add("update#{suffix}")
+          scaffolded_nonidempotent_methods.add("update#{suffix}")
           scaffold_mraise = "raise ActiveRecord::RecordNotFound unless @associated_record.#{session_mvalue} == session[#{session_mvalue.inspect}]" if session_mvalue
           scaffold_mconditions = "conditions[0] << 'AND #{session_mvalue} = ?'; conditions << session[#{session_mvalue.inspect}]" if session_mvalue
           <<-"end_eval"

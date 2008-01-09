@@ -27,20 +27,20 @@
 <% end %>
 
 <% if @scaffold_search_results_form_params %>
-<form action="results<%= @scaffold_suffix %>" method="post">
-  <%= hidden_field_tag('page', @scaffold_search_results_page) %>
-  <% @scaffold_search_results_form_params[@scaffold_singular_name].each do |key, value| -%>
-    <%= hidden_field_tag("#{@scaffold_singular_name}[#{key}]", value, :id=>"#{@scaffold_singular_name}_#{key}") %>
+  <% form_tag(:action=>"results#{@scaffold_suffix}") do %>
+    <%= hidden_field_tag('page', @scaffold_search_results_page) %>
+    <% @scaffold_search_results_form_params[@scaffold_singular_name].each do |key, value| -%>
+      <%= hidden_field_tag("#{@scaffold_singular_name}[#{key}]", value, :id=>"#{@scaffold_singular_name}_#{key}") %>
+    <% end %>
+    <% @scaffold_search_results_form_params[:notnull].each do |field| -%>
+      <%= hidden_field_tag("notnull[]", field, :id=>"notnull_") %>
+    <% end %>
+    <% @scaffold_search_results_form_params[:null].each do |field| -%>
+      <%= hidden_field_tag("null[]", field, :id=>'null_') %>
+    <% end %>
+    <%= '<input type="submit" name="page_previous" value="Previous Page" >' if @scaffold_search_results_page > 1 %>
+    <%= '<input type="submit" name="page_next" value="Next Page" >' if @scaffold_search_results_page_next %>
   <% end %>
-  <% @scaffold_search_results_form_params[:notnull].each do |field| -%>
-    <%= hidden_field_tag("notnull[]", field, :id=>"notnull_") %>
-  <% end %>
-  <% @scaffold_search_results_form_params[:null].each do |field| -%>
-    <%= hidden_field_tag("null[]", field, :id=>'null_') %>
-  <% end %>
-  <%= '<input type="submit" name="page_previous" value="Previous Page" >' if @scaffold_search_results_page > 1 %>
-  <%= '<input type="submit" name="page_next" value="Next Page" >' if @scaffold_search_results_page_next %>
-</form>
 <% end %>
 
 <%= manage_link %>
