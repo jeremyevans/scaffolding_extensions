@@ -1,13 +1,13 @@
-<h1>Choose <%= @scaffold_singular_name.humanize.downcase %> to <%= @scaffold_action.humanize.downcase %></h1>
+<% @scaffold_title = "Choose #{hn = @scaffold_options[:singular_lc_human_name]} to #{(haction = (action = @scaffold_action).to_s.humanize).downcase}" %>
 
-<% form_tag({:action=>"#{@scaffold_action}#{@scaffold_suffix}"}, {:method=>(@scaffold_action == 'destroy' ? :post : :get)}) do %>
-  <% if @scaffold_class.scaffold_use_auto_complete %>
-    <%= scaffold_text_field_tag_with_auto_complete('id', @scaffold_class) %>
-  <% else %>
-    <%= select_tag('id', "<option value=''>&nbsp;</option>"+options_from_collection_for_select(@scaffold_plural_object, :id, :scaffold_name)) %>
-  <% end %>
-  <br /><br />
-  <input type="submit" value="<%= @scaffold_action.humanize %> <%= @scaffold_singular_name.humanize.downcase %>" />
+<%= scaffold_form(scaffold_url("#{action}#{@scaffold_suffix}"), :method=>(action == :destroy ? :post : :get)) %>
+<% if @scaffold_class.scaffold_use_auto_complete %>
+  <%= scaffold_text_field_tag_with_auto_complete('id', @scaffold_options[:singular_name]) %>
+<% else %>
+  <%= scaffold_select_tag('id', @scaffold_objects) %>
 <% end %>
+<br /><br />
+<input type="submit" value="<%= haction %> <%= hn %>" />
+</form>
 
-<%= manage_link %>
+<%= scaffold_manage_link %>

@@ -1,0 +1,54 @@
+To work with Scaffolding Extensions, the model class needs to define the
+following methods:
+
+Instance Methods
+----------------
+scaffold_error_messages
+scaffold_id
+scaffold_name
+scaffold_name_with_id
+scaffold_value(field)
+
+Class Methods
+-------------
+scaffold_add_associated_objects(object, association, options, *associated_object_ids)
+scaffold_associated_human_name(association)
+scaffold_associated_name(association)
+scaffold_associated_objects(object, association, options)
+scaffold_association_find_object(id, association, options)
+scaffold_association_find_objects(association, options)
+scaffold_association_list_class
+scaffold_association_type(association)
+scaffold_association_use_auto_complete(association)
+scaffold_associations
+scaffold_auto_complete_associations
+scaffold_auto_complete_find(phrase, options = {})
+scaffold_browse_find_objects(options)
+scaffold_column_name(column_name)
+scaffold_column_options(column_name)
+scaffold_column_type(column_name)
+scaffold_destroy(object)
+scaffold_field_id(field)
+scaffold_field_wrapper
+scaffold_fields(action)
+scaffold_find_object(id, action, options)
+scaffold_find_objects(action, options)
+scaffold_form_wrapper
+scaffold_habtm_associations
+scaffold_habtm_with_ajax
+scaffold_human_name
+scaffold_load_associations_with_ajax
+scaffold_merge_records(from, to)
+scaffold_name
+scaffold_new_associated_object_values(record, association)
+scaffold_new_object(attributes, options)
+scaffold_remove_associated_objects(object, association, options, *associated_object_ids)
+scaffold_save(object, action)
+scaffold_search(options)
+scaffold_search_null_options
+scaffold_search_object(attributes = {})
+scaffold_show_association_links?(association)
+scaffold_table_class(type)
+scaffold_unassociated_objects(object, association, options)
+scaffold_update_attributes(object, action, attributes)
+scaffold_use_auto_complete

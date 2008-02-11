@@ -1,6 +1,6 @@
-<h1>Manage Models</h1>
+<% @scaffold_title = 'Manage Models' %>
 <ul>
-<% @models.each do |model| %>
-  <%= content_tag(:li, link_to(model.humanize.pluralize, :action=>"manage_#{model}")) %>
+<% @links.each do |link, human_name| -%>
+  <li><a href="<%= scaffold_url(link) %>"><%= human_name %></a></li>
 <% end %>
 </ul>

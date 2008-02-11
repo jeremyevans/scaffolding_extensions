@@ -1,20 +1,24 @@
-<h3>Edit <%=h @singular_object.scaffold_name %>'s <%= @many_name %> </h3>
+<% @scaffold_title = "Update #{sn = h(@scaffold_object.scaffold_name)}'s #{mpn = (so = @scaffold_options )[:aplch_name]}" %>
 
-<%= form_tag(:action=>@scaffold_update_page, :id=>params[:id]) %>
+<%= scaffold_form(scaffold_url("update#{@scaffold_suffix}", :id=>(soid=@scaffold_object.scaffold_id))) %>
 
-<% if @many_class.scaffold_use_auto_complete %>
-  <h4>Add This <%= @many_name.singularize.humanize %></h4>
-  <%= scaffold_text_field_tag_with_auto_complete('add', @many_class) %>
+<% if @scaffold_class.scaffold_association_use_auto_complete(assoc = so[:association]) %>
+  <h4>Add this <%= so[:aslhc_name] %></h4>
+  <%= scaffold_text_field_tag_with_auto_complete('add', so[:singular_name], assoc) %>
 <% elsif @items_to_add.length > 0 %>
-  <h4>Add These <%= @many_name.humanize %></h4>
-  <%= select_tag('add[]', options_for_select(@items_to_add), :id=>'add', :multiple=>'multiple') %>
+  <h4>Add these <%= mpn %></h4>
+  <%= scaffold_select_tag('add', @items_to_add, true) %>
 <% end %>
 
 <% if @items_to_remove.length > 0 %> 
-  <h4>Remove These <%= @many_name.humanize %></h4>
-  <%= select_tag('remove[]', options_for_select(@items_to_remove), :id=>'remove', :multiple=>'multiple') %>
+  <h4>Remove these <%= mpn %></h4>
+  <%= scaffold_select_tag('remove', @items_to_remove, true) %>
 <% end %>
 
 <br /><br />
-<%= submit_tag("Update") %>
+<input type='submit' value="Update <%= sn %>'s <%= mpn %>" />
 </form>
+
+<% if '' != (edit_link = scaffold_check_link("Edit #{sn}", true, "edit_#{@scaffold_options[:singular_name]}", :id=>soid)) %>
+  <h2><%= edit_link %></h2>
+<% end %>

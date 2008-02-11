@@ -1,0 +1,20 @@
+To work with Scaffolding Extensions, the controller class needs to define the
+following methods:
+
+Instance Methods
+----------------
+scaffold_flash
+scaffold_method_not_allowed
+scaffold_redirect_to(url)
+scaffold_render_template(action, options = {}, render_options = {})
+scaffold_request_action
+scaffold_request_env
+scaffold_request_id
+scaffold_request_method
+scaffold_request_param(v)
+scaffold_session
+scaffold_url(action, options = {})
+
+Class Methods
+-------------
+scaffolding_setup_helper

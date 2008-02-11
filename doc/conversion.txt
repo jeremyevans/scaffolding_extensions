@@ -1,0 +1,102 @@
+Conversion from an svn revision prior to 90 to the current version of
+Scaffolding Extensions can be very easy or fairly tedious, depending on how
+much you relied on the implementation of the older version.
+
+Here's a list of things to check and fix, in the order of expected use:
+
+- @scaffold_fields is now a list of symbols and not a list of strings.  Other
+variables that let you choose from fields or associations also take symbols
+instead of strings, such as @scaffold_associations, @scaffold_column_types,
+and @scaffold_column_options_hash. Variables that are used directly in the SQL
+string, such as @scaffold_select_order, are still strings.
+
+- The scaffold templates no longer set the title of the page in an h1 tag.
+Now, that is done by the layout.  The title of the page is stored in
+@scaffold_title, and if you use a custom layout, you should incorporate that.
+
+- The scaffold method has fewer options and now takes the model class.  The
+only options available are :except and :only.  So instead of "scaffold :album",
+you use "scaffold Album".  It automatically scaffolds all habtm associations
+for the model (though you can override that with the model's
+@scaffold_habtm_associations). You can no longer scaffold without a suffix, and
+the suffix used is set by the class's @scaffold_name (defaulting to
+name.underscore).
+
+- The scaffold_habtm method no longer has options and now takes the model
+class and the association as a symbol.  So instead of 
+"scaffold_habtm :album, :artist" you use "scaffold_habtm Album, :artists".
+scaffold_habtm no longer scaffolds both ways, so you'll need two separate calls
+if you want it scaffolded in both directions.
+
+- The scaffold_all_models method only accepts a hash and not a list of models
+to scaffold.  Keys of the hash (other than :except and :only) should be
+model classes, defining options for each model.  :except and :only take lists
+of models instead of symbols.  options for each model can only be :except and
+:only.
+
+- The scaffolded pages no longer set variables such as @artist and @artists or
+variables like @scaffold_action. Now, they use the generic @scaffold_object and
+@scaffold_objects for holding model objects.  Variables that will definitely be
+defined are @scaffold_suffix, @scaffold_class, and @scaffold_options.
+
+- Overriding defaults for ActiveRecord classes is now done through 
+"::ActiveRecord::Base::SCAFFOLD_OPTIONS[option_name]", and the option names
+have changed.  Names for instance variables inside the class should still work.
+See the RDoc for details.
+
+- Setting auto_complete_skip_style is now a singleton option and not a
+per-model options.  It is set with
+"ScaffoldingExtensions.auto_complete_skip_style = true".
+
+- Scaffolded methods are no longer prefixed with _ and then aliased.  If you
+want to override a method but still call it later, alias it manually and 
+overwrite it to call the aliased version.
+
+- There is no ability to generate code, as eval is no longer used.  All dynamic
+methods are created with define_method.  This makes debugging much easier, and
+should make things quite a bit faster.
+
+- If you set the scaffold_fields by using a method instead of an instance
+variable, you'll have problems.  Switch to using instance variables for
+@scaffold_fields, @scaffold_select_order, etc..  If you want to override them
+for specific cases (scaffold_new_fields), it is ok to use a function for that,
+though I would still recommend using a variable (@scaffold_new_fields).
+
+- If you called methods such as scaffold_new_fields or
+scaffold_browse_select_order, you'll need to change those to
+scaffold_fields(:new) and scaffold_select_order(:browse).
+
+- scaffold_fields, scaffold_select_order, and scaffold_include methods all
+take an argument now, specifying the action being used, though to make things
+easier the argument has a default (:default).
+
+- all_models is now a method of ScaffoldExtensions, not of ActiveRecord::Base,
+and it returns model classes, not model name strings.
+
+- render_#{suffix}_scaffold is no longer called, now just
+scaffold_render_template is used.
+
+- All methods adding by Scaffolding Extensions start with scaffold.  If you
+used a method added by Scaffolding Extensions that didn't start with
+scaffold, it has definitely been renamed.
+
+- It is no longer possible to use scaffold_associations_path or
+scaffold_habtm_ajax_path for the model as those are now inline templates.
+
+- Rails' form tag helpers are no longer used, so setting some options (such as
+:size for a text area) no longer works.  You must specify html options (such as
+:cols and :rows) instead.
+
+- Fields named "password" are no longer set to be of input type password by
+default (that can be changed via @scaffold_column_types).
+
+I recommend searching for "scaffold" inside all of your application's files,
+and making sure every usage conforms to the current version's API.
+
+If you can't upgrade to the new version of the plugin and you want to use the
+old version, use the following svn revision depending on the version of Rails
+you are using:
+
+Rails 2.0: svn revision 89
+Rails 1.2: svn revision 81
+Rails 1.1: svn revision 61

@@ -1,0 +1,12 @@
+If you are using Rails and want some basic generic tests, looking the test
+folder for details on the Rails testing helper methods (e.g.
+test_scaffold_all_models).
+
+There is an automated test suite that tests the plugin against both Rails and
+Ramaze.  You can get it via svn at:
+
+  svn://code.jeremyevans.net/scaffolding_extensions_test
+  
+It requires the ruby-sytle, hpricot, and mongrel gems, and does black box
+testing of the plugin by running a web crawler against a running application
+that uses the plugin.

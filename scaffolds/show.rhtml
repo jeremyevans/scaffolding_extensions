@@ -1,16 +1,19 @@
-<h1>Showing <%= @scaffold_singular_name.humanize.downcase %> <%= link_to_or_blank('(edit)', :action=>"edit_#{@scaffold_class.name.underscore}", :id=>@scaffold_singular_object.id) %></h1>
+<% @scaffold_title = "Showing #{@scaffold_options[:singular_lc_human_name]}" %>
+<% if '' != (edit_link = scaffold_check_link('Edit', true, "edit_#{@scaffold_options[:singular_name]}", :id=>@scaffold_object.scaffold_id)) %>
+  <h2><%= edit_link %></h2>
+<% end %>
 
-<table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class :show %>">
+<table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class(:show) %>">
 <thead><tr><th>Attribute</th><th>Value</th></tr></thead>
 <tbody>
-<% @scaffold_class.scaffold_show_fields.each do |column| %>
+<% @scaffold_class.scaffold_fields(:show).each do |column| %>
   <tr>
     <td><%= @scaffold_class.scaffold_column_name(column) %></td>
-    <td><%=h scaffold_value(@scaffold_singular_object, column) %></td>
+    <td><%=h @scaffold_object.scaffold_value(column).to_s %></td>
   </tr>
 <% end %>
 </tbody></table>
 
-<%= association_links %>
+<%= scaffold_association_links %>
 
-<%= manage_link %>
+<%= scaffold_manage_link %>

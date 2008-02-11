@@ -1,14 +1,9 @@
 This allows you to change the scaffolded display of associated items in the
 edit view from a simple list to a explorer-style clickable tree.
 
-To use this, add the .js file to public/javascripts, the .css file to 
-public/stylesheets, the .gif files to public/images and add the following code
-to the head section of the layout:
+To use this, include the .gifs in the /images subdirectory (or modify the .css
+file), and add the .css and .js files to the layout.
 
-  <%= stylesheet_link_tag 'scaffold_associations_tree' %>
-  <%= javascript_include_tag 'scaffold_associations_tree' %>
-  
-Then add this to environment.rb:
+Then set this in your application's environment:
 
-  ActiveRecord::Base.scaffold_association_list_class = 'scaffold_associations_tree'
-
+  ActiveRecord::Base::SCAFFOLD_OPTIONS[:association_list_class] = 'scaffold_associations_tree'

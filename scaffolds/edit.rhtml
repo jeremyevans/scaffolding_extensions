@@ -1,12 +1,12 @@
-<h1>Editing <%= @scaffold_singular_name.humanize.downcase %></h1>
+<% @scaffold_title = "Editing #{@scaffold_options[:singular_lc_human_name]}" %>
 
-<%= scaffold_form('update', :fields=>@scaffold_class.scaffold_edit_fields) %>
+<%= scaffold_model_form('update', @scaffold_class.scaffold_fields(:edit)) %>
 
 <% if @scaffold_class.scaffold_load_associations_with_ajax %>
-  <%= content_tag(:div, link_to_remote("Modify Associations", :update=>"scaffold_ajax_content_#{@scaffold_singular_object.id}", :url=>{:action=>"associations_#{@scaffold_singular_name}", :id=>@scaffold_singular_object.id}), :id=>"scaffold_ajax_content_#{@scaffold_singular_object.id}") %>
+  <%= scaffold_load_associations_with_ajax_link %>
 <% else %>
-  <%= habtm_ajax_associations if @scaffold_class.scaffold_habtm_with_ajax %>
-  <%= association_links %>
+  <%= scaffold_habtm_ajax_associations %>
+  <%= scaffold_association_links %>
 <% end %>
 
-<%= manage_link %>
+<%= scaffold_manage_link %>

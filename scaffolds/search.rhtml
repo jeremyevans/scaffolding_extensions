@@ -1,10 +1,11 @@
-<h1>Search for <%= @scaffold_plural_name.humanize.downcase %></h1>
+<% @scaffold_title = "Search #{@scaffold_options[:plural_lc_human_name]}" %>
 
-<%= form(@scaffold_singular_name, :action=>"results"+@scaffold_suffix, :submit_value=>"Search #{@scaffold_plural_name.humanize.downcase}", :fields=>@scaffold_class.scaffold_search_fields) do |form|
-  form << "<table class='#{@scaffold_class.scaffold_table_class :form}'><tbody>"
-  form << "<tr><td>Null Fields:</td><td>#{select('null', nil, @scaffold_class.scaffold_search_null_options, {}, :multiple=>true)}</td></tr>\n"
-  form << "<tr><td>Not Null Fields:</td><td>#{select('notnull', nil, @scaffold_class.scaffold_search_null_options, {}, :multiple=>true)}</td></tr>\n"
+<%= scaffold_model_form('results', @scaffold_class.scaffold_fields(:search)) do |form|
+  form << "<table class='#{@scaffold_class.scaffold_table_class(:form)}'><tbody>"
+  form << "<tr><td><label for='null'>Null Fields</label>:</td><td><select name='null#{scaffold_param_list_suffix}' id='null' multiple='multiple'>#{@scaffold_class.scaffold_search_null_options.collect{|name, i| "<option value='#{i}'>#{name}</option>"}.join("\n")}</select></td></tr>\n"
+  form << "<tr><td><label for='notnull'>Not Null Fields</label>:</td><td><select name='notnull#{scaffold_param_list_suffix}' id='notnull' multiple='multiple'>#{@scaffold_class.scaffold_search_null_options.collect{|name, i| "<option value='#{i}'>#{name}</option>"}.join("\n")}</select></td></tr>\n"
   form << '</tbody></table>'
+  @scaffold_submit_value = @scaffold_title
 end %>
 
-<%= manage_link %>
+<%= scaffold_manage_link %>

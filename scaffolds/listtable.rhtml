@@ -1,46 +1,46 @@
-<h1>Listing <%= @scaffold_plural_name.humanize.downcase %></h1>
+<% @scaffold_title = "Listing #{@scaffold_options[:plural_lc_human_name]}" %>
 
-<table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class :list %>">
+<table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class(:list) %>">
   <thead><tr>
-  <% @scaffold_class.send(@scaffold_fields_method || :scaffold_fields).each do |column| -%>
-    <th><%= @scaffold_class.scaffold_column_name(column) %></th>
+  <% @scaffold_class.scaffold_fields(@scaffold_listtable_type).each do |column| -%>
+    <th><%=h @scaffold_class.scaffold_column_name(column) %></th>
   <% end %>
-  <%= content_tag(:th, 'Show') if @scaffold_methods.include?(:show) %>
-  <%= content_tag(:th, 'Edit') if @scaffold_methods.include?(:edit) %>
-  <%= content_tag(:th, 'Destroy') if @scaffold_methods.include?(:destroy) %>
+  <%= "<th>#{s = 'Show'}</th>" if show = scaffolded_method?(ss = "show#{@scaffold_suffix}") %>
+  <%= "<th>#{e = 'Edit'}</th>" if edit = scaffolded_method?(es = "edit#{@scaffold_suffix}") %>
+  <%= "<th>#{d = 'Delete'}</th>" if delete = scaffolded_method?(ds = "destroy#{@scaffold_suffix}") %>
   </tr></thead><tbody>
-<% @scaffold_plural_object.each do |entry| %>
+<% @scaffold_objects.each do |entry| eid = entry.scaffold_id  %>
   <tr>
-  <% @scaffold_class.send(@scaffold_fields_method || :scaffold_fields).each do |column|  %>
-    <td><%=h scaffold_value(entry, column) %></td>
+  <% @scaffold_class.scaffold_fields(@scaffold_listtable_type).each do |column| %>
+    <td><%=h entry.scaffold_value(column) %></td>
   <% end %>
-  <%= content_tag(:td, button_to('Show', :action=>"show#{@scaffold_suffix}", :id=>entry.id)) if @scaffold_methods.include?(:show) %>
-  <%= content_tag(:td, button_to('Edit', :action=>"edit#{@scaffold_suffix}", :id=>entry.id)) if @scaffold_methods.include?(:edit) %>
-  <%= content_tag(:td, button_to('Destroy', :action=>"destroy#{@scaffold_suffix}", :id=>entry.id)) if @scaffold_methods.include?(:destroy) %>
+  <%= "<td>#{scaffold_button_to(s, scaffold_url(ss, :id=>eid), :method=>:get)}</td>" if show %>
+  <%= "<td>#{scaffold_button_to(e, scaffold_url(es, :id=>eid), :method=>:get)}</td>" if edit %>
+  <%= "<td>#{scaffold_button_to(d, scaffold_url(ds, :id=>eid))}</td>" if delete %>
   </tr>
 <% end %>
 </tbody></table>
 
-<% if @page %>
-  <%= link_to("Previous page", {:page=>@page-1})  if @page > 1 %>
-  <%= link_to("Next page", {:page=>@page+1}) if @next_page %> 
+<% if @scaffold_listtable_type == :browse %>
+  <%= "<a href='#{scaffold_url("browse#{@scaffold_suffix}", :page=>(@page-1))}'>Previous Page</a>" if @page > 1 %>
+  <%= "<a href='#{scaffold_url("browse#{@scaffold_suffix}", :page=>(@page+1))}'>Next Page</a>" if @next_page %>
 <% end %>
 
-<% if @scaffold_search_results_form_params %>
-  <% form_tag(:action=>"results#{@scaffold_suffix}") do %>
-    <%= hidden_field_tag('page', @scaffold_search_results_page) %>
-    <% @scaffold_search_results_form_params[@scaffold_singular_name].each do |key, value| -%>
-      <%= hidden_field_tag("#{@scaffold_singular_name}[#{key}]", value, :id=>"#{@scaffold_singular_name}_#{key}") %>
-    <% end %>
-    <% @scaffold_search_results_form_params[:notnull].each do |field| -%>
-      <%= hidden_field_tag("notnull[]", field, :id=>"notnull_") %>
-    <% end %>
-    <% @scaffold_search_results_form_params[:null].each do |field| -%>
-      <%= hidden_field_tag("null[]", field, :id=>'null_') %>
-    <% end %>
-    <%= '<input type="submit" name="page_previous" value="Previous Page" >' if @scaffold_search_results_page > 1 %>
-    <%= '<input type="submit" name="page_next" value="Next Page" >' if @scaffold_search_results_page_next %>
+<% if @scaffold_listtable_type == :search && @scaffold_search_results_form_params && (@scaffold_search_results_form_params[:page] > 1 || @scaffold_search_results_form_params[:next_page]) %>
+  <%= scaffold_form(scaffold_url("results#{@scaffold_suffix}")) %>
+  <%= scaffold_field_tag(:hidden, :value=>@scaffold_search_results_form_params[:page], :id=>'page') %>
+  <% @scaffold_search_results_form_params[:model].each do |key, value| -%>
+    <%= scaffold_field_tag(:hidden, :value=>value, :id=>"#{@scaffold_singular_name}_#{key}", :name=>"#{@scaffold_singular_name}[#{key}]") %>
   <% end %>
+  <% @scaffold_search_results_form_params[:notnull].each do |field| -%>
+    <%= scaffold_field_tag(:hidden, :value=>field, :id=>'notnull', :name=>"notnull#{scaffold_param_list_suffix}") %>
+  <% end %>
+  <% @scaffold_search_results_form_params[:null].each do |field| -%>
+    <%= scaffold_field_tag(:hidden, :value=>field, :id=>'null', :name=>"null#{scaffold_param_list_suffix}") %>
+  <% end %>
+  <%= '<input type="submit" name="page_previous" value="Previous Page" >' if @scaffold_search_results_form_params[:page] > 1 %>
+  <%= '<input type="submit" name="page_next" value="Next Page" >' if @scaffold_search_results_form_params[:next_page] %>
+  </form>
 <% end %>
 
-<%= manage_link %>
+<%= scaffold_manage_link %>

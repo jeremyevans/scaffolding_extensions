@@ -2,11 +2,7 @@ This allows you to skip the output of the style when using scaffold auto
 completing.  This is necessary if you want to be XHTML compliant, as style tags
 aren't allowed inside form elements.
 
-To use this, add the .css file to public/stylesheets and add the following code
-to the head section of the layout:
+To use this, add the .css file to your layout. Then set this in your
+application's environment:
 
-  <%= stylesheet_link_tag 'auto_complete' %>
-  
-Then add this to environment.rb:
-
-  ActiveRecord::Base.scaffold_auto_complete_default_options.merge!({:skip_style=>true})
+  ScaffoldingExtensions.auto_complete_skip_style = true
