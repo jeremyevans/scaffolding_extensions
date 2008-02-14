@@ -439,7 +439,7 @@ module ScaffoldingExtensions::MetaActiveRecord
   #
   # Returns false if the ids given are the same or the scaffold_session_value
   # criteria is not met.
-  def scaffold_merge_records(from, to)
+  def scaffold_merge_records(from, to, options)
     from, to = from.to_i, to.to_i
     return false if from == to
     [from, to].each{|i| return false if find(i).send(scaffold_session_value) != options[:session][scaffold_session_value]} if scaffold_session_value

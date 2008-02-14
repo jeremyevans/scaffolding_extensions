@@ -160,7 +160,7 @@ module ScaffoldingExtensions
           end
           
           scaffold_define_nonidempotent_method("merge_update#{suffix}") do
-            notice = if klass.scaffold_merge_records(scaffold_request_param(:from), scaffold_request_param(:to))
+            notice = if klass.scaffold_merge_records(scaffold_request_param(:from), scaffold_request_param(:to), :session=>scaffold_session)
               "#{plural_human_name} were successfully merged"
             else
               "Error merging #{plural_human_name.downcase}"
