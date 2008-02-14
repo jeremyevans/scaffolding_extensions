@@ -1,11 +1,8 @@
 #!/bin/sh
 WAITTIME=3
-for adapter in rails ramaze; do
-  echo testing $adapter
-  style -D -a $adapter &
-  STYLE_PID=$!
-  sleep $WAITTIME
-  ruby test.rb
-  kill -9 $STYLE_PID
-  sleep $WAITTIME
-done
+style -c config/style.rails.yaml start
+style -c config/style.ramaze.yaml start
+sleep $WAITTIME
+ruby test.rb
+style -c config/style.rails.yaml stop
+style -c config/style.ramaze.yaml stop

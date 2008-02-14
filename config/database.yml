@@ -2,7 +2,7 @@
 #   gem install sqlite3-ruby (not necessary on OS X Leopard)
 development:
   adapter: sqlite3
-  database: db/db.sqlite3
+  database: db/rails.active_record.sqlite3
   timeout: 5000
 
 # Warning: The database defined as 'test' will be erased and
@@ -15,5 +15,5 @@ test:
 
 production:
   adapter: sqlite3
-  database: db/db.sqlite3
+  database: db/rails.active_record.sqlite3
   timeout: 5000
