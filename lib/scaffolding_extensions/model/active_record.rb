@@ -138,14 +138,14 @@ module ScaffoldingExtensions::MetaActiveRecord
   # (if multiple ids were given).
   #
   # Allows method override (association)
-  def scaffold_add_associated_objects(object, association, options, *associated_object_ids)
+  def scaffold_add_associated_objects(association, object, options, *associated_object_ids)
     if meth = scaffold_method_override(:add_associated_objects, association, object, options, *associated_object_ids)
       meth.call
     else
       unless associated_object_ids.empty?
         transaction do
           associated_objects = associated_object_ids.collect do |associated_object_id|
-            associated_object = scaffold_association_find_object(associated_object_id.to_i, association, :session=>options[:session])
+            associated_object = scaffold_association_find_object(association, associated_object_id.to_i, :session=>options[:session])
             association_proxy = object.send(association)
             next if association_proxy.include?(associated_object)
             association_proxy << associated_object 
@@ -181,7 +181,7 @@ module ScaffoldingExtensions::MetaActiveRecord
   # have already met the criteria.  If that is not the case, you should override this method.
   #
   # Allows method override (association)
-  def scaffold_associated_objects(object, association, options)
+  def scaffold_associated_objects(association, object, options)
     if meth = scaffold_method_override(:associated_objects, association, object, options)
       meth.call
     else
@@ -192,7 +192,7 @@ module ScaffoldingExtensions::MetaActiveRecord
   # Finds a given object in the associated class that has the matching id.
   # 
   # Allows method override (association)
-  def scaffold_association_find_object(id, association, options)
+  def scaffold_association_find_object(association, id, options)
     if meth = scaffold_method_override(:association_find_object, association, id, options)
       meth.call
     else
@@ -377,7 +377,7 @@ module ScaffoldingExtensions::MetaActiveRecord
   # Find the object of this model given by the id
   #
   # Allows method override (action)
-  def scaffold_find_object(id, action, options)
+  def scaffold_find_object(action, id, options)
     if meth = scaffold_method_override(:find_object, action, id, options)
       meth.call
     else
@@ -461,8 +461,8 @@ module ScaffoldingExtensions::MetaActiveRecord
   # record's primary key, and the STI type to this model's name, if :as is one of
   # the association's reflection's options.
   #
-  # Allows method override (action)
-  def scaffold_new_associated_object_values(record, association)
+  # Allows method override (association)
+  def scaffold_new_associated_object_values(association, record)
     if meth = scaffold_method_override(:new_associated_object_values, association, record)
       meth.call
     else
@@ -485,14 +485,14 @@ module ScaffoldingExtensions::MetaActiveRecord
   # (if multiple ids were given).
   #
   # Allows method override (association)
-  def scaffold_remove_associated_objects(object, association, options, *associated_object_ids)
+  def scaffold_remove_associated_objects(association, object, options, *associated_object_ids)
     if meth = scaffold_method_override(:remove_associated_objects, association, object, *associated_object_ids)
       meth.call
     else
       unless associated_object_ids.empty?
         transaction do
           associated_objects = associated_object_ids.collect do |associated_object_id|
-            associated_object = scaffold_association_find_object(associated_object_id.to_i, association, :session=>options[:session])
+            associated_object = scaffold_association_find_object(association, associated_object_id.to_i, :session=>options[:session])
             object.send(association).delete(associated_object)
             associated_object
           end
@@ -505,7 +505,7 @@ module ScaffoldingExtensions::MetaActiveRecord
   # Saves the object.
   #
   # Allows method override (action)
-  def scaffold_save(object, action)
+  def scaffold_save(action, object)
     if meth = scaffold_method_override(:save, action, object)
       meth.call
     else
@@ -628,7 +628,7 @@ module ScaffoldingExtensions::MetaActiveRecord
   # Returns all objects of the associated class not currently associated with this object.
   #
   # Allows method override (association)
-  def scaffold_unassociated_objects(object, association, options)
+  def scaffold_unassociated_objects(association, object, options)
     if meth = scaffold_method_override(:unassociated_objects, association, object, options)
       meth.call
     else
@@ -645,14 +645,8 @@ module ScaffoldingExtensions::MetaActiveRecord
   end
   
   # Updates attributes for the given action, but does not save the record.
-  #
-  # Allows method override (action)
-  def scaffold_update_attributes(object, action, attributes)
-    if meth = scaffold_method_override(:update_attributes, object, attributes)
-      meth.call
-    else
-      object.attributes = scaffold_filter_attributes(action, attributes)
-    end
+  def scaffold_update_attributes(object, attributes)
+    object.attributes = scaffold_filter_attributes(:edit, attributes)
   end
   
   # Whether this class should use an autocompleting text box instead of a select

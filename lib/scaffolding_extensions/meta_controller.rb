@@ -47,7 +47,6 @@ module ScaffoldingExtensions
         suffix = "_#{singular_name}"
         add_methods = options[:only] ? scaffold_normalize_options(options[:only]) : scaffold_default_methods
         add_methods -= scaffold_normalize_options(options[:except])
-        klass.scaffold_habtm_associations.each{|association| scaffold_habtm(klass, association)}
         scaffold_options = {:singular_name=>singular_name, :plural_name=>plural_name, :singular_human_name=>singular_human_name, :plural_human_name=>plural_human_name, :class=>klass, :suffix=>suffix, :singular_lc_human_name=>singular_human_name.downcase, :plural_lc_human_name=>plural_human_name.downcase}
 
         scaffold_auto_complete_for(klass) if klass.scaffold_use_auto_complete
@@ -69,7 +68,7 @@ module ScaffoldingExtensions
         if add_methods.include?(:show)
           scaffold_define_method("show#{suffix}") do
             if scaffold_request_id
-              @scaffold_object ||= klass.scaffold_find_object(scaffold_request_id, :show, :session=>scaffold_session)
+              @scaffold_object ||= klass.scaffold_find_object(:show, scaffold_request_id, :session=>scaffold_session)
               @scaffold_associations_readonly = true
               scaffold_render_template(:show, scaffold_options)
             else
@@ -86,16 +85,18 @@ module ScaffoldingExtensions
           end
           
           scaffold_define_nonidempotent_method("destroy#{suffix}") do
-            @scaffold_object ||= klass.scaffold_find_object(scaffold_request_id, :delete, :session=>scaffold_session)
+            @scaffold_object ||= klass.scaffold_find_object(:delete, scaffold_request_id, :session=>scaffold_session)
             klass.scaffold_destroy(@scaffold_object)
             scaffold_redirect('delete', suffix, "#{singular_human_name} was successfully destroyed")
           end
         end
         
         if add_methods.include?(:edit)
+          klass.scaffold_habtm_associations.each{|association| scaffold_habtm(klass, association)}
+
           scaffold_define_method("edit#{suffix}") do
             if scaffold_request_id
-              @scaffold_object ||= klass.scaffold_find_object(scaffold_request_id, :edit, :session=>scaffold_session)
+              @scaffold_object ||= klass.scaffold_find_object(:edit, scaffold_request_id, :session=>scaffold_session)
               scaffold_render_template(:edit, scaffold_options)
             else
               @scaffold_action = :edit
@@ -104,9 +105,9 @@ module ScaffoldingExtensions
           end
           
           scaffold_define_nonidempotent_method("update#{suffix}") do
-            @scaffold_object ||= klass.scaffold_find_object(scaffold_request_id, :edit, :session=>scaffold_session)
-            klass.scaffold_update_attributes(@scaffold_object, :edit, scaffold_request_param(singular_name))
-            if klass.scaffold_save(@scaffold_object, :edit)
+            @scaffold_object ||= klass.scaffold_find_object(:edit, scaffold_request_id, :session=>scaffold_session)
+            klass.scaffold_update_attributes(@scaffold_object, scaffold_request_param(singular_name))
+            if klass.scaffold_save(:edit, @scaffold_object)
               scaffold_redirect(:edit, suffix, "#{singular_human_name} was successfully updated")
             else
               scaffold_render_template(:edit, scaffold_options)
@@ -115,7 +116,7 @@ module ScaffoldingExtensions
           
           if klass.scaffold_load_associations_with_ajax
             scaffold_define_method("associations#{suffix}") do
-              @scaffold_object ||= klass.scaffold_find_object(scaffold_request_id, :edit, :session=>scaffold_session)
+              @scaffold_object ||= klass.scaffold_find_object(:edit, scaffold_request_id, :session=>scaffold_session)
               scaffold_render_template(:associations, scaffold_options, :inline=>"<%= scaffold_habtm_ajax_associations %>\n<%= scaffold_association_links %>\n")
             end
           end
@@ -129,7 +130,7 @@ module ScaffoldingExtensions
           
           scaffold_define_nonidempotent_method("create#{suffix}") do
             @scaffold_object ||= klass.scaffold_new_object(scaffold_request_param(singular_name), :session=>scaffold_session)
-            if klass.scaffold_save(@scaffold_object, :new)
+            if klass.scaffold_save(:new, @scaffold_object)
               scaffold_redirect(:new, suffix, "#{singular_human_name} was successfully created")
             else
               scaffold_render_template(:new, scaffold_options)
@@ -258,8 +259,8 @@ module ScaffoldingExtensions
           element_id = "#{sn}_#{association}_id"
           add_meth = "add_#{association}_to_#{sn}"
           scaffold_define_nonidempotent_method(add_meth) do
-            @record = klass.scaffold_find_object(scaffold_request_id, :habtm, :session=>scaffold_session)
-            @associated_record = klass.scaffold_add_associated_objects(@record, association, {:session=>scaffold_session}, scaffold_request_param(element_id))
+            @record = klass.scaffold_find_object(:habtm, scaffold_request_id, :session=>scaffold_session)
+            @associated_record = klass.scaffold_add_associated_objects(association, @record, {:session=>scaffold_session}, scaffold_request_param(element_id))
             if scaffold_xhr?
               @klass = klass
               @association = association
@@ -275,8 +276,8 @@ module ScaffoldingExtensions
           
           remove_meth = "remove_#{association}_from_#{sn}"
           scaffold_define_nonidempotent_method(remove_meth) do
-            @record = klass.scaffold_find_object(scaffold_request_id, :habtm, :session=>scaffold_session)
-            @associated_record = klass.scaffold_remove_associated_objects(@record, association, {:session=>scaffold_session}, scaffold_request_param(element_id))
+            @record = klass.scaffold_find_object(:habtm, scaffold_request_id, :session=>scaffold_session)
+            @associated_record = klass.scaffold_remove_associated_objects(association, @record, {:session=>scaffold_session}, scaffold_request_param(element_id))
             @auto_complete = auto_complete
             if scaffold_xhr?
               @remove_element_id = "#{sn}_#{@record.scaffold_id}_#{association}_#{@associated_record.scaffold_id}"
@@ -297,16 +298,16 @@ module ScaffoldingExtensions
           scaffold_options[:aslhc_name] = scaffold_options[:aplch_name].singularize
           
           scaffold_define_method("edit#{suffix}") do
-            @scaffold_object = klass.scaffold_find_object(scaffold_request_id, :habtm, :session=>scaffold_session, :association=>association)
-            @items_to_remove = klass.scaffold_associated_objects(@scaffold_object, association, :session=>scaffold_session)
-            @items_to_add = klass.scaffold_unassociated_objects(@scaffold_object, association, :session=>scaffold_session) unless klass.scaffold_association_use_auto_complete(association)
+            @scaffold_object = klass.scaffold_find_object(:habtm, scaffold_request_id, :session=>scaffold_session, :association=>association)
+            @items_to_remove = klass.scaffold_associated_objects(association, @scaffold_object, :session=>scaffold_session)
+            @items_to_add = klass.scaffold_unassociated_objects(association, @scaffold_object, :session=>scaffold_session) unless klass.scaffold_association_use_auto_complete(association)
             scaffold_render_template(:habtm, scaffold_options)
           end
           
           scaffold_define_nonidempotent_method("update#{suffix}") do
-            @scaffold_object = klass.scaffold_find_object(scaffold_request_id, :habtm, :session=>scaffold_session, :association=>association)
-            klass.scaffold_add_associated_objects(@scaffold_object, association, {:session=>scaffold_session}, *scaffold_select_ids(scaffold_request_param(:add)))
-            klass.scaffold_remove_associated_objects(@scaffold_object, association, {:session=>scaffold_session}, *scaffold_select_ids(scaffold_request_param(:remove)))
+            @scaffold_object = klass.scaffold_find_object(:habtm, scaffold_request_id, :session=>scaffold_session, :association=>association)
+            klass.scaffold_add_associated_objects(association, @scaffold_object, {:session=>scaffold_session}, *scaffold_select_ids(scaffold_request_param(:add)))
+            klass.scaffold_remove_associated_objects(association, @scaffold_object, {:session=>scaffold_session}, *scaffold_select_ids(scaffold_request_param(:remove)))
             scaffold_redirect(:edit, suffix, "Updated #{@scaffold_object.scaffold_name}'s #{scaffold_options[:aplch_name]} successfully", @scaffold_object.scaffold_id)
           end
         end
