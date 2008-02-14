@@ -12,7 +12,7 @@
 <% @scaffold_objects.each do |entry| eid = entry.scaffold_id  %>
   <tr>
   <% @scaffold_class.scaffold_fields(@scaffold_listtable_type).each do |column| %>
-    <td><%=h entry.scaffold_value(column) %></td>
+    <td><%=h entry.scaffold_value(column).to_s %></td>
   <% end %>
   <%= "<td>#{scaffold_button_to(s, scaffold_url(ss, :id=>eid), :method=>:get)}</td>" if show %>
   <%= "<td>#{scaffold_button_to(e, scaffold_url(es, :id=>eid), :method=>:get)}</td>" if edit %>
