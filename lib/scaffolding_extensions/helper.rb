@@ -244,7 +244,7 @@ module ScaffoldingExtensions
         rows = fields.collect do |field|
           field_id = klass.scaffold_field_id(field)
           label = scaffold_label("#{record_name}_#{field_id}", klass.scaffold_column_name(field))
-          options = klass.scaffold_column_options(fields).merge(:name=>"#{record_name}[#{field_id}]", :id=>"#{record_name}_#{field_id}")
+          options = klass.scaffold_column_options(field).merge(:name=>"#{record_name}[#{field_id}]", :id=>"#{record_name}_#{field_id}")
           field_tag = scaffold_field_tag(klass.scaffold_column_type(field), options, object, field, record_name, field_id)
           field_wrapper.call(label, field_tag)
         end
