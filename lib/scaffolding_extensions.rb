@@ -61,6 +61,7 @@ end
 require 'scaffolding_extensions/controller'
 require 'scaffolding_extensions/meta_controller'
 require 'scaffolding_extensions/helper'
+require 'scaffolding_extensions/overridable'
 require 'scaffolding_extensions/prototype_helper'
 
 require 'scaffolding_extensions/controller/action_controller' if defined? ActionController::Base

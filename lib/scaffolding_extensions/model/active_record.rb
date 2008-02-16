@@ -91,24 +91,25 @@ end
 # will call it if so.  If not, it will check if @scaffold_new_fields is defined, and use it if
 # so.  If not, will take the default course of action.
 # 
-# Methods that can be overridden by other methods will be notated:
+# The first argument to the overridable method is used to search for the override method
+# or instance variable.  If a override method is used, the remaining
+# arguments to the overridable method will be passed to it.  Otherwise, the default method will
+# be used.
 #
-#   Allows method override (argument)
-#
-# Methods that can be overridden by method or instance variable will be notated:
-#
-#   Allows method or instance variable override (argument)
-#
-# The argument is the name of the argument passed to the overridable method used to search for
-# the override method or instance variable.  If a override method is used, the other
-# arguments to the overridable method will be passed to it.
-#
-# For example, scaffold_find_object(id, action, options) is an overridable method,
-# so its documentation states: "Allows method overrides (action)".  That means if
-# :delete is the action, it will first look for scaffold_delete_find_object, and if it
+# For example, scaffold_find_object(action, id, options) is an overridable method.
+# That means if :delete is the action, it will first look for scaffold_delete_find_object, and if it
 # exists it will call scaffold_delete_find_object(id, options).
 #
-# If a method can be overridden by an instance variable, it shouldn't have any other arguments.
+# If a method can be overridden by an instance variable, it should have only one argument.
+#
+# The methods that are overridable by other methods are (without the "scaffold_" prefix): 
+# add_associated_objects, associated_objects, association_find_object, association_find_objects,
+# find_object, find_objects, new_associated_object_values, remove_associated_objects, save,
+# unassociated_objects, and filter_attributes.
+#
+# The methods that are overridable by other methods or instance variables are (again, without the
+# "scaffold_" prefix): associated_human_name, association_use_auto_complete, fields, include,
+# select_order, attributes, include_association, and select_order_association.
 #
 # Most methods that find objects check options[:session][scaffold_session_value] as a
 # security check if scaffold_session_value is set.
@@ -136,37 +137,25 @@ module ScaffoldingExtensions::MetaActiveRecord
   # already associated with it, skip it (don't try to associate it multiple times).
   # Returns the associated object (if only one id was given), or an array of objects
   # (if multiple ids were given).
-  #
-  # Allows method override (association)
   def scaffold_add_associated_objects(association, object, options, *associated_object_ids)
-    if meth = scaffold_method_override(:add_associated_objects, association, object, options, *associated_object_ids)
-      meth.call
-    else
-      unless associated_object_ids.empty?
-        transaction do
-          associated_objects = associated_object_ids.collect do |associated_object_id|
-            associated_object = scaffold_association_find_object(association, associated_object_id.to_i, :session=>options[:session])
-            association_proxy = object.send(association)
-            next if association_proxy.include?(associated_object)
-            association_proxy << associated_object 
-            associated_object
-          end
-          associated_object_ids.length == 1 ? associated_objects.first : associated_objects
+    unless associated_object_ids.empty?
+      transaction do
+        associated_objects = associated_object_ids.collect do |associated_object_id|
+          associated_object = scaffold_association_find_object(association, associated_object_id.to_i, :session=>options[:session])
+          association_proxy = object.send(association)
+          next if association_proxy.include?(associated_object)
+          association_proxy << associated_object 
+          associated_object
         end
+        associated_object_ids.length == 1 ? associated_objects.first : associated_objects
       end
     end
   end
   
   # Return the human name for the given association, defaulting to humanizing the
   # association name
-  #
-  # Allows method or instance variable override (association)
   def scaffold_associated_human_name(association)
-    if meth = scaffold_method_iv_override(:associated_human_name, association)
-      meth.call
-    else
-      association.to_s.humanize
-    end
+    association.to_s.humanize
   end
   
   # The scaffold_name of the associated class.  Not overridable, as that allows for the
@@ -179,46 +168,28 @@ module ScaffoldingExtensions::MetaActiveRecord
   # check that the returned associated objects meet the associated class's scaffold_session_value
   # constraint, as it is assumed that all objects currently assocated with the given object
   # have already met the criteria.  If that is not the case, you should override this method.
-  #
-  # Allows method override (association)
   def scaffold_associated_objects(association, object, options)
-    if meth = scaffold_method_override(:associated_objects, association, object, options)
-      meth.call
-    else
-      object.send(association)
-    end
+    object.send(association)
   end
 
   # Finds a given object in the associated class that has the matching id.
-  # 
-  # Allows method override (association)
   def scaffold_association_find_object(association, id, options)
-    if meth = scaffold_method_override(:association_find_object, association, id, options)
-      meth.call
-    else
-      klass = reflect_on_association(association).klass
-      object = klass.find(id.to_i)
-      raise ActiveRecord::RecordNotFound if klass.scaffold_session_value && object.send(klass.scaffold_session_value) != options[:session][klass.scaffold_session_value]
-      object
-    end
+    klass = reflect_on_association(association).klass
+    object = klass.find(id.to_i)
+    raise ActiveRecord::RecordNotFound if klass.scaffold_session_value && object.send(klass.scaffold_session_value) != options[:session][klass.scaffold_session_value]
+    object
   end
   
   # Find all objects of the associated class. Does not use any conditions of the association
   # (they are can't be used reliably, since they require an object to interpolate them), so
   # if there are special conditions on the association, you'll want to override this method.
-  #
-  # Allows method override (association)
   def scaffold_association_find_objects(association, options)
-    if meth = scaffold_method_override(:association_find_objects, association, options)
-      meth.call
-    else
-      reflection = reflect_on_association(association)
-      klass = reflection.klass
-      if sess_val = klass.scaffold_session_value
-        conditions = ["#{klass.table_name}.#{sess_val} = ?", options[:session][sess_val]]
-      end
-      klass.find(:all, :order=>scaffold_select_order_association(association), :include=>scaffold_include_association(association), :conditions=>conditions)
+    reflection = reflect_on_association(association)
+    klass = reflection.klass
+    if sess_val = klass.scaffold_session_value
+      conditions = ["#{klass.table_name}.#{sess_val} = ?", options[:session][sess_val]]
     end
+    klass.find(:all, :order=>scaffold_select_order_association(association), :include=>scaffold_include_association(association), :conditions=>conditions)
   end
   
   # The html class attribute of the association list. Can be set with an instance variable.
@@ -243,15 +214,8 @@ module ScaffoldingExtensions::MetaActiveRecord
   
   # Whether to use autocompleting for linked associations. Defaults to whether the
   # associated class uses auto completing.
-  #
-  # Allows method or instance variable override (association)
   def scaffold_association_use_auto_complete(association)
-    if meth = scaffold_method_iv_override(:association_use_auto_complete, association)
-      meth.call
-    else
-      klass = reflect_on_association(association).klass
-      klass.scaffold_use_auto_complete
-    end
+    reflect_on_association(association).klass.scaffold_use_auto_complete
   end
 
   # List of symbols for associations to display on the scaffolded edit page. Defaults to
@@ -357,45 +321,27 @@ module ScaffoldingExtensions::MetaActiveRecord
   # to displaying all columns with the exception of primary key column, timestamp columns,
   # count columns, and inheritance columns.  Also includes belongs_to associations, replacing
   # the foriegn keys with the association itself.  Can be set with an instance variable.
-  #
-  # Allows method or instance variable override (action)
   def scaffold_fields(action = :default)
-    if meth = scaffold_method_iv_override(:fields, action)
-      meth.call
-    else
-      return @scaffold_fields if @scaffold_fields
-      fields = columns.reject{|c| c.primary || c.name =~ /(\A(created|updated)_at|_count)\z/ || c.name == inheritance_column}.collect{|c| c.name}
-      reflect_on_all_associations.each do |reflection|
-        next if reflection.macro != :belongs_to || reflection.options.include?(:polymorphic)
-        fields.delete(reflection.primary_key_name)
-        fields.push(reflection.name.to_s)
-      end
-      @scaffold_fields = fields.sort.collect{|f| f.to_sym}
+    return @scaffold_fields if @scaffold_fields
+    fields = columns.reject{|c| c.primary || c.name =~ /(\A(created|updated)_at|_count)\z/ || c.name == inheritance_column}.collect{|c| c.name}
+    reflect_on_all_associations.each do |reflection|
+      next if reflection.macro != :belongs_to || reflection.options.include?(:polymorphic)
+      fields.delete(reflection.primary_key_name)
+      fields.push(reflection.name.to_s)
     end
+    @scaffold_fields = fields.sort.collect{|f| f.to_sym}
   end
   
   # Find the object of this model given by the id
-  #
-  # Allows method override (action)
   def scaffold_find_object(action, id, options)
-    if meth = scaffold_method_override(:find_object, action, id, options)
-      meth.call
-    else
-      object = find(id.to_i)
-      raise ActiveRecord::RecordNotFound if scaffold_session_value && object.send(scaffold_session_value) != options[:session][scaffold_session_value]
-      object
-    end
+    object = find(id.to_i)
+    raise ActiveRecord::RecordNotFound if scaffold_session_value && object.send(scaffold_session_value) != options[:session][scaffold_session_value]
+    object
   end
   
   # Find all objects of this model
-  #
-  # Allows method override (action)
   def scaffold_find_objects(action, options)
-    if meth = scaffold_method_override(:find_objects, action, options)
-      meth.call
-    else
-      find(:all, :order=>scaffold_select_order(action), :include=>scaffold_include(action), :conditions=>(["#{table_name}.#{scaffold_session_value} = ?", options[:session][scaffold_session_value]] if scaffold_session_value))
-    end
+    find(:all, :order=>scaffold_select_order(action), :include=>scaffold_include(action), :conditions=>(["#{table_name}.#{scaffold_session_value} = ?", options[:session][scaffold_session_value]] if scaffold_session_value))
   end
 
   # Array of symbols for all habtm associations in this model's scaffold_associations.
@@ -417,14 +363,8 @@ module ScaffoldingExtensions::MetaActiveRecord
 
   # Which associations to include when querying for multiple objects.
   # Can be set with an instance variable.
-  #
-  # Allows method or instance variable override (action)
   def scaffold_include(action = :default)
-    if meth = scaffold_method_iv_override(:include, action)
-      meth.call
-    else
-      instance_variable_get("@scaffold_include")
-    end
+    instance_variable_get("@scaffold_include")
   end
   
   # Whether to use Ajax when loading associations on the edit page. Can be set
@@ -460,17 +400,11 @@ module ScaffoldingExtensions::MetaActiveRecord
   # :has_many associated object.  Defaults to setting the foreign key field to the
   # record's primary key, and the STI type to this model's name, if :as is one of
   # the association's reflection's options.
-  #
-  # Allows method override (association)
   def scaffold_new_associated_object_values(association, record)
-    if meth = scaffold_method_override(:new_associated_object_values, association, record)
-      meth.call
-    else
-      reflection = reflect_on_association(association)
-      vals = {reflection.primary_key_name=>record.id}
-      vals["#{reflection.options[:as]}_type"] = name if reflection.options.include?(:as)
-      vals
-    end
+    reflection = reflect_on_association(association)
+    vals = {reflection.primary_key_name=>record.id}
+    vals["#{reflection.options[:as]}_type"] = name if reflection.options.include?(:as)
+    vals
   end
   
   # Creates a new object, setting the attributes if given.
@@ -483,34 +417,22 @@ module ScaffoldingExtensions::MetaActiveRecord
   # Removes associated objects with the given ids from the given object's association.
   # Returns the associated object (if only one id was given), or an array of objects
   # (if multiple ids were given).
-  #
-  # Allows method override (association)
   def scaffold_remove_associated_objects(association, object, options, *associated_object_ids)
-    if meth = scaffold_method_override(:remove_associated_objects, association, object, *associated_object_ids)
-      meth.call
-    else
-      unless associated_object_ids.empty?
-        transaction do
-          associated_objects = associated_object_ids.collect do |associated_object_id|
-            associated_object = scaffold_association_find_object(association, associated_object_id.to_i, :session=>options[:session])
-            object.send(association).delete(associated_object)
-            associated_object
-          end
-          associated_object_ids.length == 1 ? associated_objects.first : associated_objects
+    unless associated_object_ids.empty?
+      transaction do
+        associated_objects = associated_object_ids.collect do |associated_object_id|
+          associated_object = scaffold_association_find_object(association, associated_object_id.to_i, :session=>options[:session])
+          object.send(association).delete(associated_object)
+          associated_object
         end
+        associated_object_ids.length == 1 ? associated_objects.first : associated_objects
       end
     end
   end
   
   # Saves the object.
-  #
-  # Allows method override (action)
   def scaffold_save(action, object)
-    if meth = scaffold_method_override(:save, action, object)
-      meth.call
-    else
-      object.save
-    end
+    object.save
   end
   
   # Searches for objects that meet the criteria specified by options:
@@ -601,14 +523,8 @@ module ScaffoldingExtensions::MetaActiveRecord
   
   # The SQL ORDER BY fragment to use when querying for multiple objects.
   # Can be set with an instance variable.
-  #
-  # Allows method or instance variable override (action)
   def scaffold_select_order(action = :default)
-    if meth = scaffold_method_iv_override(:select_order, action)
-      meth.call
-    else
-      instance_variable_get("@scaffold_select_order")
-    end
+    instance_variable_get("@scaffold_select_order")
   end
   
   # Whether to show association links for the assocation, generally true unless
@@ -626,22 +542,16 @@ module ScaffoldingExtensions::MetaActiveRecord
   end
   
   # Returns all objects of the associated class not currently associated with this object.
-  #
-  # Allows method override (association)
   def scaffold_unassociated_objects(association, object, options)
-    if meth = scaffold_method_override(:unassociated_objects, association, object, options)
-      meth.call
-    else
-      reflection = reflect_on_association(association)
-      klass = reflection.klass
-      join_table = reflection.options[:join_table]
-      conditions = ["#{klass.table_name}.#{klass.primary_key} NOT IN (SELECT #{join_table}.#{reflection.association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{reflection.primary_key_name} = ?)", object.id]
-      if sess_val = klass.scaffold_session_value
-        conditions[0] << " AND (#{klass.table_name}.#{sess_val} = ?)"
-        conditions << options[:session][sess_val]
-      end
-      klass.find(:all, :conditions=>conditions, :order=>scaffold_select_order_association(association), :include=>scaffold_include_association(association))
+    reflection = reflect_on_association(association)
+    klass = reflection.klass
+    join_table = reflection.options[:join_table]
+    conditions = ["#{klass.table_name}.#{klass.primary_key} NOT IN (SELECT #{join_table}.#{reflection.association_foreign_key} FROM #{join_table} WHERE #{join_table}.#{reflection.primary_key_name} = ?)", object.id]
+    if sess_val = klass.scaffold_session_value
+      conditions[0] << " AND (#{klass.table_name}.#{sess_val} = ?)"
+      conditions << options[:session][sess_val]
     end
+    klass.find(:all, :conditions=>conditions, :order=>scaffold_select_order_association(association), :include=>scaffold_include_association(association))
   end
   
   # Updates attributes for the given action, but does not save the record.
@@ -657,14 +567,8 @@ module ScaffoldingExtensions::MetaActiveRecord
 
   private
     # scaffold_fields with associations replaced by foreign key fields
-    #
-    # Allows method or instance variable override (action)
     def scaffold_attributes(action = :default)
-      if meth = scaffold_method_iv_override(:attributes, action)
-        meth.call
-      else
-        instance_variable_set("@scaffold_#{action}_attributes", scaffold_fields(action).collect{|field| scaffold_field_id(field).to_sym})
-      end
+      instance_variable_set("@scaffold_#{action}_attributes", scaffold_fields(action).collect{|field| scaffold_field_id(field).to_sym})
     end
     
     # The conditions to use for the scaffolded autocomplete find.
@@ -736,45 +640,14 @@ module ScaffoldingExtensions::MetaActiveRecord
     
     # Filters the provided attributes to just the ones given by scaffold_attributes for
     # the given action.
-    # 
-    # Allows method or instance variable override (action)
     def scaffold_filter_attributes(action, attributes)
-      if meth = scaffold_method_override(:filter_attributes, action, attributes)
-        meth.call
-      else
-        allowed_attributes = scaffold_attributes(action).collect{|x| x.to_s}
-        attributes.reject{|k,v| !allowed_attributes.include?(k.to_s.split('(')[0])}
-      end
+      allowed_attributes = scaffold_attributes(action).collect{|x| x.to_s}
+      attributes.reject{|k,v| !allowed_attributes.include?(k.to_s.split('(')[0])}
     end
 
     # The SQL ORDER BY fragment to use when querying for multiple objects
-    #
-    # Allows method or instance variable override (association)
     def scaffold_include_association(association)
-      if meth = scaffold_method_iv_override(:include_association, association)
-        meth.call
-      else
-        reflect_on_association(association).klass.scaffold_include(:association)
-      end
-    end
-    
-    # If a method exists matches scaffold_#{action}_#{m}, return a proc that calls it.
-    # If not and the instance variable @scaffold_#{action}_#{m} is defined, return a
-    # proc that gives that value.  Otherwise, return nil.
-    def scaffold_method_iv_override(m, action)
-      meth = "scaffold_#{action}_#{m}"
-      if respond_to?(meth)
-        Proc.new{send(meth)}
-      elsif instance_variable_defined?(meth = "@#{meth}")
-        Proc.new{instance_variable_get(meth)}
-      end
-    end
-    
-    # If a method exists matches scaffold_#{action}_#{m}, return a proc that calls it with
-    # the other provided arguments, otherwise return nil.
-    def scaffold_method_override(m, action, *args)
-      meth = "scaffold_#{action}_#{m}"
-      Proc.new{send(meth, *args)} if respond_to?(meth)
+      reflect_on_association(association).klass.scaffold_include(:association)
     end
     
     # SQL fragment (usually column name) that is used when scaffold autocompleting is turned on.
@@ -809,15 +682,10 @@ module ScaffoldingExtensions::MetaActiveRecord
       @scaffold_search_results_limit ||= SCAFFOLD_OPTIONS[:search_limit]
     end
 
-    # The SQL ORDER BY fragment to use when querying for multiple objects
-    #
-    # Allows method or instance variable override (association)
+    # The SQL ORDER BY fragment to use when querying for multiple objects for the
+    # association.
     def scaffold_select_order_association(association)
-      if meth = scaffold_method_iv_override(:select_order_association, association)
-        meth.call
-      else
-        reflect_on_association(association).klass.scaffold_select_order(:association)
-      end
+      reflect_on_association(association).klass.scaffold_select_order(:association)
     end
 end
 
@@ -826,4 +694,10 @@ class ActiveRecord::Base
   SCAFFOLD_OPTIONS = ::ScaffoldingExtensions::ActiveRecord::SCAFFOLD_OPTIONS
   include ScaffoldingExtensions::ActiveRecord
   extend ScaffoldingExtensions::MetaActiveRecord
+  extend ScaffoldingExtensions::Overridable
+  class << self
+    extend ScaffoldingExtensions::MetaOverridable
+    scaffold_override_methods(:add_associated_objects, :associated_objects, :association_find_object, :association_find_objects, :find_object, :find_objects, :new_associated_object_values, :remove_associated_objects, :save, :unassociated_objects, :filter_attributes)
+    scaffold_override_iv_methods(:associated_human_name, :association_use_auto_complete, :fields, :include, :select_order, :attributes, :include_association, :select_order_association)
+  end
 end
