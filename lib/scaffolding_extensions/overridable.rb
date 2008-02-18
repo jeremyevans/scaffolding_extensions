@@ -28,14 +28,18 @@ module ScaffoldingExtensions
       def scaffold_override_alias_method(meth)
         pub_meth = "scaffold_#{meth}".to_sym
         priv_meth = "_#{pub_meth}".to_sym
+        @scaffold_aliased_methods ||= Set.new
+        return false if @scaffold_aliased_methods.include?(pub_meth)
         alias_method(priv_meth, pub_meth)
         private(priv_meth)
+        @scaffold_aliased_methods.add(pub_meth)
         [pub_meth, priv_meth]
       end
 
       def scaffold_override_iv_methods(*meths)
         meths.each do |meth|
           pub_meth, priv_meth = scaffold_override_alias_method(meth)
+          return unless pub_meth && priv_meth
           define_method(pub_meth) do |arg|
             if m = scaffold_method_iv_override(meth, arg)
               m.call
@@ -49,6 +53,7 @@ module ScaffoldingExtensions
       def scaffold_override_methods(*meths)
         meths.each do |meth|
           pub_meth, priv_meth = scaffold_override_alias_method(meth)
+          return unless pub_meth && priv_meth
           define_method(pub_meth) do |*args|
             if m = scaffold_method_override(meth, *args)
               m.call

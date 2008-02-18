@@ -1,39 +1,46 @@
 require 'scaffolding_extensions/model/ardm'
 
-ScaffoldingExtensions::MODEL_SUPERCLASSES << ::ActiveRecord::Base
+ScaffoldingExtensions::MODEL_SUPERCLASSES << ::DataMapper::Base
 
-# Instance methods added to ActiveRecord::Base to allow it to work with Scaffolding Extensions.
-module ScaffoldingExtensions::ActiveRecord
+# Instance methods added to DataMapper::Base to allow it to work with Scaffolding Extensions.
+module ScaffoldingExtensions::DataMapper
   # Get value for given attribute
   def scaffold_attribute_value(field)
-    self[field]
+    attributes[field]
   end
 end
 
-# Class methods added to ActiveRecord::Base to allow it to work with Scaffolding Extensions.
-module ScaffoldingExtensions::MetaActiveRecord
+# Class methods added to DataMapper::Base to allow it to work with Scaffolding Extensions.
+module ScaffoldingExtensions::MetaDataMapper
   SCAFFOLD_OPTIONS = ::ScaffoldingExtensions::MetaModel::SCAFFOLD_OPTIONS
-  
+
   # Add the associated object to the object's association
   def scaffold_add_associated_object(association, object, associated_object)
     association_proxy = object.send(association)
     next if association_proxy.include?(associated_object)
     association_proxy << associated_object
+    object.save
   end
-
+  
   # Array of all association reflections for this model
   def scaffold_all_associations
-    reflect_on_all_associations
+    database.schema[self].associations.to_a
   end
   
   # The class that this model is associated with via the association
   def scaffold_associated_class(association)
-    scaffold_association(association).klass
+    case reflection = scaffold_association(association)
+      when DataMapper::Associations::HasManyAssociation
+        reflection.associated_constant
+      else
+        reflection.constant
+    end
   end
   
   # The association reflection for this association
   def scaffold_association(association)
-    reflect_on_association(association)
+    database.schema[self].associations.each{|assoc| return assoc if assoc.name == association}
+    nil
   end
 
   # The type of association, either :new for :has_many (as you can create new objects
@@ -41,10 +48,10 @@ module ScaffoldingExtensions::MetaActiveRecord
   # can edit the list of associated objects), or :one for other associations.  I'm not
   # sure that :has_one is supported, as I don't use it.
   def scaffold_association_type(association)
-    case reflect_on_association(association).macro
-      when :has_many
+    case scaffold_association(association)
+      when DataMapper::Associations::HasManyAssociation
         :new
-      when :has_and_belongs_to_many
+      when DataMapper::Associations::HasAndBelongsToManyAssociation
         :edit
       else
         :one
@@ -54,126 +61,125 @@ module ScaffoldingExtensions::MetaActiveRecord
   # List of symbols for associations to display on the scaffolded edit page. Defaults to
   # all associations that aren't :through or :polymorphic. Can be set with an instance variable.
   def scaffold_associations
-    @scaffold_associations ||= scaffold_all_associations.reject{|r| r.options.include?(:through) || r.options.include?(:polymorphic)}.collect{|r| r.name}.sort_by{|name| name.to_s}
+    @scaffold_associations ||= scaffold_all_associations.collect{|assoc| assoc.name}.sort_by{|name| name.to_s}
   end
 
   # Destroys the object
   def scaffold_destroy(object)
-    object.destroy
+    object.destroy!
   end
-
+  
   # The error to raise, should match other errors raised by the underlying library.
+  # I'm not sure that this is the correct error, but it is the most common error I've
+  # received.
   def scaffold_error_raised
-    ::ActiveRecord::RecordNotFound
+    ::DataObject::ReaderClosed
   end
-
+  
   # Returns the list of fields to display on the scaffolded forms. Defaults
   # to displaying all columns with the exception of primary key column, timestamp columns,
   # count columns, and inheritance columns.  Also includes belongs_to associations, replacing
   # the foriegn keys with the association itself.  Can be set with an instance variable.
   def scaffold_fields(action = :default)
     return @scaffold_fields if @scaffold_fields
-    fields = columns.reject{|c| c.primary || c.name =~ /(\A(created|updated)_at|_count)\z/ || c.name == inheritance_column}.collect{|c| c.name}
-    scaffold_all_associations.each do |reflection|
-      next if reflection.macro != :belongs_to || reflection.options.include?(:polymorphic)
-      fields.delete(reflection.primary_key_name)
-      fields.push(reflection.name.to_s)
+    schema = database.schema[self]
+    key = schema.key.name
+    fields = schema.columns.to_a.collect{|x| x.name}.reject{|x| x == key}
+    schema.associations.each do |r| 
+      next unless DataMapper::Associations::BelongsToAssociation === r 
+      fields << r.name 
+      fields.delete(r.foreign_key_name.to_sym)
     end
-    @scaffold_fields = fields.sort.collect{|f| f.to_sym}
+    @scaffold_fields = fields.sort_by{|x| x.to_s}
   end
   
   # The foreign key for the given reflection
   def scaffold_foreign_key(reflection)
-    reflection.primary_key_name
+    reflection.foreign_key_name
   end
   
   # Retrieve a single model object given an id
   def scaffold_get_object(id)
-    find(id.to_i)
+    self[id]
   end
 
   # Retrieve multiple objects given a hash of options
   def scaffold_get_objects(options)
-    find(:all, options)
+    options.delete(:include)
+    all(options)
   end
 
   # Return the class, left foreign key, right foreign key, and join table for this habtm association
   def scaffold_habtm_reflection_options(association)
-    reflection = reflect_on_association(association)
-    [reflection.klass, reflection.primary_key_name, reflection.association_foreign_key, reflection.options[:join_table]]
+    reflection = scaffold_association(association)
+    [reflection.constant, reflection.left_foreign_key, reflection.right_foreign_key, reflection.join_table]
   end
 
-  # Which associations to include when querying for multiple objects.
-  # Can be set with an instance variable.
+  # DataMapper doesn't use includes, so this is always nil
   def scaffold_include(action = :default)
-    instance_variable_get("@scaffold_include")
+    nil
   end
 
   # Returns a hash of values to be used as url parameters on the link to create a new
   # :has_many associated object.  Defaults to setting the foreign key field to the
-  # record's primary key, and the STI type to this model's name, if :as is one of
-  # the association's reflection's options.
+  # record's primary key.
   def scaffold_new_associated_object_values(association, record)
-    reflection = reflect_on_association(association)
-    vals = {reflection.primary_key_name=>record.id}
-    vals["#{reflection.options[:as]}_type"] = name if reflection.options.include?(:as)
-    vals
+    {scaffold_foreign_key(scaffold_association(association))=>record.id}
   end
-
+  
   # The primary key for the given table
   def scaffold_primary_key
-    primary_key
+    database.schema[self].key.name
   end
-  
+
   # Saves the object.
   def scaffold_save(action, object)
-    object.save
+    object.save rescue false
   end
-  
+
   # The column type for the given table column, or nil if it isn't a table column
   def scaffold_table_column_type(column)
-    column = column.to_s
-    column = columns_hash[column]
+    column = database.schema[self][column]
     column.type if column
   end
 
   # The name of the underlying table
   def scaffold_table_name
-    table_name
+    database.schema[self].name
   end
 
   private
-    # The associations to include when loading the association
+    # DataMapper doesn't need to include, so this is always nil
     def scaffold_include_association(association)
-      scaffold_associated_class(association).scaffold_include(:association)
+      nil
     end
     
     # Updates associated records for a given reflection and from record to point to the
     # to record
     def scaffold_reflection_merge(reflection, from, to)
-      foreign_key = reflection.primary_key_name
-      sql = case reflection.macro
-        when :has_one, :has_many
-          return if reflection.options[:through]
-          "UPDATE #{reflection.klass.table_name} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}#{" AND #{reflection.options[:as]}_type = #{quote_value(name.to_s)}" if reflection.options[:as]}"
-        when :has_and_belongs_to_many
-          "UPDATE #{reflection.options[:join_table]} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}" 
+      sql = case reflection
+        when DataMapper::Associations::HasManyAssociation
+          foreign_key = scaffold_foreign_key(reflection)
+          "UPDATE #{reflection.associated_constant.scaffold_table_name} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}"
+        when DataMapper::Associations::HasAndBelongsToManyAssociation
+          foreign_key = reflection.left_foreign_key
+          "UPDATE #{reflection.join_table} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}" 
         else
           return
       end
-      connection.update(sql)
+      database.execute(sql)
     end
 end
 
 # Add the class methods and instance methods from Scaffolding Extensions
-class ActiveRecord::Base
+class DataMapper::Base
   SCAFFOLD_OPTIONS = ::ScaffoldingExtensions::MetaModel::SCAFFOLD_OPTIONS
   include ScaffoldingExtensions::Model
   include ScaffoldingExtensions::ARDM
-  include ScaffoldingExtensions::ActiveRecord
+  include ScaffoldingExtensions::DataMapper
   extend ScaffoldingExtensions::MetaModel
   extend ScaffoldingExtensions::MetaARDM
-  extend ScaffoldingExtensions::MetaActiveRecord
+  extend ScaffoldingExtensions::MetaDataMapper
   extend ScaffoldingExtensions::Overridable
   class << self
     extend ScaffoldingExtensions::MetaOverridable

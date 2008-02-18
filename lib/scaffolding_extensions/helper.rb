@@ -115,7 +115,7 @@ module ScaffoldingExtensions
               options[:value] = assocated_object ? assocated_object.scaffold_name_with_id : ''
               scaffold_text_field_tag_with_auto_complete(options[:id], record_name, field, options)
             else
-              s = {object.scaffold_value(field_id)=>"selected='selected'"}
+              s = {object.scaffold_value(field_id).to_i=>"selected='selected'"}
               associated_objects = klass.scaffold_association_find_objects(field, :session=>session, :object=>object)
               "<select #{scaffold_options_to_html(options)}><option></option>#{associated_objects.collect{|ao| "<option value='#{i = ao.scaffold_id}' #{s[i]}>#{h ao.scaffold_name}</option>"}.join}</select>"
             end

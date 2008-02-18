@@ -18,14 +18,15 @@ The scaffolding analogy is misleading, Scaffolding Extensions is not really
 scaffolding--it is a completely functional structure that you can easily modify
 to better suit your needs.
 
-The current version of Scaffolding Extensions is quite different from previous
+The current version of Scaffolding Extensions is quite different from older
 versions (svn revision 89 and previous).  For upgrading from an older version,
 see the conversion.txt file.
 
-Scaffolding Extensions currently supports Rails 2.0 and Ramaze 0.3.5 web 
-frameworks.  It supports the ActiveRecord ORM.  Support for other web
-frameworks and ORMs can be added, see the controller_spec.txt and
-model_spec.txt files for the methods that need to be defined.
+Scaffolding Extensions currently supports Rails 2.0 and Ramaze 0.3.5 web
+frameworks.  It supports the ActiveRecord and DataMapper ORMs.  Support for
+other web frameworks and ORMs can be added, see the controller_spec.txt and
+model_spec.txt files for the methods that need to be defined. Support for Merb
+and Sequel is planned.
 
 Older versions of Rails should be able to use an older version of the plugin,
 which won't be discussed further as it is substantially different from the
@@ -120,22 +121,10 @@ There are a ton of other customization options:
 Consult advanced.txt and/or the RDoc if you would like more information on
 these (and many other options).
 
-== Testing (Rails only)
+== Testing
 
-The plugin includes functions that make it easier to test.  The testing isn't
-comprehensive, as it doesn't test if the forms work, it just tests to see if
-you can successfully request the displayed pages.  Still, it is useful to see
-if any errors are produced errors in the model configuration code (e.g. an
-invalid  @scaffold_select_order). For example:
-
-  class AdminControllerTest < Test::Unit::TestCase
-    def setup
-      @controller = AdminController.new
-      @request    = ActionController::TestRequest.new
-      @response   = ActionController::TestResponse.new
-   end
-    test_scaffold_all_models
-  end
+See the testing.txt file for details on the plugin's automated test suite and
+Rails functional testing support.
 
 == Questions?
 

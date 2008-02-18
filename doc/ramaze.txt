@@ -1,7 +1,7 @@
 Unlike Rails, Ramaze has no defined structure for plugins.  I recommend adding
 it to the root of the Ramaze application, though any subdirectory should work.
 
-Assuming you areusing the recommended defaults (models are located in
+Assuming you are using the recommended defaults (models are located in
 model/*.rb), add the following to your runner (start.rb):
 
   $:.unshift('scaffolding_extensions/lib')

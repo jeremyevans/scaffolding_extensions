@@ -33,10 +33,10 @@
     <%= scaffold_field_tag(:hidden, :value=>value, :id=>"#{@scaffold_singular_name}_#{key}", :name=>"#{@scaffold_singular_name}[#{key}]") %>
   <% end %>
   <% @scaffold_search_results_form_params[:notnull].each do |field| -%>
-    <%= scaffold_field_tag(:hidden, :value=>field, :id=>'notnull', :name=>"notnull#{scaffold_param_list_suffix}") %>
+    <%= scaffold_field_tag(:hidden, :value=>field, :name=>"notnull#{scaffold_param_list_suffix}") %>
   <% end %>
   <% @scaffold_search_results_form_params[:null].each do |field| -%>
-    <%= scaffold_field_tag(:hidden, :value=>field, :id=>'null', :name=>"null#{scaffold_param_list_suffix}") %>
+    <%= scaffold_field_tag(:hidden, :value=>field, :name=>"null#{scaffold_param_list_suffix}") %>
   <% end %>
   <%= '<input type="submit" name="page_previous" value="Previous Page" >' if @scaffold_search_results_form_params[:page] > 1 %>
   <%= '<input type="submit" name="page_next" value="Next Page" >' if @scaffold_search_results_form_params[:next_page] %>

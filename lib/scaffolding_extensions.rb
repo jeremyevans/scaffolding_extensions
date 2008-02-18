@@ -43,12 +43,19 @@ module ScaffoldingExtensions
   ROOT = File.dirname(File.dirname(__FILE__))
   TEMPLATE_DIR = File.join(ROOT, "scaffolds")
   DEFAULT_METHODS = [:manage, :show, :delete, :edit, :new, :search, :merge, :browse]
+  MODEL_SUPERCLASSES = []
   
   @auto_complete_skip_style = false
     
   class << self
     attr_accessor :auto_complete_skip_style
     attr_writer :all_models, :model_files
+
+    def all_models
+      return @all_models if @all_models
+      possible_models = model_files.collect{|file|File.basename(file).sub(/\.rb\z/, '')}.collect{|m| m.camelize.constantize}
+      possible_models.reject{|m| MODEL_SUPERCLASSES.reject{|klass| !m.ancestors.include?(klass)}.length == 0}
+    end
 
     # The stylesheet for the autocompleting text box, or the empty string
     # if auto_complete_skip_style is true.
@@ -59,8 +66,10 @@ module ScaffoldingExtensions
 end
 
 require 'scaffolding_extensions/controller'
-require 'scaffolding_extensions/meta_controller'
 require 'scaffolding_extensions/helper'
+require 'scaffolding_extensions/meta_controller'
+require 'scaffolding_extensions/meta_model'
+require 'scaffolding_extensions/model'
 require 'scaffolding_extensions/overridable'
 require 'scaffolding_extensions/prototype_helper'
 
@@ -68,4 +77,5 @@ require 'scaffolding_extensions/controller/action_controller' if defined? Action
 require 'scaffolding_extensions/controller/ramaze' if defined? Ramaze::Controller
 
 require 'scaffolding_extensions/model/active_record' if defined? ActiveRecord::Base
+require 'scaffolding_extensions/model/data_mapper' if defined? DataMapper::Base
   
