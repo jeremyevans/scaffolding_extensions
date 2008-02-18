@@ -1,8 +1,12 @@
 #!/bin/sh
 WAITTIME=3
-style -c config/style.rails.yaml start
-style -c config/style.ramaze.yaml start
+frameworks="rails ramaze"
+for framework in $frameworks; do
+	echo -n '' > log/style-$framework.log
+	style -c config/style.$framework.yaml start
+done
 sleep $WAITTIME
 ruby test.rb
-style -c config/style.rails.yaml stop
-style -c config/style.ramaze.yaml stop
+for framework in $frameworks; do
+	style -c config/style.$framework.yaml stop
+done

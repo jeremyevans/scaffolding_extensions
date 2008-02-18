@@ -18,7 +18,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
         alias_method meth, method
         define_method(method) do
           [7978, 7979].each do |port|
-            ["/active_record"].each do |root|
+            %w"/active_record /data_mapper".each do |root|
               send(meth, port, root) rescue (puts "Error! port:#{port} root:#{root}"; raise)
             end
           end
@@ -371,8 +371,255 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal "#{root}/edit_group_employees/#{group_id}", (p/:a)[1][:href]
   end
 
-  test_permutations :test_00_clear_db, :test_01_blank, :test_02_create_position_and_group, :test_03_1_position_and_group, :test_04_create_employee, :test_05_check_associations
+  def test_06_browse_search(port, root)
+    %w'position group employee'.each do |model|
+      res = post(port, "#{root}/create_#{model}", "#{model}[name]"=>"Best#{model}")
+      assert_equal se_path(port, root, "/new_#{model}"), res['Location']
+      
+      #Get ids for both objects
+      p = page(port, "#{root}/show_#{model}")
+      assert_equal 3, (p/:option).length
+      assert_match /\d+/, (p/:option)[1][:value]
+      assert_equal "Best#{model}", (p/:option)[1].inner_html
+      assert_match /\d+/, (p/:option)[2][:value]
+      assert_equal "Test#{model}", (p/:option)[2].inner_html
+      b = (p/:option)[1][:value]
+      t = (p/:option)[2][:value]
 
-  alias test_98_clear_db test_00_clear_db
-  alias test_99_blank test_01_blank
+      # Check first object shows up on first browse page
+      p = page(port, "#{root}/browse_#{model}")
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
+      assert_equal "#{root}/browse_#{model}?page=2", (p/:a)[0][:href]
+      assert_equal 'Next Page', (p/:a)[0].inner_html
+
+      # Check second object shows up on second browse page
+      p = page(port, (p/:a)[0][:href])
+      assert_match %r|#{root}/show_#{model}/#{t}|, (p/:form)[0][:action]
+      assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
+      assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
+      assert_equal "#{root}/browse_#{model}?page=1", (p/:a)[0][:href]
+      assert_equal 'Previous Page', (p/:a)[0].inner_html
+
+      # Check link goes back to first browse page
+      p = page(port, (p/:a)[0][:href])
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
+      assert_equal "#{root}/browse_#{model}?page=2", (p/:a)[0][:href]
+      assert_equal 'Next Page', (p/:a)[0].inner_html
+
+      # Get param list suffix
+      p = page(port, "#{root}/search_#{model}")
+      null = p.at('select#null')[:name]
+      notnull = p.at('select#notnull')[:name]
+
+      # Check searching for Best brings up one item
+      p = page(port, "#{root}/results_#{model}?#{model}[name]=Best")
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
+      assert_equal 3, (p/:form).length
+
+      # Check searching for Test brings up one item
+      p = page(port, "#{root}/results_#{model}?#{model}[name]=Test")
+      assert_match %r|#{root}/show_#{model}/#{t}|, (p/:form)[0][:action]
+      assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
+      assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
+      assert_equal 3, (p/:form).length
+
+      # Check searching for null name brings up no items
+      p = page(port, "#{root}/results_#{model}?#{null}=name")
+      assert_equal 0, (p/:form).length
+
+      # Check first object shows up on first search page
+      p = page(port, "#{root}/results_#{model}?#{notnull}=name")
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
+      assert_equal "#{root}/results_#{model}", (p/:form)[3][:action]
+      assert_equal "post", (p/:form)[3][:method]
+      assert_equal "page", (p/:input)[3][:name]
+      assert_equal "1", (p/:input)[3][:value]
+      assert_equal "hidden", (p/:input)[3][:type]
+      assert_equal notnull, (p/:input)[4][:name]
+      assert_equal "name", (p/:input)[4][:value]
+      assert_equal "hidden", (p/:input)[4][:type]
+      assert_equal 'page_next', (p/:input)[5][:name]
+      assert_equal "Next Page", (p/:input)[5][:value]
+      assert_equal "submit", (p/:input)[5][:type]
+
+      # Check second object shows up on second search page
+      p = page(port, "#{root}/results_#{model}?#{notnull}=name&page_next=Next+Page&page=1")
+      assert_match %r|#{root}/show_#{model}/#{t}|, (p/:form)[0][:action]
+      assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
+      assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
+      assert_equal "#{root}/results_#{model}", (p/:form)[3][:action]
+      assert_equal "post", (p/:form)[3][:method]
+      assert_equal "page", (p/:input)[3][:name]
+      assert_equal "2", (p/:input)[3][:value]
+      assert_equal "hidden", (p/:input)[3][:type]
+      assert_equal notnull, (p/:input)[4][:name]
+      assert_equal "name", (p/:input)[4][:value]
+      assert_equal "hidden", (p/:input)[4][:type]
+      assert_equal 'page_previous', (p/:input)[5][:name]
+      assert_equal "Previous Page", (p/:input)[5][:value]
+      assert_equal "submit", (p/:input)[5][:type]
+
+      # Check first object shows up on first search page
+      p = page(port, "#{root}/results_#{model}?#{notnull}=name&page_previous=Previous+Page&page=2")
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
+      assert_equal "#{root}/results_#{model}", (p/:form)[3][:action]
+      assert_equal "post", (p/:form)[3][:method]
+      assert_equal "page", (p/:input)[3][:name]
+      assert_equal "1", (p/:input)[3][:value]
+      assert_equal "hidden", (p/:input)[3][:type]
+      assert_equal notnull, (p/:input)[4][:name]
+      assert_equal "name", (p/:input)[4][:value]
+      assert_equal "hidden", (p/:input)[4][:type]
+      assert_equal 'page_next', (p/:input)[5][:name]
+      assert_equal "Next Page", (p/:input)[5][:value]
+      assert_equal "submit", (p/:input)[5][:type]
+    end
+  end
+
+  def test_07_merge(port, root)
+    # Merge employees
+    p = page(port, "#{root}/merge_employee")
+    assert_equal 6, (p/:option).length
+    assert_match /\d+/, (p/:option)[1][:value]
+    assert_equal "Bestemployee", (p/:option)[1].inner_html
+    assert_match /\d+/, (p/:option)[2][:value]
+    assert_equal "Testemployee", (p/:option)[2].inner_html
+    b = (p/:option)[1][:value]
+    t = (p/:option)[2][:value]
+    res = post(port, p.at(:form)[:action], (p/:select)[0][:name]=>b, (p/:select)[1][:name]=>t)
+    assert_equal se_path(port, root, "/merge_employee"), res['Location']
+
+    # Check now only 1 employee exists
+    p = page(port, "#{root}/merge_employee")
+    assert_equal 4, (p/:option).length
+    assert_equal t, (p/:option)[1][:value]
+    assert_equal "Testemployee", (p/:option)[1].inner_html
+    assert_equal t, (p/:option)[3][:value]
+    assert_equal "Testemployee", (p/:option)[3].inner_html
+
+    # Edit employee's groups page
+    p = page(port, "#{root}/edit_employee_groups/#{t}")
+    assert_equal "Update Testemployee's groups", p.at(:h1).inner_html
+    assert_equal "#{root}/update_employee_groups/#{t}", p.at(:form)[:action]
+    assert_equal "post", p.at(:form)[:method]
+    assert_equal 'Add these groups', p.at(:h4).inner_html
+    assert_equal 'add', p.at(:select)[:id]
+    assert_equal 'add', p.at(:select)[:name].sub('[]', '')
+    assert_equal 'multiple', p.at(:select)[:multiple]
+    assert_match /\d+/, (p/:option).first[:value]
+    assert_match /\d+/, (p/:option).last[:value]
+    assert_equal 'Bestgroup', (p/:option).first.inner_html
+    assert_equal 'Testgroup', (p/:option).last.inner_html
+    bg = (p/:option).first[:value]
+    tg = (p/:option).last[:value]
+    assert_equal 2, (p/'select#add option').length
+    assert_equal 0, (p/'select#remove option').length
+
+    # Update the groups
+    res = post(port, p.at(:form)[:action], p.at(:select)[:name]=>bg)
+    assert_equal se_path(port, root, "/edit_employee_groups/#{t}"), res['Location']
+    p = page(port, "#{root}/edit_employee_groups/#{t}")
+    assert_equal 1, (p/'select#add option').length
+    assert_equal 1, (p/'select#remove option').length
+    assert_equal 'Testgroup', p.at('select#add option').inner_html
+    assert_equal 'Bestgroup', p.at('select#remove option').inner_html
+    assert_equal tg, p.at('select#add option')[:value]
+    assert_equal bg, p.at('select#remove option')[:value]
+
+    # Merge groups
+    p = page(port, "#{root}/merge_group")
+    assert_equal 6, (p/:option).length
+    assert_equal bg, (p/:option)[1][:value]
+    assert_equal "Bestgroup", (p/:option)[1].inner_html
+    assert_equal tg, (p/:option)[2][:value]
+    assert_equal "Testgroup", (p/:option)[2].inner_html
+    res = post(port, p.at(:form)[:action], (p/:select)[0][:name]=>bg, (p/:select)[1][:name]=>tg)
+    assert_equal se_path(port, root, "/merge_group"), res['Location']
+
+    # Check now only 1 group exist
+    p = page(port, "#{root}/merge_group")
+    assert_equal 4, (p/:option).length
+    assert_equal tg, (p/:option)[1][:value]
+    assert_equal "Testgroup", (p/:option)[1].inner_html
+    assert_equal tg, (p/:option)[3][:value]
+    assert_equal "Testgroup", (p/:option)[3].inner_html
+
+    # Check employee now in the Testgroup
+    p = page(port, "#{root}/edit_employee_groups/#{t}")
+    assert_equal 0, (p/'select#add option').length
+    assert_equal 1, (p/'select#remove option').length
+    assert_equal 'Testgroup', p.at('select#remove option').inner_html
+    assert_equal tg, p.at('select#remove option')[:value]
+
+    # Check position of employee
+    p = page(port, "#{root}/edit_employee/#{t}")
+    assert_equal 3, (p/'select#employee_position_id option').length
+    assert_equal 'Bestposition', (p/'select#employee_position_id option')[1].inner_html
+    assert_equal 'Testposition', (p/'select#employee_position_id option')[2].inner_html
+    assert_match /\d+/, (p/'select#employee_position_id option')[1][:value]
+    assert_match /\d+/, (p/'select#employee_position_id option')[2][:value]
+    bp = (p/'select#employee_position_id option')[1][:value]
+    tp = (p/'select#employee_position_id option')[2][:value]
+    assert_equal nil, (p/:option)[1][:selected]
+    assert_equal 'selected', (p/:option)[2][:selected]
+
+    # Merge position 
+    p = page(port, "#{root}/merge_position")
+    assert_equal 6, (p/:option).length
+    assert_equal bp, (p/:option)[1][:value]
+    assert_equal "Bestposition", (p/:option)[1].inner_html
+    assert_equal tp, (p/:option)[2][:value]
+    assert_equal "Testposition", (p/:option)[2].inner_html
+    res = post(port, p.at(:form)[:action], (p/:select)[0][:name]=>tp, (p/:select)[1][:name]=>bp)
+    assert_equal se_path(port, root, "/merge_position"), res['Location']
+
+    # Check now only 1 position exist
+    p = page(port, "#{root}/merge_position")
+    assert_equal 4, (p/:option).length
+    assert_equal bp, (p/:option)[1][:value]
+    assert_equal "Bestposition", (p/:option)[1].inner_html
+    assert_equal bp, (p/:option)[3][:value]
+    assert_equal "Bestposition", (p/:option)[3].inner_html
+
+    # Check position of employee now Bestposition
+    p = page(port, "#{root}/edit_employee/#{t}")
+    assert_equal 2, (p/'select#employee_position_id option').length
+    assert_equal 'Bestposition', (p/'select#employee_position_id option')[1].inner_html
+    assert_equal bp, (p/'select#employee_position_id option')[1][:value]
+    assert_equal 'selected', (p/'select#employee_position_id option')[1][:selected]
+  end
+
+  def test_08_update(port, root)
+    %w'employee group position'.each do |model|
+      # Get id
+      p = page(port, "#{root}/edit_#{model}")
+      assert_equal 2, (p/:option).length
+      assert_match /\d+/, (p/:option)[1][:value]
+      i = (p/:option)[1][:value]
+
+      # Check current name
+      p = page(port, "#{root}/edit_#{model}/#{i}")
+      assert_equal "est#{model}", p.at("input##{model}_name")[:value][1..-1]
+
+      # Update name
+      res = post(port, p.at(:form)[:action], "#{model}[name]"=>"Z#{model}")
+      assert_equal se_path(port, root, "/edit_#{model}"), res['Location']
+
+      # Check updated name
+      p = page(port, "#{root}/edit_#{model}/#{i}")
+      assert_equal "Z#{model}", p.at("input##{model}_name")[:value]
+    end
+  end
+
+  test_permutations :test_00_clear_db, :test_01_blank, :test_02_create_position_and_group, :test_03_1_position_and_group, :test_04_create_employee, :test_05_check_associations, :test_06_browse_search, :test_07_merge, :test_08_update
 end
