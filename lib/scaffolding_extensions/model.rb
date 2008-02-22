@@ -1,5 +1,10 @@
 # Instance methods shared by all models
 module ScaffoldingExtensions::Model
+  # an array of strings describing problems with the object (empty if none)
+  def scaffold_error_messages
+    errors.full_messages
+  end 
+
   # The name given to the item that is used in various places in the scaffold.  For example,
   # it is used whenever the record is displayed in a select box.  Should be unique for each record,
   # but that is not required. Should be overridden by subclasses unless they have a unique attribute

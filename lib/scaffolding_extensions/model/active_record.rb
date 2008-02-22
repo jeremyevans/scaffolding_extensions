@@ -94,6 +94,7 @@ module ScaffoldingExtensions::MetaActiveRecord
 
   # Retrieve multiple objects given a hash of options
   def scaffold_get_objects(options)
+    options[:conditions] = scaffold_merge_conditions(options[:conditions])
     find(:all, options)
   end
 
@@ -106,7 +107,7 @@ module ScaffoldingExtensions::MetaActiveRecord
   # Which associations to include when querying for multiple objects.
   # Can be set with an instance variable.
   def scaffold_include(action = :default)
-    instance_variable_get("@scaffold_include")
+    @scaffold_include
   end
 
   # Returns a hash of values to be used as url parameters on the link to create a new

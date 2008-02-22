@@ -106,6 +106,7 @@ module ScaffoldingExtensions::MetaDataMapper
   # Retrieve multiple objects given a hash of options
   def scaffold_get_objects(options)
     options.delete(:include)
+    options[:conditions] = scaffold_merge_conditions(options[:conditions])
     all(options)
   end
 
@@ -184,6 +185,6 @@ class DataMapper::Base
   class << self
     extend ScaffoldingExtensions::MetaOverridable
     scaffold_override_methods(:add_associated_objects, :associated_objects, :association_find_object, :association_find_objects, :find_object, :find_objects, :new_associated_object_values, :remove_associated_objects, :save, :unassociated_objects, :filter_attributes)
-    scaffold_override_iv_methods(:associated_human_name, :association_use_auto_complete, :fields, :include, :select_order, :attributes, :include_association, :select_order_association)
+    scaffold_override_iv_methods(:associated_human_name, :association_use_auto_complete, :fields, :select_order, :attributes, :select_order_association)
   end
 end
