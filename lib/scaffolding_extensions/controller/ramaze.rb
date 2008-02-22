@@ -80,32 +80,27 @@ module ScaffoldingExtensions
     DENY_LAYOUT_RE = %r{\A(scaffold_auto_complete_for|associations|add|remove)_}
     
     private
-      # Denies the layout to names that match DENY_LAYOUT_RE (the Ajax methods)
-      def scaffold_define_method(name, *args, &block)
+      # Denies the layout to names that match DENY_LAYOUT_RE (the Ajax methods).
+      # Sets request.params['id'] if it was given as part of the request path.
+      # Checks nonidempotent requests require POST.
+      def scaffold_define_method(name, &block)
         deny_layout(name) if DENY_LAYOUT_RE.match(name)
         scaffolded_methods.add(name)
-        define_method(name, *args, &block)
+        define_method(name) do |*args|
+          scaffold_check_nonidempotent_requests
+          request.params['id'] = args.shift if args.length > 0
+          instance_eval(&block)
+        end
       end
       
       # Adds a default scaffolded layout if none has been set.  Activates the Erubis
-      # engine and the Aspect helper.  Adds a before_all filter for checking
-      # nonidempotent requests use method POST.  Adds a lambda router so that you can use
-      # Rails-style urls that end in integers as an 'id' parameter.
+      # engine.  Includes the necessary scaffolding helper and controller methods.
       def scaffold_setup_helper
         engine :Erubis
         include ScaffoldingExtensions::Controller
         include ScaffoldingExtensions::RamazeController
         include ScaffoldingExtensions::Helper
         include ScaffoldingExtensions::PrototypeHelper
-        helper :aspect
-        before_all{scaffold_check_nonidempotent_requests}
-        m = mapping
-        Ramaze::Route("#{m}-id_to_param") do |path, request|
-          if match = %r{\A(#{m}/[^/]*)/(\d+)\z}.match(path.to_s)
-            request.params['id'] = match[2]
-            match[1]
-          end
-        end
         unless trait[:layout][:all]
           layout(:scaffold_layout) 
           define_method(:scaffold_layout){::Ramaze::Action.current.template = scaffold_path(:layout)}

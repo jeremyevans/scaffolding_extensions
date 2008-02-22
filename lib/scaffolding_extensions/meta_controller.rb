@@ -233,16 +233,16 @@ module ScaffoldingExtensions
       end
       
       # Define method and add method name to scaffolded_methods
-      def scaffold_define_method(name, *args, &block)
+      def scaffold_define_method(name, &block)
         scaffolded_methods.add(name)
-        define_method(name, *args, &block)
+        define_method(name, &block)
       end
       
       # Define method and add method name to scaffolded_methods and
       # scaffolded_nonidempotent_methods
-      def scaffold_define_nonidempotent_method(name, *args, &block)
+      def scaffold_define_nonidempotent_method(name, &block)
         scaffolded_nonidempotent_methods.add(name)
-        scaffold_define_method(name, *args, &block)
+        scaffold_define_method(name, &block)
       end
       
       # Scaffolds a habtm association for a class and an association using two select boxes, or
