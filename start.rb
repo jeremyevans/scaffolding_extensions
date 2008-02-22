@@ -1,11 +1,15 @@
 require 'rubygems'
 require 'ramaze'
+
 require 'active_record'
+ActiveRecord::Base.establish_connection(:adapter=>'sqlite3', :database=>'db/ramaze.active_record.sqlite3')
+#ActiveRecord::Base.connection.instance_variable_set('@logger', Logger.new(STDOUT))
+
 $:.unshift('data_mapper/lib')
 require 'data_mapper'
-
-ActiveRecord::Base.establish_connection(:adapter=>'sqlite3', :database=>'db/ramaze.active_record.sqlite3')
 DataMapper::Database.setup(:adapter=>:sqlite3, :database=>'db/ramaze.data_mapper.sqlite3')
+DataMapper::Adapters::Sqlite3Adapter::TRUE_ALIASES << 't'.freeze
+DataMapper::Adapters::Sqlite3Adapter::FALSE_ALIASES << 'f'.freeze
 
 $:.unshift('vendor/plugins/scaffolding_extensions/lib')
 require 'scaffolding_extensions'

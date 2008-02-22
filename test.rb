@@ -11,16 +11,14 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
   FIELDS={'employee'=>%w'active comment name password position_id', 'position'=>%w'name', 'group'=>%w'name'}
   ACTION_MAP={'delete'=>'destroy', 'edit'=>'edit', 'show'=>'show'}
 
-  class << self
-    define_method(:test_permutations) do |*methods|
-      methods.each do |method|
-        meth = :"_#{method}"
-        alias_method meth, method
-        define_method(method) do
-          [7978, 7979].each do |port|
-            %w"/active_record /data_mapper".each do |root|
-              send(meth, port, root) rescue (puts "Error! port:#{port} root:#{root}"; raise)
-            end
+  def self.test_all_frameworks_and_dbs
+    instance_methods.sort.grep(/\Atest_\d\d/).each do |method|
+      meth = :"_#{method}"
+      alias_method meth, method
+      define_method(method) do
+        [7978, 7979].each do |port|
+          %w"/active_record /data_mapper".each do |root|
+            send(meth, port, root) rescue (puts "Error! port:#{port} root:#{root}"; raise)
           end
         end
       end
@@ -53,7 +51,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     end
   end
 
-  def test_01_blank(port, root)
+  def test_01_no_objects(port, root)
      p = page(port, root)    
      assert_equal 'Scaffolding Extensions - Manage Models', p.at(:title).inner_html
      assert_equal 'Manage Models', p.at(:h1).inner_html
@@ -145,17 +143,13 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
        end
      end
   end
-
-  def test_02_create_position_and_group(port, root)
-    %w'position group'.each do |model|
-      res = post(port, "#{root}/create_#{model}", "#{model}[name]"=>"Test#{model}")
-      assert_equal se_path(port, root, "/new_#{model}"), res['Location']
-    end
-  end
   
-  def test_03_1_position_and_group(port, root)
+  def test_02_simple_object(port, root)
     %w'position group'.each do |model|
       name = "Test#{model}"
+      res = post(port, "#{root}/create_#{model}", "#{model}[name]"=>name)
+      assert_equal se_path(port, root, "/new_#{model}"), res['Location']
+      
       %w'browse results'.each do |action|
         p = page(port, "#{root}/#{action}_#{model}")
         assert_equal 4, (p/:td).length
@@ -240,18 +234,15 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal 'selected', (p/'select#employee_position_id option').last[:selected]
   end
 
-  def test_04_create_employee(port, root)
-    p = page(port, "#{root}/show_position")
-    position_id = (p/:option).last[:value]
-    res = post(port, "#{root}/create_employee", "employee[name]"=>"Testemployee", 'employee[active]'=>'t', 'employee[comment]'=>'Comment', 'employee[password]'=>'password', 'employee[position_id]'=>position_id)
-    assert_equal se_path(port, root, "/new_employee"), res['Location']
-  end
-
-  def test_05_check_associations(port, root)
+  def test_03_complex_object_and_relationships(port, root)
     p = page(port, "#{root}/show_position")
     position_id = (p/:option).last[:value]
     p = page(port, "#{root}/show_group")
     group_id = (p/:option).last[:value]
+    
+    res = post(port, "#{root}/create_employee", "employee[name]"=>"Testemployee", 'employee[active]'=>'t', 'employee[comment]'=>'Comment', 'employee[password]'=>'password', 'employee[position_id]'=>position_id)
+    assert_equal se_path(port, root, "/new_employee"), res['Location']
+    
     p = page(port, "#{root}/show_employee")
     i = (p/:option).last[:value]
     p = page(port, "#{root}/show_employee/#{i}")
@@ -371,7 +362,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal "#{root}/edit_group_employees/#{group_id}", (p/:a)[1][:href]
   end
 
-  def test_06_browse_search(port, root)
+  def test_04_browse_search(port, root)
     %w'position group employee'.each do |model|
       res = post(port, "#{root}/create_#{model}", "#{model}[name]"=>"Best#{model}")
       assert_equal se_path(port, root, "/new_#{model}"), res['Location']
@@ -486,7 +477,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     end
   end
 
-  def test_07_merge(port, root)
+  def test_05_merge(port, root)
     # Merge employees
     p = page(port, "#{root}/merge_employee")
     assert_equal 6, (p/:option).length
@@ -556,10 +547,14 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
 
     # Check employee now in the Testgroup
     p = page(port, "#{root}/edit_employee_groups/#{t}")
-    assert_equal 0, (p/'select#add option').length
+    assert_equal 0, (p/'select#add').length
     assert_equal 1, (p/'select#remove option').length
     assert_equal 'Testgroup', p.at('select#remove option').inner_html
     assert_equal tg, p.at('select#remove option')[:value]
+    
+    # Remove employee from Testgroup
+    res = post(port, p.at(:form)[:action], p.at(:select)[:name]=>tg)
+    assert_equal se_path(port, root, "/edit_employee_groups/#{t}"), res['Location']
 
     # Check position of employee
     p = page(port, "#{root}/edit_employee/#{t}")
@@ -599,7 +594,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal 'selected', (p/'select#employee_position_id option')[1][:selected]
   end
 
-  def test_08_update(port, root)
+  def test_06_update(port, root)
     %w'employee group position'.each do |model|
       # Get id
       p = page(port, "#{root}/edit_#{model}")
@@ -620,6 +615,93 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_equal "Z#{model}", p.at("input##{model}_name")[:value]
     end
   end
+  
+  def test_07_auto_completing(port, root)
+    # Ensure only 1 officer exists
+    p = page(port, "#{root}/browse_officer")
+    (p/:form).each do |form|
+      next unless form[:method] == 'post'
+      res = post(port, form[:action], {})
+      assert_equal se_path(port, root, "/delete_officer"), res['Location']
+    end
+    res = post(port, "#{root}/create_officer", "officer[name]"=>'Zofficer')
+    assert_equal se_path(port, root, "/new_officer"), res['Location']
+    
+    # Test regular auto completing
+    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z")
+    assert_equal 1, (p/:ul).length
+    assert_equal 1, (p/:li).length
+    assert_match /\d+ - Zofficer/, p.at(:li).inner_html
+    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X")
+    assert_equal 1, (p/:ul).length
+    assert_equal 0, (p/:li).length
+    assert_equal '', p.at(:ul).inner_html
+    
+    # Tset auto completing for belongs to associations
+    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z&association=position")
+    assert_equal 1, (p/:ul).length
+    assert_equal 1, (p/:li).length
+    assert_match /\d+ - Zposition/, p.at(:li).inner_html
+    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=position")
+    assert_equal 1, (p/:ul).length
+    assert_equal 0, (p/:li).length
+    assert_equal '', p.at(:ul).inner_html
+    
+    # Test auto completing for habtm associations
+    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z&association=groups")
+    assert_equal 1, (p/:ul).length
+    assert_equal 1, (p/:li).length
+    assert_match /\d+ - Zgroup/, p.at(:li).inner_html
+    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=groups")
+    assert_equal 1, (p/:ul).length
+    assert_equal 0, (p/:li).length
+    assert_equal '', p.at(:ul).inner_html
+    
+    # Check to make sure that auto complete fields exist every place they are expected
+    
+    # Regular auto complete
+    %w'delete edit show'.each do |action|
+      p = page(port, "#{root}/#{action}_officer")
+      assert_equal 1, (p/"input#id").length
+      assert_equal 'text', p.at("input#id")[:type]
+      assert_equal 1, (p/"div#id_scaffold_auto_complete").length
+      assert_equal 'auto_complete', p.at("div#id_scaffold_auto_complete")[:class]
+      assert_equal "\n//<![CDATA[\nvar id_auto_completer = new Ajax.Autocompleter('id', 'id_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get'})\n//]]>\n", p.at(:script).inner_html
+    end
+    p = page(port, "#{root}/merge_officer")
+    assert_equal 1, (p/"input#from").length
+    assert_equal 'text', p.at("input#from")[:type]
+    assert_equal 1, (p/"div#from_scaffold_auto_complete").length
+    assert_equal 'auto_complete', p.at("div#from_scaffold_auto_complete")[:class]
+    assert_equal "\n//<![CDATA[\nvar from_auto_completer = new Ajax.Autocompleter('from', 'from_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get'})\n//]]>\n", (p/:script)[0].inner_html
+    assert_equal 1, (p/"input#to").length
+    assert_equal 'text', p.at("input#to")[:type]
+    assert_equal 1, (p/"div#to_scaffold_auto_complete").length
+    assert_equal 'auto_complete', p.at("div#to_scaffold_auto_complete")[:class]
+    assert_equal "\n//<![CDATA[\nvar to_auto_completer = new Ajax.Autocompleter('to', 'to_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get'})\n//]]>\n", (p/:script)[1].inner_html
 
-  test_permutations :test_00_clear_db, :test_01_blank, :test_02_create_position_and_group, :test_03_1_position_and_group, :test_04_create_employee, :test_05_check_associations, :test_06_browse_search, :test_07_merge, :test_08_update
+    
+    # belongs to association auto complete
+    p = page(port, "#{root}/browse_officer")
+    i = (p/:form)[1][:action].split('/')[-1]
+    [:new_officer, :search_officer, "edit_officer/#{i}"].each do |action|
+      p = page(port, "#{root}/#{action}")
+      assert_equal 1, (p/"div#officer_position_id_scaffold_auto_complete").length
+      assert_equal 'auto_complete', p.at("div#officer_position_id_scaffold_auto_complete")[:class]
+      assert_equal 1, (p/"input#officer_position_id").length
+      assert_equal 'text', p.at("input#officer_position_id")[:type]
+      assert_equal 'officer[position_id]', p.at("input#officer_position_id")[:name]
+      assert_equal "\n//<![CDATA[\nvar officer_position_id_auto_completer = new Ajax.Autocompleter('officer_position_id', 'officer_position_id_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get', parameters:'association=position'})\n//]]>\n", p.at(:script).inner_html
+    end
+    
+    # habtm association auto complete
+    p = page(port, "#{root}/edit_officer_groups/#{i}")
+    assert_equal 1, (p/"div#add_scaffold_auto_complete").length
+    assert_equal 'auto_complete', p.at("div#add_scaffold_auto_complete")[:class]
+    assert_equal 1, (p/"input#add").length
+    assert_equal 'text', p.at("input#add")[:type]
+    assert_equal "\n//<![CDATA[\nvar add_auto_completer = new Ajax.Autocompleter('add', 'add_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get', parameters:'association=groups'})\n//]]>\n", p.at(:script).inner_html
+  end
+
+  test_all_frameworks_and_dbs
 end
