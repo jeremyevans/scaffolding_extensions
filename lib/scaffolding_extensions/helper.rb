@@ -23,7 +23,7 @@ module ScaffoldingExtensions
           content << "\n "
           case klass.scaffold_association_type(association)
             when :one
-              associated_record = klass.scaffold_associated_objects(association, so, :session=>session)
+              associated_record = klass.scaffold_associated_objects(association, so, :session=>scaffold_session)
               content << " - #{scaffold_check_link(associated_record.scaffold_name, false, "#{show_edit}_#{class_name}", :id=>associated_record.scaffold_id) if associated_record}</li>\n"
               next
             when :edit
@@ -33,7 +33,7 @@ module ScaffoldingExtensions
               klass.scaffold_new_associated_object_values(association, so).each{|key, value| associated_params["#{class_name}[#{key}]"] = value}
               content << scaffold_check_link('(create)', true, "new_#{class_name}", associated_params) unless read_only
           end
-          if (records = klass.scaffold_associated_objects(association, so, :session=>session)).length > 0
+          if (records = klass.scaffold_associated_objects(association, so, :session=>scaffold_session)).length > 0
             content << "<ul>\n"
             records.each do |associated|
               content << "<li>#{scaffold_check_link(associated.scaffold_name, false, "#{show_edit}_#{class_name}", :id=>associated.scaffold_id)}</li>\n"
@@ -111,12 +111,12 @@ module ScaffoldingExtensions
           when :association
             klass = object.class
             if klass.scaffold_association_use_auto_complete(field)
-              assocated_object = klass.scaffold_associated_objects(field, object, :session=>session)
+              assocated_object = klass.scaffold_associated_objects(field, object, :session=>scaffold_session)
               options[:value] = assocated_object ? assocated_object.scaffold_name_with_id : ''
               scaffold_text_field_tag_with_auto_complete(options[:id], record_name, field, options)
             else
               s = {object.scaffold_value(field_id).to_i=>"selected='selected'"}
-              associated_objects = klass.scaffold_association_find_objects(field, :session=>session, :object=>object)
+              associated_objects = klass.scaffold_association_find_objects(field, :session=>scaffold_session, :object=>object)
               "<select #{scaffold_options_to_html(options)}><option></option>#{associated_objects.collect{|ao| "<option value='#{i = ao.scaffold_id}' #{s[i]}>#{h ao.scaffold_name}</option>"}.join}</select>"
             end
           else
@@ -167,7 +167,7 @@ module ScaffoldingExtensions
         end
         content << "</div><div class='habtm_ajax_remove_associations' id='#{sn}_habtm_ajax_remove_associations'><ul id='#{sn}_associated_records_list'>"
         klass.scaffold_habtm_associations.reject{|association| !scaffolded_method?("remove_#{association}_from_#{sn}")}.each do |association|
-          klass.scaffold_associated_objects(association, so, :session=>session).each do |associated_record|
+          klass.scaffold_associated_objects(association, so, :session=>scaffold_session).each do |associated_record|
             content << scaffold_habtm_association_line_item(klass, association, @scaffold_object, associated_record)
           end
         end
@@ -182,7 +182,7 @@ module ScaffoldingExtensions
         if klass.scaffold_association_use_auto_complete(association)
           scaffold_text_field_tag_with_auto_complete(id, model_name, association)
         else
-          scaffold_select_tag(id, klass.scaffold_unassociated_objects(association, record, :session=>session))
+          scaffold_select_tag(id, klass.scaffold_unassociated_objects(association, record, :session=>scaffold_session))
         end
       end
       

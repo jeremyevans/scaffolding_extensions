@@ -1,0 +1,23 @@
+Camping doesn't have a defined folder structure for models, so
+scaffold_all_models shouldn't be used unless you pass the :only option, which
+gives a list models to scaffold.
+
+Camping also doesn't have a defined structure for plugins, so you'll need to
+add scaffolding_extensions to the load path and then require it.  If you store
+it in the root of the application, you could do this with:
+
+$:.unshift('scaffolding_extensions/lib')
+require 'scaffolding_extensions'
+
+To use the plugin, inside your app's Controllers module, you need to define
+a subclass of scaffold_R, and call one of the scaffold methods inside of it.
+For example:
+
+Camping.goes :Cse
+module Cse::Controllers
+  class Admin < scaffold_R("/admin")
+    scaffold_all_models :only=>[Model1, Model2, Model3]
+  end
+end
+
+The path given to scaffold_R will be the root of the plugin.

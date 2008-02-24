@@ -15,3 +15,6 @@ scaffold_all_models without :only):
 
 You should add this code after your models have been loaded but before your
 controllers have been loaded.
+
+Also, note that Scaffolding Extensions uses the :Erubis engine in Ramaze,
+so you must have Erubis installed to use it.
