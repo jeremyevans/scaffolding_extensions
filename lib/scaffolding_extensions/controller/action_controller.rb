@@ -103,7 +103,7 @@ module ScaffoldingExtensions
         helper ScaffoldingExtensions::PrototypeHelper
         include ScaffoldingExtensions::Controller
         include ScaffoldingExtensions::ActionController
-        helper_method "scaffolded_method?", "scaffolded_nonidempotent_method?", :scaffold_url, :scaffold_flash
+        helper_method "scaffolded_method?", "scaffolded_nonidempotent_method?", :scaffold_url, :scaffold_flash, :scaffold_session
         before_filter :scaffold_check_nonidempotent_requests
       end
   end
