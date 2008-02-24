@@ -1,0 +1,10 @@
+--- 
+:bind: 0.0.0.0
+:port: 7977
+:unsupervised: 1
+:adapter: generic
+:handler: mongrel
+:logfile: log/style-camping.log
+:pidfile: log/style-camping.pid
+:adapter_config:
+  :script: cse

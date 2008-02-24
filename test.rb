@@ -5,6 +5,16 @@ require 'hpricot'
 require 'set'
 require 'open-uri'
 require 'net/http'
+
+ORMS = ['active_record', 'data_mapper']
+FRAMEWORKS = {'rails'=>7979, 'ramaze'=>7978, 'camping'=>7977}
+
+ARGV.each do |arg|
+  raise ArgumentError, 'Not a valid ORM or framework' unless ORMS.include?(arg) || FRAMEWORKS.include?(arg)
+  ORMS.replace([arg]) if ORMS.include?(arg)
+  FRAMEWORKS.replace({arg=>FRAMEWORKS[arg]}) if FRAMEWORKS.include?(arg)
+end
+
 class ScaffoldingExtensionsTest < Test::Unit::TestCase
   HOST='localhost'
   FIELD_NAMES={'employee'=>%w'Active Comment Name Password Position', 'position'=>%w'Name', 'group'=>%w'Name'}
@@ -16,17 +26,17 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       meth = :"_#{method}"
       alias_method meth, method
       define_method(method) do
-        [7978, 7979].each do |port|
-          %w"/active_record /data_mapper".each do |root|
-            send(meth, port, root) rescue (puts "Error! port:#{port} root:#{root}"; raise)
+        FRAMEWORKS.values.sort.each do |port|
+          ORMS.each do |root|
+            send(meth, port, "/#{root}") rescue (puts "Error! port:#{port} orm:#{root}"; raise)
           end
         end
       end
     end
   end
 
-  def se_path(port, root, path)
-    "http://#{HOST}:#{port}#{root}#{path}"
+  def assert_se_path(port, root, path, location)
+    assert_equal "//#{HOST}:#{port}#{root}#{path}", location.sub('http:', '')
   end
 
   def page(port, path)
@@ -46,7 +56,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       opts.shift
       opts.each do |opt| 
         res = post(port, "#{root}/destroy_#{model}", :id=>opt[:value])
-        assert_equal se_path(port, root, "/delete_#{model}"), res['Location']
+        assert_se_path port, root, "/delete_#{model}", res['Location']
       end
     end
   end
@@ -148,7 +158,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     %w'position group'.each do |model|
       name = "Test#{model}"
       res = post(port, "#{root}/create_#{model}", "#{model}[name]"=>name)
-      assert_equal se_path(port, root, "/new_#{model}"), res['Location']
+      assert_se_path port, root, "/new_#{model}", res['Location']
       
       %w'browse results'.each do |action|
         p = page(port, "#{root}/#{action}_#{model}")
@@ -241,7 +251,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     group_id = (p/:option).last[:value]
     
     res = post(port, "#{root}/create_employee", "employee[name]"=>"Testemployee", 'employee[active]'=>'t', 'employee[comment]'=>'Comment', 'employee[password]'=>'password', 'employee[position_id]'=>position_id)
-    assert_equal se_path(port, root, "/new_employee"), res['Location']
+    assert_se_path port, root, "/new_employee", res['Location']
     
     p = page(port, "#{root}/show_employee")
     i = (p/:option).last[:value]
@@ -298,7 +308,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
 
     # Update the groups
     res = post(port, p.at(:form)[:action], p.at(:select)[:name]=>p.at(:option)[:value])
-    assert_equal se_path(port, root, "/edit_employee_groups/#{i}"), res['Location']
+    assert_se_path port, root, "/edit_employee_groups/#{i}", res['Location']
 
     # Recheck the habtm page
     p = page(port, (p1/:a)[1][:href])
@@ -351,7 +361,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
 
     # Update the employees
     res = post(port, p.at(:form)[:action], p.at(:select)[:name]=>p.at(:option)[:value])
-    assert_equal se_path(port, root, "/edit_group_employees/#{group_id}"), res['Location']
+    assert_se_path port, root, "/edit_group_employees/#{group_id}", res['Location']
 
     # Recheck the edit group page
     p = page(port, p.at(:a)[:href])
@@ -365,7 +375,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
   def test_04_browse_search(port, root)
     %w'position group employee'.each do |model|
       res = post(port, "#{root}/create_#{model}", "#{model}[name]"=>"Best#{model}")
-      assert_equal se_path(port, root, "/new_#{model}"), res['Location']
+      assert_se_path port, root, "/new_#{model}", res['Location']
       
       #Get ids for both objects
       p = page(port, "#{root}/show_#{model}")
@@ -488,7 +498,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     b = (p/:option)[1][:value]
     t = (p/:option)[2][:value]
     res = post(port, p.at(:form)[:action], (p/:select)[0][:name]=>b, (p/:select)[1][:name]=>t)
-    assert_equal se_path(port, root, "/merge_employee"), res['Location']
+    assert_se_path port, root, "/merge_employee", res['Location']
 
     # Check now only 1 employee exists
     p = page(port, "#{root}/merge_employee")
@@ -518,7 +528,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
 
     # Update the groups
     res = post(port, p.at(:form)[:action], p.at(:select)[:name]=>bg)
-    assert_equal se_path(port, root, "/edit_employee_groups/#{t}"), res['Location']
+    assert_se_path port, root, "/edit_employee_groups/#{t}", res['Location']
     p = page(port, "#{root}/edit_employee_groups/#{t}")
     assert_equal 1, (p/'select#add option').length
     assert_equal 1, (p/'select#remove option').length
@@ -535,7 +545,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal tg, (p/:option)[2][:value]
     assert_equal "Testgroup", (p/:option)[2].inner_html
     res = post(port, p.at(:form)[:action], (p/:select)[0][:name]=>bg, (p/:select)[1][:name]=>tg)
-    assert_equal se_path(port, root, "/merge_group"), res['Location']
+    assert_se_path port, root, "/merge_group", res['Location']
 
     # Check now only 1 group exist
     p = page(port, "#{root}/merge_group")
@@ -554,7 +564,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     
     # Remove employee from Testgroup
     res = post(port, p.at(:form)[:action], p.at(:select)[:name]=>tg)
-    assert_equal se_path(port, root, "/edit_employee_groups/#{t}"), res['Location']
+    assert_se_path port, root, "/edit_employee_groups/#{t}", res['Location']
 
     # Check position of employee
     p = page(port, "#{root}/edit_employee/#{t}")
@@ -576,7 +586,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal tp, (p/:option)[2][:value]
     assert_equal "Testposition", (p/:option)[2].inner_html
     res = post(port, p.at(:form)[:action], (p/:select)[0][:name]=>tp, (p/:select)[1][:name]=>bp)
-    assert_equal se_path(port, root, "/merge_position"), res['Location']
+    assert_se_path port, root, "/merge_position", res['Location']
 
     # Check now only 1 position exist
     p = page(port, "#{root}/merge_position")
@@ -608,7 +618,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
 
       # Update name
       res = post(port, p.at(:form)[:action], "#{model}[name]"=>"Z#{model}")
-      assert_equal se_path(port, root, "/edit_#{model}"), res['Location']
+      assert_se_path port, root, "/edit_#{model}", res['Location']
 
       # Check updated name
       p = page(port, "#{root}/edit_#{model}/#{i}")
@@ -622,10 +632,10 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     (p/:form).each do |form|
       next unless form[:method] == 'post'
       res = post(port, form[:action], {})
-      assert_equal se_path(port, root, "/delete_officer"), res['Location']
+      assert_se_path port, root, "/delete_officer", res['Location']
     end
     res = post(port, "#{root}/create_officer", "officer[name]"=>'Zofficer')
-    assert_equal se_path(port, root, "/new_officer"), res['Location']
+    assert_se_path port, root, "/new_officer", res['Location']
     
     # Test regular auto completing
     p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z")
