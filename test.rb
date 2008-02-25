@@ -7,7 +7,7 @@ require 'open-uri'
 require 'net/http'
 
 ORMS = ['active_record', 'data_mapper']
-FRAMEWORKS = {'rails'=>7979, 'ramaze'=>7978, 'camping'=>7977}
+FRAMEWORKS = {'rails'=>7979, 'ramaze'=>7978, 'camping'=>7977, 'sinatra'=>7976}
 
 ARGV.each do |arg|
   raise ArgumentError, 'Not a valid ORM or framework' unless ORMS.include?(arg) || FRAMEWORKS.include?(arg)
@@ -46,6 +46,13 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
   def post(port, path, params)
     req = Net::HTTP::Post.new(path)
     req.set_form_data(params)
+    Net::HTTP.new(HOST, port).start {|http| http.request(req) }
+  end
+
+  def post_multiple(port, path, param, values)
+    req = Net::HTTP::Post.new(path)
+    req.body = values.collect{|v| "#{param}=#{v}"}.join('&')
+    req.content_type = 'application/x-www-form-urlencoded'
     Net::HTTP.new(HOST, port).start {|http| http.request(req) }
   end
 
@@ -526,8 +533,23 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal 2, (p/'select#add option').length
     assert_equal 0, (p/'select#remove option').length
 
+    # Update both groups at once
+    res = post_multiple(port, p.at(:form)[:action], p.at('select#add')[:name], [bg, tg])
+    assert_se_path port, root, "/edit_employee_groups/#{t}", res['Location']
+    p = page(port, "#{root}/edit_employee_groups/#{t}")
+    assert_equal 'Remove these groups', p.at(:h4).inner_html
+    assert_equal 'remove', p.at(:select)[:id]
+    assert_equal 'remove', p.at(:select)[:name].sub('[]', '')
+    assert_equal 'multiple', p.at(:select)[:multiple]
+    assert_equal bg, (p/:option).first[:value]
+    assert_equal tg, (p/:option).last[:value]
+    assert_equal 'Bestgroup', (p/:option).first.inner_html
+    assert_equal 'Testgroup', (p/:option).last.inner_html
+    assert_equal 0, (p/'select#add option').length
+    assert_equal 2, (p/'select#remove option').length
+
     # Update the groups
-    res = post(port, p.at(:form)[:action], p.at(:select)[:name]=>bg)
+    res = post(port, p.at(:form)[:action], p.at('select#remove')[:name]=>tg)
     assert_se_path port, root, "/edit_employee_groups/#{t}", res['Location']
     p = page(port, "#{root}/edit_employee_groups/#{t}")
     assert_equal 1, (p/'select#add option').length

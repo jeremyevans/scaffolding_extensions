@@ -1,8 +1,8 @@
 #!/bin/sh
-WAITTIME=5
-frameworks="rails ramaze camping"
+WAITTIME=1
+frameworks="rails ramaze camping sinatra"
 if [ $# != 0 ]; then
-  case $1 in rails|ramaze|camping) frameworks=$1;;
+  case $1 in rails|ramaze|camping|sinatra) frameworks=$1;;
   esac
 fi
 for framework in $frameworks; do
