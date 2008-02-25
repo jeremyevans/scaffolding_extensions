@@ -7,7 +7,7 @@ interface to perform common actions on models.  It has the following features:
   searching, and merging records
 * Choose which fields are displayed in the scaffolds and in which order
 * Handles associated records for common one-to-many, many-to-one, and
-  many-to-many associations.
+  many-to-many associations
 * Extensive support for modifying the display and working of the plugin
 * Advanced features such as access control, autocompleting, and eager loading
 
@@ -22,11 +22,11 @@ The current version of Scaffolding Extensions is quite different from older
 versions (svn revision 89 and previous).  For upgrading from an older version,
 see the conversion.txt file.
 
-Scaffolding Extensions currently supports Rails 2.0, Ramaze 0.3.5, and
-Camping 1.5 web frameworks.  It supports the ActiveRecord and DataMapper
+Scaffolding Extensions currently supports Rails 2.0, Ramaze 0.3.5, Camping 1.5,
+and Sinatra 0.1.7 web frameworks.  It supports the ActiveRecord and DataMapper
 ORMs.  Support for other web frameworks and ORMs can be added, see the
-controller_spec.txt and model_spec.txt files for the methods that need
-to be defined.
+controller_spec.txt and model_spec.txt files for the methods that need to be
+defined.
 
 Older versions of Rails should be able to use an older version of the plugin,
 which won't be discussed further as it is substantially different from the

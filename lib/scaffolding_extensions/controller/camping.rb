@@ -9,7 +9,7 @@ require 'cgi'
 module ScaffoldingExtensions
   class << self
     private
-      # Capming doesn't have a default location for models, so assume none
+      # Camping doesn't have a default location for models, so assume none
       def model_files
         @model_files ||= []
       end
