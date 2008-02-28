@@ -36,7 +36,11 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
   end
 
   def assert_se_path(port, root, path, location)
-    assert_equal "//#{HOST}:#{port}#{root}#{path}", location.sub('http:', '')
+    assert_equal "//#{HOST}:#{port}#{root}#{path}", location.sub(/^http:/, '')
+  end
+  
+  def prototype?
+    @js_lib == :prototype
   end
 
   def page(port, path)
@@ -658,81 +662,95 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     end
     res = post(port, "#{root}/create_officer", "officer[name]"=>'Zofficer')
     assert_se_path port, root, "/new_officer", res['Location']
-    
-    # Test regular auto completing
-    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z")
-    assert_equal 1, (p/:ul).length
-    assert_equal 1, (p/:li).length
-    assert_match /\d+ - Zofficer/, p.at(:li).inner_html
-    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X")
-    assert_equal 1, (p/:ul).length
-    assert_equal 0, (p/:li).length
-    assert_equal '', p.at(:ul).inner_html
-    
-    # Tset auto completing for belongs to associations
-    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z&association=position")
-    assert_equal 1, (p/:ul).length
-    assert_equal 1, (p/:li).length
-    assert_match /\d+ - Zposition/, p.at(:li).inner_html
-    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=position")
-    assert_equal 1, (p/:ul).length
-    assert_equal 0, (p/:li).length
-    assert_equal '', p.at(:ul).inner_html
-    
-    # Test auto completing for habtm associations
-    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z&association=groups")
-    assert_equal 1, (p/:ul).length
-    assert_equal 1, (p/:li).length
-    assert_match /\d+ - Zgroup/, p.at(:li).inner_html
-    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=groups")
-    assert_equal 1, (p/:ul).length
-    assert_equal 0, (p/:li).length
-    assert_equal '', p.at(:ul).inner_html
+    p = page(port, "#{root}/browse_officer")
+    i = (p/:form)[1][:action].split('/')[-1]
     
     # Check to make sure that auto complete fields exist every place they are expected
     
     # Regular auto complete
+    p = page(port, "#{root}/merge_officer")
+    assert_equal 1, (p/"input#from").length
+    assert_equal 'text', p.at("input#from")[:type]
+    if 1 == (p/"div#from_scaffold_auto_complete").length
+      @js_lib = :prototype
+      assert_equal 'auto_complete', p.at("div#from_scaffold_auto_complete")[:class]
+      assert_equal "\n//<![CDATA[\nvar from_auto_completer = new Ajax.Autocompleter('from', 'from_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get'})\n//]]>\n", (p/:script)[0].inner_html
+    else
+      @js_lib = :jquery
+      assert_equal 'autocomplete', p.at("input#from")[:class]
+      assert_equal "\n//<![CDATA[\n$('#from').autocomplete({ajax:'#{root}/scaffold_auto_complete_for_officer'});\n//]]>\n", (p/:script)[0].inner_html
+    end
+    assert_equal 1, (p/"input#to").length
+    assert_equal 'text', p.at("input#to")[:type]
+    if prototype?
+      assert_equal 'auto_complete', p.at("div#to_scaffold_auto_complete")[:class]
+      assert_equal "\n//<![CDATA[\nvar to_auto_completer = new Ajax.Autocompleter('to', 'to_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get'})\n//]]>\n", (p/:script)[1].inner_html
+    else
+      assert_equal 'autocomplete', p.at("input#to")[:class]
+      assert_equal "\n//<![CDATA[\n$('#to').autocomplete({ajax:'#{root}/scaffold_auto_complete_for_officer'});\n//]]>\n", (p/:script)[1].inner_html
+    end
+    
     %w'delete edit show'.each do |action|
       p = page(port, "#{root}/#{action}_officer")
       assert_equal 1, (p/"input#id").length
       assert_equal 'text', p.at("input#id")[:type]
-      assert_equal 1, (p/"div#id_scaffold_auto_complete").length
-      assert_equal 'auto_complete', p.at("div#id_scaffold_auto_complete")[:class]
-      assert_equal "\n//<![CDATA[\nvar id_auto_completer = new Ajax.Autocompleter('id', 'id_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get'})\n//]]>\n", p.at(:script).inner_html
+      if prototype?
+        assert_equal 'auto_complete', p.at("div#id_scaffold_auto_complete")[:class]
+        assert_equal "\n//<![CDATA[\nvar id_auto_completer = new Ajax.Autocompleter('id', 'id_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get'})\n//]]>\n", p.at(:script).inner_html
+      else
+        assert_equal 'autocomplete', p.at("input#id")[:class]
+        assert_equal "\n//<![CDATA[\n$('#id').autocomplete({ajax:'#{root}/scaffold_auto_complete_for_officer'});\n//]]>\n", p.at(:script).inner_html
+      end
     end
-    p = page(port, "#{root}/merge_officer")
-    assert_equal 1, (p/"input#from").length
-    assert_equal 'text', p.at("input#from")[:type]
-    assert_equal 1, (p/"div#from_scaffold_auto_complete").length
-    assert_equal 'auto_complete', p.at("div#from_scaffold_auto_complete")[:class]
-    assert_equal "\n//<![CDATA[\nvar from_auto_completer = new Ajax.Autocompleter('from', 'from_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get'})\n//]]>\n", (p/:script)[0].inner_html
-    assert_equal 1, (p/"input#to").length
-    assert_equal 'text', p.at("input#to")[:type]
-    assert_equal 1, (p/"div#to_scaffold_auto_complete").length
-    assert_equal 'auto_complete', p.at("div#to_scaffold_auto_complete")[:class]
-    assert_equal "\n//<![CDATA[\nvar to_auto_completer = new Ajax.Autocompleter('to', 'to_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get'})\n//]]>\n", (p/:script)[1].inner_html
-
     
     # belongs to association auto complete
-    p = page(port, "#{root}/browse_officer")
-    i = (p/:form)[1][:action].split('/')[-1]
     [:new_officer, :search_officer, "edit_officer/#{i}"].each do |action|
       p = page(port, "#{root}/#{action}")
-      assert_equal 1, (p/"div#officer_position_id_scaffold_auto_complete").length
-      assert_equal 'auto_complete', p.at("div#officer_position_id_scaffold_auto_complete")[:class]
       assert_equal 1, (p/"input#officer_position_id").length
       assert_equal 'text', p.at("input#officer_position_id")[:type]
       assert_equal 'officer[position_id]', p.at("input#officer_position_id")[:name]
-      assert_equal "\n//<![CDATA[\nvar officer_position_id_auto_completer = new Ajax.Autocompleter('officer_position_id', 'officer_position_id_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get', parameters:'association=position'})\n//]]>\n", p.at(:script).inner_html
+      if prototype?
+        assert_equal 'auto_complete', p.at("div#officer_position_id_scaffold_auto_complete")[:class]
+        assert_equal "\n//<![CDATA[\nvar officer_position_id_auto_completer = new Ajax.Autocompleter('officer_position_id', 'officer_position_id_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get', parameters:'association=position'})\n//]]>\n", p.at(:script).inner_html
+      else
+        assert_equal 'autocomplete', p.at("input#officer_position_id")[:class]
+        assert_equal "\n//<![CDATA[\n$('#officer_position_id').autocomplete({ajax:'#{root}/scaffold_auto_complete_for_officer', association:'position'});\n//]]>\n", p.at(:script).inner_html
+      end
     end
     
     # habtm association auto complete
     p = page(port, "#{root}/edit_officer_groups/#{i}")
-    assert_equal 1, (p/"div#add_scaffold_auto_complete").length
-    assert_equal 'auto_complete', p.at("div#add_scaffold_auto_complete")[:class]
     assert_equal 1, (p/"input#add").length
     assert_equal 'text', p.at("input#add")[:type]
-    assert_equal "\n//<![CDATA[\nvar add_auto_completer = new Ajax.Autocompleter('add', 'add_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get', parameters:'association=groups'})\n//]]>\n", p.at(:script).inner_html
+    if prototype?
+      assert_equal 'auto_complete', p.at("div#add_scaffold_auto_complete")[:class]
+      assert_equal "\n//<![CDATA[\nvar add_auto_completer = new Ajax.Autocompleter('add', 'add_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get', parameters:'association=groups'})\n//]]>\n", p.at(:script).inner_html
+    else
+      assert_equal 'autocomplete', p.at("input#add")[:class]
+      assert_equal "\n//<![CDATA[\n$('#add').autocomplete({ajax:'#{root}/scaffold_auto_complete_for_officer', association:'groups'});\n//]]>\n", p.at(:script).inner_html
+    end
+  
+    # Test regular auto completing
+    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z")
+    assert_equal "<ul><li>#{i} - Zofficer</li></ul>", p.inner_html
+    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X")
+    assert_equal '<ul></ul>', p.inner_html
+    
+    # Tset auto completing for belongs to associations
+    p = page(port, "#{root}/browse_position")
+    ip = (p/:form)[1][:action].split('/')[-1]
+    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z&association=position")
+    assert_equal "<ul><li>#{ip} - Zposition</li></ul>", p.inner_html
+    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=position")
+    assert_equal '<ul></ul>', p.inner_html
+    
+    # Test auto completing for habtm associations
+    p = page(port, "#{root}/browse_group")
+    ig = (p/:form)[1][:action].split('/')[-1]
+    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z&association=groups")
+    assert_equal "<ul><li>#{ig} - Zgroup</li></ul>", p.inner_html
+    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=groups")
+    assert_equal '<ul></ul>', p.inner_html
   end
 
   test_all_frameworks_and_dbs

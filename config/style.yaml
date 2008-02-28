@@ -1,6 +1,0 @@
---- 
-:bind: 0.0.0.0
-:port: 7000
-:unsupervised: 1
-:adapter: rails
-:handler: mongrel
