@@ -1,0 +1,8 @@
+If you are using JQuery javascript library with the plugin, you need to use this
+plugin for autocomplete functionality.  It's a modification of jq-autocomplete
+[1].  It also requires the Dimensions JQuery plugin [2].  To use this plugin,
+add the include the css file as a stylesheet and the js file as a script (in
+addition to JQuery and the Dimensions plugin).
+
+[1] http://plugins.jquery.com/project/jq-autocomplete
+[2] http://plugins.jquery.com/project/dimensions

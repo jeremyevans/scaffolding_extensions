@@ -18,19 +18,29 @@ The scaffolding analogy is misleading, Scaffolding Extensions is not really
 scaffolding--it is a completely functional structure that you can easily modify
 to better suit your needs.
 
-The current version of Scaffolding Extensions is quite different from older
-versions (svn revision 89 and previous).  For upgrading from an older version,
-see the conversion.txt file.
+Scaffolding Extensions currently supports:
 
-Scaffolding Extensions currently supports Rails 2.0, Ramaze 0.3.5, Camping 1.5,
-and Sinatra 0.1.7 web frameworks.  It supports the ActiveRecord and DataMapper
-ORMs.  Support for other web frameworks and ORMs can be added, see the
+* Web Frameworks
+  * Rails 2.0
+  * Ramaze 0.3.5
+  * Camping 1.5
+  * Sinatra 0.1.7
+* Object/Relational Mappers
+  * ActiveRecord 2.0
+  * DataMapper 0.2.5
+* Javascript Libaries (used for Ajax/Autocompleting)
+  * Prototype 1.6.0.1
+  * JQuery 1.2.3
+  
+Support for other web frameworks and ORMs can be added, see the
 controller_spec.txt and model_spec.txt files for the methods that need to be
 defined.
 
-Older versions of Rails should be able to use an older version of the plugin,
-which won't be discussed further as it is substantially different from the
-current version (see the conversion.txt file for details).
+The current version of Scaffolding Extensions is quite different from older
+versions (svn revision 89 and previous).  Older versions of Rails should be
+able to use an older version of the plugin, which won't be discussed further as
+it is substantially different from the current version (see the conversion.txt
+file for details).
 
 You can get Scaffolding Extensions via subversion or as a tarball:
 

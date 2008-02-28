@@ -289,8 +289,7 @@ module ScaffoldingExtensions
       # are passed to scaffold_javascript_autocompleter.  The options are passed to scaffold_field_tag.
       def scaffold_text_field_tag_with_auto_complete(id, model_name, association = nil, options = {})
         content = ScaffoldingExtensions.auto_complete_css.dup
-        content << scaffold_field_tag(:string, {:value=>'', :id=>id}.merge(options))
-        content << "\n<div class='auto_complete' id='#{id}_scaffold_auto_complete'></div>\n"
+        content << scaffold_field_tag(:string, {:value=>'', :id=>id, :class=>'autocomplete'}.merge(options))
         content << scaffold_javascript_autocompleter(id, model_name, association)
         content
       end

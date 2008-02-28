@@ -62,6 +62,12 @@ module ScaffoldingExtensions
     def auto_complete_css
       auto_complete_skip_style ? '' : AUTO_COMPLETE_CSS
     end
+    
+    # The javascript library to use (defaults to Prototype)
+    def javascript_library=(jslib)
+      require "scaffolding_extensions/#{jslib.downcase}_helper"
+      ScaffoldingExtensions::Helper.send(:include, const_get("#{jslib}Helper"))
+    end
   end
 end
 
@@ -71,7 +77,6 @@ require 'scaffolding_extensions/meta_controller'
 require 'scaffolding_extensions/meta_model'
 require 'scaffolding_extensions/model'
 require 'scaffolding_extensions/overridable'
-require 'scaffolding_extensions/prototype_helper'
 
 require 'scaffolding_extensions/controller/action_controller' if defined? ActionController::Base
 require 'scaffolding_extensions/controller/camping' if defined? Camping::Controllers
@@ -80,4 +85,5 @@ require 'scaffolding_extensions/controller/sinatra' if defined? Sinatra
 
 require 'scaffolding_extensions/model/active_record' if defined? ActiveRecord::Base
 require 'scaffolding_extensions/model/data_mapper' if defined? DataMapper::Base
-  
+
+ScaffoldingExtensions.javascript_library = 'Prototype'
