@@ -50,18 +50,27 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
   def post(port, path, params)
     req = Net::HTTP::Post.new(path)
     req.set_form_data(params)
-    Net::HTTP.new(HOST, port).start {|http| http.request(req) }
+    Net::HTTP.new(HOST, port).start{|http| http.request(req)}
+  end
+  
+  def post_xhr(port, path, params)
+    req = Net::HTTP::Post.new(path)
+    req.set_form_data(params)
+    req['X-Requested-With'] = 'XMLHttpRequest'
+    res = Net::HTTP.new(HOST, port).start{|http| http.request(req)}
+    assert_match %r{\Atext/javascript},  res['Content-Type']
+    res
   end
 
   def post_multiple(port, path, param, values)
     req = Net::HTTP::Post.new(path)
     req.body = values.collect{|v| "#{param}=#{v}"}.join('&')
     req.content_type = 'application/x-www-form-urlencoded'
-    Net::HTTP.new(HOST, port).start {|http| http.request(req) }
+    Net::HTTP.new(HOST, port).start{|http| http.request(req)}
   end
 
   def test_00_clear_db(port, root)
-    %w'employee position group'.each do |model|
+    %w'employee position group meeting'.each do |model|
       p = page(port, "#{root}/show_#{model}")
       opts = p/:option
       opts.shift
@@ -538,19 +547,26 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal 0, (p/'select#remove option').length
 
     # Update both groups at once
-    res = post_multiple(port, p.at(:form)[:action], p.at('select#add')[:name], [bg, tg])
+    res = post_multiple(port, p.at(:form)[:action], p.at('select#add')[:name], [tg, bg])
     assert_se_path port, root, "/edit_employee_groups/#{t}", res['Location']
     p = page(port, "#{root}/edit_employee_groups/#{t}")
     assert_equal 'Remove these groups', p.at(:h4).inner_html
     assert_equal 'remove', p.at(:select)[:id]
     assert_equal 'remove', p.at(:select)[:name].sub('[]', '')
     assert_equal 'multiple', p.at(:select)[:multiple]
-    assert_equal bg, (p/:option).first[:value]
-    assert_equal tg, (p/:option).last[:value]
-    assert_equal 'Bestgroup', (p/:option).first.inner_html
-    assert_equal 'Testgroup', (p/:option).last.inner_html
     assert_equal 0, (p/'select#add option').length
     assert_equal 2, (p/'select#remove option').length
+
+    # DATAMAPPER_BUG: No ordering of HABTM associations
+    if root == '/data_mapper'
+      assert_equal %w'Bestgroup Testgroup', (p/:option).collect{|x|x.inner_html}.sort
+      assert_equal [tg, bg].sort, (p/:option).collect{|x|x[:value]}.sort
+    else
+      assert_equal 'Bestgroup', (p/:option).first.inner_html
+      assert_equal 'Testgroup', (p/:option).last.inner_html
+      assert_equal bg, (p/:option).first[:value]
+      assert_equal tg, (p/:option).last[:value]
+    end
 
     # Update the groups
     res = post(port, p.at(:form)[:action], p.at('select#remove')[:name]=>tg)
@@ -751,6 +767,176 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal "<ul><li>#{ig} - Zgroup</li></ul>", p.inner_html
     p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=groups")
     assert_equal '<ul></ul>', p.inner_html
+  end
+  
+  def test_08_ajax(port, root)
+    res = post(port, "#{root}/create_meeting", "meeting[name]"=>'Zmeeting')
+    assert_se_path port, root, "/new_meeting", res['Location']
+    p = page(port, "#{root}/edit_meeting")
+    i = (p/:option).last[:value]
+    p = page(port, "#{root}/browse_position")
+    pi = (p/:form)[1][:action].split('/')[-1]
+    
+    # Check for load associations link
+    p = page(port, "#{root}/edit_meeting/#{i}")
+    assert_equal "scaffold_ajax_content_#{i}", p.at("div#scaffold_ajax_content_#{i}")[:id]
+    assert_equal 'Modify Associations', p.at(:a).inner_html
+    assert_equal "#{root}/edit_meeting/#{i}?associations=show", p.at(:a)[:href]
+    if "$('#scaffold_ajax_content_#{i}').load('#{root}/associations_meeting/#{i}'); return false;" == p.at(:a)[:onclick]
+      @js_lib = :jquery
+      assert_equal "$('#scaffold_ajax_content_#{i}').load('#{root}/associations_meeting/#{i}'); return false;", p.at(:a)[:onclick]
+    else
+      @js_lib = :prototype
+      assert_equal "new Ajax.Updater('scaffold_ajax_content_#{i}', '#{root}/associations_meeting/#{i}', {method:'get', asynchronous:true, evalScripts:true}); return false;", p.at(:a)[:onclick]
+    end
+    
+    # Check that edit page with associations parameter has associations
+    p = page(port, "#{root}/edit_meeting/#{i}?associations=show")
+    assert_equal 1, (p/"div#meeting_habtm_ajax_remove_associations ul").length
+    
+    # Check that associations link brings up the appropriate form widgets
+    p = page(port, "#{root}/associations_meeting/#{i}")
+    assert_equal 'habtm_ajax_add_associations', (p/:div).first[:class]
+    assert_equal 'meeting_habtm_ajax_add_associations', (p/:div).first[:id]
+    assert_equal 'habtm_ajax_remove_associations', (p/:div).last[:class]
+    assert_equal 'meeting_habtm_ajax_remove_associations', (p/:div).last[:id]
+    assert_equal 2, (p/:ul).length
+    assert_equal 1, (p/"div#meeting_habtm_ajax_remove_associations ul").length
+    assert_equal 'meeting_associated_records_list', p.at("div#meeting_habtm_ajax_remove_associations ul")[:id]
+    assert_equal '', p.at("div#meeting_habtm_ajax_remove_associations ul").inner_html.strip
+    assert_equal 1, (p/"ul#scaffolded_associations_meeting_#{i}").length
+    assert_equal '', p.at("ul#scaffolded_associations_meeting_#{i}").inner_html.strip
+    assert_equal 0, (p/:li).length
+    assert_equal 2, (p/:form).length
+    assert_equal 2, (p/"div#meeting_habtm_ajax_add_associations form").length
+    assert_equal 'post', (p/:form).first[:method]
+    assert_equal 'post', (p/:form).last[:method]
+    assert_equal "#{root}/add_groups_to_meeting/#{i}", (p/:form).first[:action]
+    assert_equal "#{root}/add_positions_to_meeting/#{i}", (p/:form).last[:action]
+    if prototype?
+      assert_equal 3, (p/:div).length
+      assert_equal "new Ajax.Request('#{root}/add_groups_to_meeting/#{i}', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;", (p/:form).first[:onsubmit]
+      assert_equal "new Ajax.Request('#{root}/add_positions_to_meeting/#{i}', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;", (p/:form).last[:onsubmit]
+    else
+      assert_equal 2, (p/:div).length
+      assert_equal "$.post('#{root}/add_groups_to_meeting/#{i}', $(this).serialize(), function(data, textStatus){eval(data);}); return false;", (p/:form).first[:onsubmit]
+      assert_equal "$.post('#{root}/add_positions_to_meeting/#{i}', $(this).serialize(), function(data, textStatus){eval(data);}); return false;", (p/:form).last[:onsubmit]
+    end
+    assert_equal 1, (p/"select#meeting_groups_id").length
+    assert_equal 2, (p/:option).length
+    assert_equal 2, (p/"select#meeting_groups_id option").length
+    gi = (p/:option).last[:value]
+    assert_equal nil, (p/:option).first[:value]
+    assert_equal '', (p/:option).first.inner_html
+    assert_equal "meeting_groups_id_#{gi}", (p/:option).last[:id]
+    assert_equal 'Zgroup', (p/:option).last.inner_html
+    assert_equal 1, (p/"input#meeting_positions_id").length
+    assert_equal 'meeting_positions_id', p.at("input#meeting_positions_id")[:name]
+    assert_equal 'autocomplete', p.at("input#meeting_positions_id")[:class]
+    assert_equal '', p.at("input#meeting_positions_id")[:value]
+    assert_equal 'text', p.at("input#meeting_positions_id")[:type]
+    if prototype?
+      assert_equal 'auto_complete', p.at("div#meeting_positions_id_scaffold_auto_complete")[:class]
+      assert_equal "\n//<![CDATA[\nvar meeting_positions_id_auto_completer = new Ajax.Autocompleter('meeting_positions_id', 'meeting_positions_id_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_meeting', {paramName:'id', method:'get', parameters:'association=positions'})\n//]]>\n", p.at(:script).inner_html
+    else
+      assert_equal 'autocomplete', p.at("input#meeting_positions_id")[:class]
+      assert_equal "\n//<![CDATA[\n$('#meeting_positions_id').autocomplete({ajax:'#{root}/scaffold_auto_complete_for_meeting', association:'positions'});\n//]]>\n", p.at(:script).inner_html
+    end
+    assert_equal 3, (p/:input).length
+    assert_equal 'Add Group', (p/:input)[0][:value]
+    assert_equal 'commit', (p/:input)[0][:name]
+    assert_equal 'submit', (p/:input)[0][:type]
+    assert_equal '', (p/:input)[1][:value]
+    assert_equal 'meeting_positions_id', (p/:input)[1][:name]
+    assert_equal 'text', (p/:input)[1][:type]
+    assert_equal 'Add Position', (p/:input)[2][:value]
+    assert_equal 'commit', (p/:input)[2][:name]
+    assert_equal 'submit', (p/:input)[2][:type]
+    
+    # Add Group and see if it appears in the association page
+    res = post(port, "#{root}/add_groups_to_meeting/#{i}", 'meeting_groups_id'=>gi)
+    assert_se_path port, root, "/edit_meeting/#{i}", res['Location']
+    p = page(port, "#{root}/associations_meeting/#{i}")
+    assert_equal 1, (p/:option).length
+    assert_equal nil, (p/:option).first[:value]
+    assert_equal '', (p/:option).first.inner_html
+    assert_equal 1, (p/:li).length
+    assert_equal "meeting_#{i}_groups_#{gi}", p.at(:li)[:id]
+    assert_equal 2, (p/"li a").length
+    assert_equal 'Groups', (p/"li a").first.inner_html
+    assert_equal 'Zgroup', (p/"li a").last.inner_html
+    assert_equal "#{root}/manage_group", (p/"li a").first[:href]
+    assert_equal "#{root}/edit_group/#{gi}", (p/"li a").last[:href]
+    assert_equal 1, (p/"li form").length
+    assert_equal "post", p.at("li form")[:method]
+    assert_equal "#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}", p.at("li form")[:action]
+    if prototype?
+      assert_equal "new Ajax.Request('#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;", p.at("li form")[:onsubmit]
+    else
+      assert_equal "$.post('#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}', $(this).serialize(), function(data, textStatus){eval(data);}); return false;", p.at("li form")[:onsubmit]
+    end
+    assert_equal 1, (p/"li form input").length
+    assert_equal "Remove", p.at("li form input")[:value]
+    assert_equal "submit", p.at("li form input")[:type]
+    
+    # Remove Group and see if it disappears
+    res = post(port, "#{root}/remove_groups_from_meeting/#{i}", 'meeting_groups_id'=>gi)
+    assert_se_path port, root, "/edit_meeting/#{i}", res['Location']
+    p = page(port, "#{root}/associations_meeting/#{i}")
+    assert_equal 0, (p/:li).length
+    
+    # Less Extensive Tests for positions association
+    res = post(port, "#{root}/add_positions_to_meeting/#{i}", 'meeting_positions_id'=>pi)
+    assert_se_path port, root, "/edit_meeting/#{i}", res['Location']
+    p = page(port, "#{root}/associations_meeting/#{i}")
+    assert_equal 1, (p/:li).length
+    assert_equal 'Positions', (p/"li a").first.inner_html
+    assert_equal 'Zposition', (p/"li a").last.inner_html
+    res = post(port, "#{root}/remove_positions_from_meeting/#{i}", 'meeting_positions_id'=>pi)
+    assert_se_path port, root, "/edit_meeting/#{i}", res['Location']
+    p = page(port, "#{root}/associations_meeting/#{i}")
+    assert_equal 0, (p/:li).length
+    
+    # Test Ajax form submission via xhr yields correct javascript and performs action
+    res = post_xhr(port, "#{root}/add_groups_to_meeting/#{i}", 'meeting_groups_id'=>gi)
+    if prototype?
+      assert_equal "new Insertion.Top('meeting_associated_records_list', \"\\u003Cli id='meeting_#{i}_groups_#{gi}'\\u003E\\n\\u003Ca href='#{root}/manage_group'\\u003EGroups\\u003C/a\\u003E - \\n\\u003Ca href='#{root}/edit_group/#{gi}'\\u003EZgroup\\u003C/a\\u003E\\n\\u003Cform method='post' action='#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}' onsubmit=\\\"new Ajax.Request('#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;\\\"\\u003E\\n\\n\\n\\u003Cinput type='submit' value=Remove /\\u003E\\n\\u003C/form\\u003E\\n\\u003C/li\\u003E\\n\");\nElement.remove('meeting_groups_id_#{gi}');\n$('meeting_groups_id').selectedIndex = 0;\n", res.body
+    else
+      assert_equal "$('#meeting_associated_records_list').prepend(\"\\u003Cli id='meeting_#{i}_groups_#{gi}'\\u003E\\n\\u003Ca href='#{root}/manage_group'\\u003EGroups\\u003C/a\\u003E - \\n\\u003Ca href='#{root}/edit_group/#{gi}'\\u003EZgroup\\u003C/a\\u003E\\n\\u003Cform method='post' action='#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}' onsubmit=\\\"$.post('#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}', $(this).serialize(), function(data, textStatus){eval(data);}); return false;\\\"\\u003E\\n\\n\\n\\u003Cinput type='submit' value=Remove /\\u003E\\n\\u003C/form\\u003E\\n\\u003C/li\\u003E\\n\");\n$('#meeting_groups_id_#{gi}').remove();\n$('#meeting_groups_id').selectedIndex = 0;\n", res.body
+    end
+    p = page(port, "#{root}/associations_meeting/#{i}")
+    assert_equal 1, (p/:li).length
+    assert_equal 'Groups', (p/"li a").first.inner_html
+    assert_equal 'Zgroup', (p/"li a").last.inner_html
+    
+    res = post_xhr(port, "#{root}/remove_groups_from_meeting/#{i}", 'meeting_groups_id'=>gi)
+    if prototype?
+      assert_equal "Element.remove('meeting_#{i}_groups_#{gi}');\nnew Insertion.Bottom('meeting_groups_id', \"\\u003Coption value='#{gi}' id='meeting_groups_id_#{gi}'\\u003EZgroup\\u003C/option\\u003E\");\n", res.body
+    else
+      assert_equal "$('#meeting_#{i}_groups_#{gi}').remove();\n$('#meeting_groups_id').append(\"\\u003Coption value='#{gi}' id='meeting_groups_id_#{gi}'\\u003EZgroup\\u003C/option\\u003E\");\n", res.body
+    end
+    p = page(port, "#{root}/associations_meeting/#{i}")
+    assert_equal 0, (p/:li).length
+    
+    res = post_xhr(port, "#{root}/add_positions_to_meeting/#{i}", 'meeting_positions_id'=>pi)
+    if prototype?
+      assert_equal "new Insertion.Top('meeting_associated_records_list', \"\\u003Cli id='meeting_#{i}_positions_#{pi}'\\u003E\\n\\u003Ca href='#{root}/manage_position'\\u003EPositions\\u003C/a\\u003E - \\n\\u003Ca href='#{root}/edit_position/#{pi}'\\u003EZposition\\u003C/a\\u003E\\n\\u003Cform method='post' action='#{root}/remove_positions_from_meeting/#{i}?meeting_positions_id=#{pi}' onsubmit=\\\"new Ajax.Request('#{root}/remove_positions_from_meeting/#{i}?meeting_positions_id=#{pi}', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;\\\"\\u003E\\n\\n\\n\\u003Cinput type='submit' value=Remove /\\u003E\\n\\u003C/form\\u003E\\n\\u003C/li\\u003E\\n\");\n$('meeting_positions_id').value = '';\n", res.body
+    else
+      assert_equal "$('#meeting_associated_records_list').prepend(\"\\u003Cli id='meeting_#{i}_positions_#{pi}'\\u003E\\n\\u003Ca href='#{root}/manage_position'\\u003EPositions\\u003C/a\\u003E - \\n\\u003Ca href='#{root}/edit_position/#{pi}'\\u003EZposition\\u003C/a\\u003E\\n\\u003Cform method='post' action='#{root}/remove_positions_from_meeting/#{i}?meeting_positions_id=#{pi}' onsubmit=\\\"$.post('#{root}/remove_positions_from_meeting/#{i}?meeting_positions_id=#{pi}', $(this).serialize(), function(data, textStatus){eval(data);}); return false;\\\"\\u003E\\n\\n\\n\\u003Cinput type='submit' value=Remove /\\u003E\\n\\u003C/form\\u003E\\n\\u003C/li\\u003E\\n\");\n$('#meeting_positions_id').val('');\n", res.body
+    end
+    p = page(port, "#{root}/associations_meeting/#{i}")
+    assert_equal 1, (p/:li).length
+    assert_equal 'Positions', (p/"li a").first.inner_html
+    assert_equal 'Zposition', (p/"li a").last.inner_html
+    
+    res = post_xhr(port, "#{root}/remove_positions_from_meeting/#{i}", 'meeting_positions_id'=>pi)
+    if prototype?
+      assert_equal "Element.remove('meeting_#{i}_positions_#{pi}');\n", res.body
+    else
+      assert_equal "$('#meeting_#{i}_positions_#{pi}').remove();\n", res.body
+    end
+    p = page(port, "#{root}/associations_meeting/#{i}")
+    assert_equal 0, (p/:li).length
   end
 
   test_all_frameworks_and_dbs

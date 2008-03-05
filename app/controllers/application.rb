@@ -8,4 +8,5 @@ class ApplicationController < ActionController::Base
   # Uncomment the :secret if you're not using the cookie session store
   #protect_from_forgery # :secret => '7c8beb1e8cfc6d8086dffd7a17e03bdf'
   #layout 'jquery'
+  #layout 'prototype'
 end
