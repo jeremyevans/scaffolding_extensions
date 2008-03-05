@@ -6,3 +6,5 @@
 :handler: mongrel
 :logfile: log/style-rails.log
 :pidfile: log/style-rails.pid
+:adapter_config:
+  :environment: production
