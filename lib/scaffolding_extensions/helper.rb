@@ -163,7 +163,7 @@ module ScaffoldingExtensions
         soid = so.scaffold_id
         content = "<div class='habtm_ajax_add_associations' id='#{sn}_habtm_ajax_add_associations'>"
         klass.scaffold_habtm_associations.reject{|association| !scaffolded_method?("add_#{association}_to_#{sn}")}.each do |association|
-          content << "#{scaffold_form_remote_tag("add_#{association}_to_#{sn}", :id=>soid)}\n#{scaffold_habtm_ajax_tag("#{sn}_#{association}_id", so, sn, association)}\n<input name='commit' type='submit' value='Add #{klass.scaffold_associated_human_name(association)}' /></form>\n"
+          content << "#{scaffold_form_remote_tag("add_#{association}_to_#{sn}", :id=>soid)}\n#{scaffold_habtm_ajax_tag("#{sn}_#{association}_id", so, sn, association)}\n<input name='commit' type='submit' value='Add #{klass.scaffold_associated_human_name(association).singularize}' /></form>\n"
         end
         content << "</div><div class='habtm_ajax_remove_associations' id='#{sn}_habtm_ajax_remove_associations'><ul id='#{sn}_associated_records_list'>"
         klass.scaffold_habtm_associations.reject{|association| !scaffolded_method?("remove_#{association}_from_#{sn}")}.each do |association|
@@ -192,13 +192,14 @@ module ScaffoldingExtensions
         associated_suffix = klass.scaffold_associated_name(association)
         arid = associated_record.scaffold_id
         rid = record.scaffold_id
-        <<-END
-          <li id='#{name}_#{rid}_#{association}_#{arid}'>
-          #{scaffold_check_link(klass.scaffold_associated_human_name(association), false, "manage_#{associated_suffix}")} - 
-          #{scaffold_check_link(associated_record.scaffold_name, false, "edit_#{associated_suffix}", :id=>arid)} 
-          #{scaffold_button_to_remote('Remove', "remove_#{association}_from_#{name}", :id=>rid, "#{name}_#{association}_id"=>arid)}
-          </li>
-        END
+        content = "<li id='#{name}_#{rid}_#{association}_#{arid}'>\n"
+        content << scaffold_check_link(klass.scaffold_associated_human_name(association), false, "manage_#{associated_suffix}")
+        content << " - \n"
+        content << scaffold_check_link(associated_record.scaffold_name, false, "edit_#{associated_suffix}", :id=>arid)
+        content << "\n"
+        content << scaffold_button_to_remote('Remove', "remove_#{association}_from_#{name}", :id=>rid, "#{name}_#{association}_id"=>arid)
+        content << "\n</li>\n"
+        content
       end
       
       # Script tag with javascript included inside a CDATA section

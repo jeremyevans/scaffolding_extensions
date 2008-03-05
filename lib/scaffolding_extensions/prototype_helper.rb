@@ -45,7 +45,7 @@ module ScaffoldingExtensions
       def scaffold_load_associations_with_ajax_link
         soid = @scaffold_object.scaffold_id
         divid = "scaffold_ajax_content_#{soid}"
-        "<div id='#{divid}'><a href='#' onclick=\"new Ajax.Updater('#{divid}', '#{scaffold_url("associations#{@scaffold_suffix}", :id=>soid)}', {method:'get', asynchronous:true, evalScripts:true}); return false;\">Modify Associations</a></div>"
+        "<div id='#{divid}'><a href='#{scaffold_url("edit#{@scaffold_suffix}", :id=>soid, :associations=>:show)}' onclick=\"new Ajax.Updater('#{divid}', '#{scaffold_url("associations#{@scaffold_suffix}", :id=>soid)}', {method:'get', asynchronous:true, evalScripts:true}); return false;\">Modify Associations</a></div>"
       end
       
       # Javascript that removes @remove_element_id from the page and inserts

@@ -2,7 +2,7 @@
 
 <%= scaffold_model_form('update', @scaffold_class.scaffold_fields(:edit)) %>
 
-<% if @scaffold_class.scaffold_load_associations_with_ajax %>
+<% if @scaffold_class.scaffold_load_associations_with_ajax && !@scaffold_show_associations %>
   <%= scaffold_load_associations_with_ajax_link %>
 <% else %>
   <%= scaffold_habtm_ajax_associations %>
