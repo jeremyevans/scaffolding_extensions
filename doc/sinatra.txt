@@ -6,14 +6,15 @@ Sinatra has a defined structure for plugins.  To use it, put the plugin in the
 vendor directory of your application and it should be picked up automatically.
 Note that if you doing something Sinatra doesn't like (such as using ruby-style
 to deploy the Sinatra application, or just changing $0), this probably won't
-work, so you need to require it manually:
+work, so you need to require it manually.
 
-$:.unshift('vendor/scaffolding_extensions/lib')
-require 'scaffolding_extensions'
+To use the plugin if installing the gem:
+
+  require 'scaffolding_extensions'
 
 To use the plugin, just call one of the root level scaffold methods with the
 path at which you want the plugin mounted:
 
-scaffold '/admin', Model1
-scaffold_habtm '/admin', Model1, :things
-scaffold_all_models '/admin', :only=>[Model1, Model2, Model3]
+  scaffold '/admin', Model1
+  scaffold_habtm '/admin', Model1, :things
+  scaffold_all_models '/admin', :only=>[Model1, Model2, Model3]

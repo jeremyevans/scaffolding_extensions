@@ -1,13 +1,13 @@
-Unlike Rails, Ramaze has no defined structure for plugins.  I recommend adding
-it to the root of the Ramaze application, though any subdirectory should work.
+To use this plugin after installing the gem:
 
-Assuming you are using the recommended defaults (models are located in
-model/*.rb), add the following to your runner (start.rb):
+  require 'scaffolding_extensions'
+
+If you want to use it without installing the gem, add this before requiring
+it:
 
   $:.unshift('scaffolding_extensions/lib')
-  require 'scaffolding_extensions'
-  
-If your models are located somewhere else, it is easiest to let Scaffolding
+
+If your models are not located in model/, it is easiest to let Scaffolding
 Extensions know about them manually (this is only necessary if you are using
 scaffold_all_models without :only):
 

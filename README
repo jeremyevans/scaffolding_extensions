@@ -42,10 +42,10 @@ able to use an older version of the plugin, which won't be discussed further as
 it is substantially different from the current version (see the conversion.txt
 file for details).
 
-You can get Scaffolding Extensions via subversion or as a tarball:
+You can get Scaffolding Extensions via subversion or as a gem:
 
 * svn: svn://code.jeremyevans.net/rails-plugins/scaffolding_extensions
-* file: http://code.jeremyevans.net/code/scaffolding_extensions.tar.gz
+* gem: sudo gem install scaffolding_extensions
 * RDoc: http://code.jeremyevans.net/doc/scaffolding_extensions
 
 == Quick Start
