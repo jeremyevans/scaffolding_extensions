@@ -6,8 +6,9 @@ require 'set'
 require 'open-uri'
 require 'net/http'
 
-ORMS = ['active_record', 'data_mapper']
+ORMS = ['active_record', 'data_mapper', 'sequel']
 FRAMEWORKS = {'rails'=>7979, 'ramaze'=>7978, 'camping'=>7977, 'sinatra'=>7976}
+PORTS = FRAMEWORKS.invert
 
 ARGV.each do |arg|
   raise ArgumentError, 'Not a valid ORM or framework' unless ORMS.include?(arg) || FRAMEWORKS.include?(arg)
@@ -21,17 +22,21 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
   FIELDS={'employee'=>%w'active comment name password position_id', 'position'=>%w'name', 'group'=>%w'name'}
   ACTION_MAP={'delete'=>'destroy', 'edit'=>'edit', 'show'=>'show'}
 
-  def self.test_all_frameworks_and_dbs
-    instance_methods.sort.grep(/\Atest_\d\d/).each do |method|
-      meth = :"_#{method}"
-      alias_method meth, method
-      define_method(method) do
-        FRAMEWORKS.values.sort.each do |port|
-          ORMS.each do |root|
-            send(meth, port, "/#{root}") rescue (puts "Error! port:#{port} orm:#{root}"; raise)
-          end
+  def test_all_frameworks_and_dbs
+    meths = methods.sort.grep(/\A_test_\d\d/)
+    FRAMEWORKS.values.sort.reverse.each do |port|
+      t0 = Time.now
+      ORMS.each do |root|
+        t1 = Time.now
+        meths.each do |meth|
+          print "#{PORTS[port]} #{root} #{meth} "
+          t2 = Time.now
+          send(meth, port, "/#{root}") rescue (puts "Error! framework:#{PORTS[port]} orm:#{root} meth:#{meth}"; raise)
+          puts "%.3f" % (Time.now - t2)
         end
+        puts "#{PORTS[port]} #{root} %.3f" % (Time.now - t1)
       end
+      puts "#{PORTS[port]} %.3f" % (Time.now - t0)
     end
   end
 
@@ -44,7 +49,10 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
   end
 
   def page(port, path)
-    Hpricot(open("http://#{HOST}:#{port}#{path}"))
+    f = open("http://#{HOST}:#{port}#{path}")
+    h = Hpricot(f)
+    f.close
+    h
   end
   
   def post(port, path, params)
@@ -69,7 +77,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     Net::HTTP.new(HOST, port).start{|http| http.request(req)}
   end
 
-  def test_00_clear_db(port, root)
+  def _test_00_clear_db(port, root)
     %w'employee position group meeting'.each do |model|
       p = page(port, "#{root}/show_#{model}")
       opts = p/:option
@@ -81,7 +89,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     end
   end
 
-  def test_01_no_objects(port, root)
+  def _test_01_no_objects(port, root)
      p = page(port, root)    
      assert_equal 'Scaffolding Extensions - Manage Models', p.at(:title).inner_html
      assert_equal 'Manage Models', p.at(:h1).inner_html
@@ -174,7 +182,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
      end
   end
   
-  def test_02_simple_object(port, root)
+  def _test_02_simple_object(port, root)
     %w'position group'.each do |model|
       name = "Test#{model}"
       res = post(port, "#{root}/create_#{model}", "#{model}[name]"=>name)
@@ -264,19 +272,21 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal 'selected', (p/'select#employee_position_id option').last[:selected]
   end
 
-  def test_03_complex_object_and_relationships(port, root)
+  def _test_03_complex_object_and_relationships(port, root)
     p = page(port, "#{root}/show_position")
     position_id = (p/:option).last[:value]
     p = page(port, "#{root}/show_group")
     group_id = (p/:option).last[:value]
     
-    res = post(port, "#{root}/create_employee", "employee[name]"=>"Testemployee", 'employee[active]'=>'t', 'employee[comment]'=>'Comment', 'employee[password]'=>'password', 'employee[position_id]'=>position_id)
+    res = post(port, "#{root}/create_employee", "employee[name]"=>"Testemployee", 'employee[active]'=>'f', 'employee[comment]'=>'Comment', 'employee[password]'=>'password', 'employee[position_id]'=>position_id)
     assert_se_path port, root, "/new_employee", res['Location']
     
     p = page(port, "#{root}/show_employee")
     i = (p/:option).last[:value]
+
+    # Show page
     p = page(port, "#{root}/show_employee/#{i}")
-    assert_equal %w'Active true Comment Comment Name Testemployee Password password Position Testposition', (p/:td).collect{|x| x.inner_html}
+    assert_equal %w'Active false Comment Comment Name Testemployee Password password Position Testposition', (p/:td).collect{|x| x.inner_html}
     assert_equal 2, (p/:li).length
     assert_equal 5, (p/:a).length
     assert_equal 'Groups', (p/:a)[1].inner_html
@@ -285,6 +295,16 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal "#{root}/manage_group", (p/:a)[1][:href]
     assert_equal "#{root}/manage_position", (p/:a)[2][:href]
     assert_equal "#{root}/show_position/#{position_id}", (p/:a)[3][:href]
+
+    # Make sure all boolean values work
+    res = post(port, "#{root}/update_employee/#{i}", 'employee[active]'=>'')
+    assert_se_path port, root, "/edit_employee", res['Location']
+    p = page(port, "#{root}/show_employee/#{i}")
+    assert_equal 'Active//Comment/Comment/Name/Testemployee/Password/password/Position/Testposition'.split('/'), (p/:td).collect{|x| x.inner_html}
+    res = post(port, "#{root}/update_employee/#{i}", 'employee[active]'=>'t')
+    assert_se_path port, root, "/edit_employee", res['Location']
+    p = page(port, "#{root}/show_employee/#{i}")
+    assert_equal %w'Active true Comment Comment Name Testemployee Password password Position Testposition', (p/:td).collect{|x| x.inner_html}
 
     # Edit page
     p1 = p = page(port, (p/:a)[0][:href])
@@ -392,7 +412,8 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal "#{root}/edit_group_employees/#{group_id}", (p/:a)[1][:href]
   end
 
-  def test_04_browse_search(port, root)
+  def _test_04_browse_search(port, root)
+    position_id = nil
     %w'position group employee'.each do |model|
       res = post(port, "#{root}/create_#{model}", "#{model}[name]"=>"Best#{model}")
       assert_se_path port, root, "/new_#{model}", res['Location']
@@ -449,6 +470,25 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
       assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
       assert_equal 3, (p/:form).length
+
+      if model == 'position'
+        position_id = t
+      elsif model == 'employee'
+        # Check searching for employee by position id
+        p = page(port, "#{root}/results_#{model}?#{model}[position_id]=#{position_id}")
+        assert_match %r|#{root}/show_#{model}/#{t}|, (p/:form)[0][:action]
+        assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
+        assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
+        assert_equal 3, (p/:form).length
+        # Check searching for employee by boolean field
+        p = page(port, "#{root}/results_#{model}?#{model}[active]=t")
+        assert_match %r|#{root}/show_#{model}/#{t}|, (p/:form)[0][:action]
+        assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
+        assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
+        assert_equal 3, (p/:form).length
+        p = page(port, "#{root}/results_#{model}?#{model}[active]=f")
+        assert_equal 0, (p/:form).length
+      end
 
       # Check searching for null name brings up no items
       p = page(port, "#{root}/results_#{model}?#{null}=name")
@@ -507,7 +547,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     end
   end
 
-  def test_05_merge(port, root)
+  def _test_05_merge(port, root)
     # Merge employees
     p = page(port, "#{root}/merge_employee")
     assert_equal 6, (p/:option).length
@@ -646,7 +686,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal 'selected', (p/'select#employee_position_id option')[1][:selected]
   end
 
-  def test_06_update(port, root)
+  def _test_06_update(port, root)
     %w'employee group position'.each do |model|
       # Get id
       p = page(port, "#{root}/edit_#{model}")
@@ -668,7 +708,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     end
   end
   
-  def test_07_auto_completing(port, root)
+  def _test_07_auto_completing(port, root)
     # Ensure only 1 officer exists
     p = page(port, "#{root}/browse_officer")
     (p/:form).each do |form|
@@ -769,7 +809,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal '<ul></ul>', p.inner_html
   end
   
-  def test_08_ajax(port, root)
+  def _test_08_ajax(port, root)
     res = post(port, "#{root}/create_meeting", "meeting[name]"=>'Zmeeting')
     assert_se_path port, root, "/new_meeting", res['Location']
     p = page(port, "#{root}/edit_meeting")
@@ -938,6 +978,4 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     p = page(port, "#{root}/associations_meeting/#{i}")
     assert_equal 0, (p/:li).length
   end
-
-  test_all_frameworks_and_dbs
 end

@@ -11,3 +11,10 @@ class DataMapperController < Ramaze::Controller
   scaffold DmMeeting
   scaffold_all_models :only=>[DmEmployee, DmGroup, DmPosition]
 end
+
+class SequelController < Ramaze::Controller
+  map '/sequel'
+  scaffold SqOfficer
+  scaffold SqMeeting
+  scaffold_all_models :only=>[SqEmployee, SqGroup, SqPosition]
+end

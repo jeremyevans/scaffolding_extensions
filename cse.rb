@@ -8,6 +8,7 @@ Camping.goes :Cse
 SE_TEST_FRAMEWORK='camping'
 require 'active_record_setup'
 require 'data_mapper_setup'
+require 'sequel_setup'
 require 'se_setup'
 
 module Cse::Controllers
@@ -20,6 +21,11 @@ module Cse::Controllers
     scaffold DmOfficer
     scaffold DmMeeting
     scaffold_all_models :only=>[DmEmployee, DmGroup, DmPosition]
+  end
+  class Sequel < scaffold_R("/sequel")
+    scaffold SqOfficer
+    scaffold SqMeeting
+    scaffold_all_models :only=>[SqEmployee, SqGroup, SqPosition]
   end
 end
 
