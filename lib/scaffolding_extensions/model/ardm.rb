@@ -39,9 +39,4 @@ module ScaffoldingExtensions::MetaARDM
     def scaffold_remove_associated_object(association, object, associated_object)
       object.send(association).delete(associated_object)
     end
-    
-    # Set the object's attributes with the given attributes
-    def scaffold_set_attributes(object, attributes)
-      object.attributes = attributes
-    end
 end

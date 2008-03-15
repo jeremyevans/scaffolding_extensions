@@ -29,9 +29,11 @@ module ScaffoldingExtensions
             when :edit
               content << scaffold_check_link('(associate)', true, "edit_#{singular_name}_#{association}", :id=>soid) unless read_only
             when :new
-              associated_params = {}
-              klass.scaffold_new_associated_object_values(association, so).each{|key, value| associated_params["#{class_name}[#{key}]"] = value}
-              content << scaffold_check_link('(create)', true, "new_#{class_name}", associated_params) unless read_only
+              unless read_only
+                associated_params = {}
+                klass.scaffold_new_associated_object_values(association, so).each{|key, value| associated_params["#{class_name}[#{key}]"] = value}
+                content << scaffold_check_link('(create)', true, "new_#{class_name}", associated_params)
+              end
           end
           if (records = klass.scaffold_associated_objects(association, so, :session=>scaffold_session)).length > 0
             content << "<ul>\n"

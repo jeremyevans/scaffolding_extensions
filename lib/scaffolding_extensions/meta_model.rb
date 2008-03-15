@@ -242,8 +242,8 @@ module ScaffoldingExtensions::MetaModel
   # up via columns_hash[column_name].type.  If no type is provided, :string is used by default.
   def scaffold_column_type(column_name)
     @scaffold_column_types ||= SCAFFOLD_OPTIONS[:column_types].dup
-    if @scaffold_column_types[column_name]
-      @scaffold_column_types[column_name]
+    if type = @scaffold_column_types[column_name]
+      type
     elsif scaffold_association(column_name)
       :association
     elsif type = scaffold_table_column_type(column_name)
@@ -314,7 +314,8 @@ module ScaffoldingExtensions::MetaModel
 
   # Creates a new object, setting the attributes if given.
   def scaffold_new_object(attributes, options)
-    object = new(scaffold_filter_attributes(:new, attributes || {}))
+    object = new
+    scaffold_set_attributes(object, scaffold_filter_attributes(:new, attributes || {}))
     object.send("#{scaffold_session_value}=", options[:session][scaffold_session_value]) if scaffold_session_value
     object
   end
@@ -526,7 +527,7 @@ module ScaffoldingExtensions::MetaModel
     
     # Condition to ensure field equals value
     def scaffold_equal_condition(field, value)
-      ["#{scaffold_table_name}.#{field} = ?", "%#{value}%"]
+      ["#{scaffold_table_name}.#{field} = ?", value]
     end
 
     # Filters the provided attributes to just the ones given by scaffold_attributes for
@@ -558,6 +559,14 @@ module ScaffoldingExtensions::MetaModel
       scaffold_associated_class(association).scaffold_select_order(:association)
     end
     
+    # Set the object's attributes with the given attributes
+    def scaffold_set_attributes(object, attributes)
+      attributes.each do |k,v|
+        v = nil if v.empty? && scaffold_table_column_type(k) == :boolean
+        object.send("#{k}=", v)
+      end 
+    end 
+
     # Condition to ensure value is a substring of field
     def scaffold_substring_condition(field, value)
       ["#{scaffold_table_name}.#{field} #{scaffold_auto_complete_search_operator} ?", "%#{value}%"]

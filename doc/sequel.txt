@@ -1,0 +1,4 @@
+Sequel is fully supported by Scaffolding Extensions, but because Sequel provides
+limited reflection abilities for database columns, you should define
+@scaffold_column_types for each model and have entries in it for all columns
+that are not strings.
