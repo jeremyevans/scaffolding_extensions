@@ -1,0 +1,8 @@
+--- 
+:port: 7980
+:adapter: ramaze
+:handler: mongrel
+:logfile: log/style-se_demo.log
+:pidfile: log/style-se_demo.pid
+:adapter_config:
+  :runner: se_demo.rb
