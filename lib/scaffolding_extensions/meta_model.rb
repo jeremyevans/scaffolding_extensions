@@ -91,7 +91,7 @@ module ScaffoldingExtensions::MetaModel
   :search_limit=>:scaffold_search_results_limit}.each do |default, iv|
     ivs = "@#{iv}"
     define_method(iv) do
-      if instance_variable_defined?(ivs)
+      if instance_variables.include?(ivs)
         instance_variable_get(ivs)
       else
         instance_variable_set(ivs, SCAFFOLD_OPTIONS[default])

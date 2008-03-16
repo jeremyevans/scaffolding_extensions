@@ -9,7 +9,7 @@ module ScaffoldingExtensions
         meth = "scaffold_#{action}_#{m}"
         if respond_to?(meth)
           Proc.new{send(meth)}
-        elsif instance_variable_defined?(meth = "@#{meth}")
+        elsif instance_variables.include?(meth = "@#{meth}")
           Proc.new{instance_variable_get(meth)}
         end 
       end 
