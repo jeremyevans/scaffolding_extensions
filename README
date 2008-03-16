@@ -47,6 +47,7 @@ You can get Scaffolding Extensions via subversion or as a gem:
 
 * svn: svn://code.jeremyevans.net/rails-plugins/scaffolding_extensions
 * gem: sudo gem install scaffolding_extensions
+* demo: http://scaffolding-extensions.jeremyevans.net/
 * RDoc: http://code.jeremyevans.net/doc/scaffolding_extensions
 * Bug Tracker: http://rubyforge.org/tracker/?atid=22169&group_id=5726&func=browse
 * Forum: http://rubyforge.org/forum/forum.php?forum_id=22403
