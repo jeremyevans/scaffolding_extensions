@@ -232,7 +232,7 @@ module ScaffoldingExtensions
       def scaffold_model_error_messages
         return '' unless (errors = @scaffold_object.scaffold_error_messages).length > 0
         content = '<p>There were problems with the following fields:</p><ul>'
-        errors.each{|msg| content << "<li>msg</li>"}
+        errors.each{|msg| content << "<li>#{msg}</li>"}
         content << '</ul>'
         content
       end
