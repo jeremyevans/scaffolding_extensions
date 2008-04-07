@@ -1,7 +1,4 @@
 test_site/db/*.sqlite3
-test_site/log/*
+test_site/log*
 test_site/vendor/plugins/scaffolding_extensions
-test_site/tmp/sessions/*
-test_site/tmp/sockets/*
-test_site/tmp/cache/*
-test_site/tmp/pids/*
+test_site/tmp*
