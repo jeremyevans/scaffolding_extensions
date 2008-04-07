@@ -1,0 +1,60 @@
+<html>
+<head>
+  <title>Scaffolding Extensions<%= " - #{@scaffold_title}" if @scaffold_title %></title>
+  <%= javascript_include_tag :all %>
+  <style type="text/css">
+    body { background-color: #fff; color: #333; }
+
+    body, p, ol, ul, td {
+      font-family: verdana, arial, helvetica, sans-serif;
+      font-size:   13px;
+      line-height: 18px;
+    }
+    
+    h4 { font-size: 16px; }
+
+    pre {
+      background-color: #eee;
+      padding: 10px;
+      font-size: 11px;
+    }
+
+    a { color: #000; }
+    a:visited { color: #666; }
+    a:hover { color: #fff; background-color:#000; }
+    
+    div.habtm_ajax_remove_associations form { display: inline; }
+    
+    div.auto_complete {
+      width: 350px;
+      background: #fff;
+    }
+    div.auto_complete ul {
+      border:1px solid #888;
+      margin:0;
+      padding:0;
+      width:100%;
+      list-style-type:none;
+    }
+    div.auto_complete ul li {
+      margin:0;
+      padding:3px;
+    }
+    div.auto_complete ul li.selected { 
+      background-color: #ffb; 
+    }
+    div.auto_complete ul strong.highlight { 
+      color: #800; 
+      margin:0;
+      padding:0;
+    }
+  </style>
+</head>
+<body>
+<%= "<h1>#{@scaffold_title}</h1>" if @scaffold_title %>
+<%= "<h4>#{scaffold_flash[:notice]}</h4>" if scaffold_flash[:notice] %>
+
+<%= yield %>
+
+</body>
+</html>

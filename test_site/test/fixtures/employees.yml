@@ -1,0 +1,15 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  name: MyString
+  active: false
+  position_id: 1
+  comment: MyText
+  password: MyString
+
+two:
+  name: MyString
+  active: false
+  position_id: 1
+  comment: MyText
+  password: MyString

@@ -1,0 +1,4 @@
+#!/bin/sh
+for file in log/*; do
+  echo -n '' > $file
+done
