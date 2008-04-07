@@ -2,11 +2,10 @@ If you are using Rails and want some basic generic tests, looking the test
 folder for details on the Rails testing helper methods (e.g.
 test_scaffold_all_models).
 
-There is an automated test suite that tests the plugin against all supported
-web frameworks and ORMs.  You can get it via svn at:
+There is an automated test suite that tests the plugin against all supported web
+frameworks and ORMs. It is now available in the same github repository as the
+plugin itself.
 
-  svn://code.jeremyevans.net/scaffolding_extensions_test
-  
-It requires the ruby-sytle, hpricot, and mongrel gems, and does black box
-testing of the plugin by running a web crawler against a running application
-that uses the plugin.
+It requires the ruby-sytle, hpricot, and mongrel gems (in addition to gems for
+all of the frameworks and ORMs), and does black box testing of the plugin by
+running a web crawler against a running application that uses the plugin.
