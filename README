@@ -22,9 +22,9 @@ Scaffolding Extensions currently supports:
 
 * Web Frameworks
   * Rails 2.0
-  * Ramaze 0.3.5
+  * Ramaze 0.3.9.5
   * Camping 1.5
-  * Sinatra 0.1.7
+  * Sinatra 0.2.0
 * Object/Relational Mappers
   * ActiveRecord 2.0
   * DataMapper 0.3.0

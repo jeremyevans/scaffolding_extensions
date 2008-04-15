@@ -62,12 +62,12 @@ module ScaffoldingExtensions
           text = ERB.new(render_options[:inline]).result(binding)
           Proc.new do
             headers('Content-Type'=>'text/javascript') if use_js
-            render(text, :text, :layout=>false)
+            render(:text, text, :layout=>false)
           end
         else
           @content = ERB.new(File.read(scaffold_path(File.exists?(scaffold_path(suffix_action)) ? suffix_action : action))).result(binding)
           text = ERB.new(File.read(scaffold_path('layout'))).result(binding)
-          Proc.new{render(text, :text, :layout=>false)}
+          Proc.new{render(:text, text, :layout=>false)}
         end
       end
       
@@ -101,7 +101,7 @@ module ScaffoldingExtensions
         param
       end
       
-      # You need to enable Camping's session support for this to work, 
+      # You need to enable Sinatra's session support for this to work, 
       # otherwise, this will always be the empty hash. The session data
       # is only used for access control, so if you aren't using 
       # scaffold_session_value, it shouldn't matter.
@@ -143,13 +143,21 @@ module ScaffoldingExtensions
   end
 
   module TextRenderer
-    def render_text(template)
+    def render_text(template, options = {})
       template
     end
   end
 end
 
-include ScaffoldingExtensions::TextRenderer
+class Sinatra::EventContext
+  include ScaffoldingExtensions::TextRenderer
+end
+
+class NilClass
+  def from_param
+    nil
+  end
+end
 
 def scaffold(root, model, options = {})
   scaffold_setup(root).send(:scaffold, model, options)

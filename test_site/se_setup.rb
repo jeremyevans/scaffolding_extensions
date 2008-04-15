@@ -1,5 +1,5 @@
 unless defined?(ScaffoldingExtensions)
-  $:.unshift('../scaffolding_extensions/lib')
+  $:.unshift('../lib')
   require 'scaffolding_extensions'
 end
 

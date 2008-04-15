@@ -6,16 +6,11 @@ require 'data_mapper_setup'
 require 'sequel_setup'
 
 require 'sinatra'
+app = Sinatra.application
+app.options.env = :production
 
-module Sinatra::Options
-  def log_file
-    "log/sinatra-#{environment}.log"
-  end
-end
-module Sinatra::Loader
-  def reload!
-    nil
-  end
+def app.reload!
+  nil
 end
 
 require 'se_setup'

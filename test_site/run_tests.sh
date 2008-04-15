@@ -1,5 +1,5 @@
 #!/bin/sh
-WAITTIME=15
+WAITTIME=3
 frameworks="rails ramaze camping sinatra"
 fw=""
 orm=""
@@ -11,11 +11,12 @@ if [ $# != 0 ]; then
   case $2 in active_record|data_mapper|sequel) orm=$2;;
   esac
 fi
+./clear_logs
 for framework in $frameworks; do
 	style -c config/style.$framework.yaml start
-done
 	sleep $WAITTIME
-  ruby test.rb $fw $orm
+done
+ruby test.rb $fw $orm
 for framework in $frameworks; do
 	style -c config/style.$framework.yaml stop
 done

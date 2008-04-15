@@ -69,9 +69,7 @@ module ScaffoldingExtensions
       # Treats the id option as special (appending it so the list of options),
       # which requires a lambda router.
       def scaffold_url(action, options = {})
-        escaped_options = {}
-        options.each{|k,v| escaped_options[u(k.to_s)] = u(v.to_s)}
-        escaped_options['id'] ? Rs(action, escaped_options.delete('id'), escaped_options) : Rs(action, escaped_options)
+        options[:id] ? Rs(action, options.delete(:id), options) : Rs(action, options)
       end
   end
   
@@ -101,7 +99,7 @@ module ScaffoldingExtensions
         include ScaffoldingExtensions::RamazeController
         include ScaffoldingExtensions::Helper
         include ScaffoldingExtensions::PrototypeHelper
-        unless trait[:layout][:all]
+        unless trait[:layout] && trait[:layout][:all]
           layout(:scaffold_layout) 
           define_method(:scaffold_layout){::Ramaze::Action.current.template = scaffold_path(:layout)}
         end

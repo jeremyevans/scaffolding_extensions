@@ -12,7 +12,7 @@ class DataMapperController < Ramaze::Controller
   scaffold_all_models :only=>[DmEmployee, DmGroup, DmPosition]
 end
 
-class SequelController < Ramaze::Controller
+class ASequelController < Ramaze::Controller
   map '/sequel'
   scaffold SqOfficer
   scaffold SqMeeting
