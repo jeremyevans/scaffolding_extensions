@@ -286,6 +286,12 @@ module ScaffoldingExtensions::MetaModel
     @scaffold_human_name ||= scaffold_name.humanize
   end
 
+  # Which associations to include when querying for multiple objects.
+  # Can be set with an instance variable.
+  def scaffold_include(action = :default)
+    @scaffold_include
+  end
+
   # The name string to use in urls, defaults to name.underscore.  Can be set with an 
   # instance variable.
   def scaffold_name
@@ -537,6 +543,11 @@ module ScaffoldingExtensions::MetaModel
       attributes.reject{|k,v| !allowed_attributes.include?(k.to_s.split('(')[0])}
     end
     
+    # The associations to include when loading the association
+    def scaffold_include_association(association)
+      scaffold_associated_class(association).scaffold_include(:association)
+    end
+
     # Condition to ensure field is not NULL
     def scaffold_notnull_condition(field)
       ["#{scaffold_table_name}.#{field} IS NOT NULL"]

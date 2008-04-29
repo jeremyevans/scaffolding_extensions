@@ -129,6 +129,7 @@ module ScaffoldingExtensions::MetaSequel
         else records.order(o)
       end
     end
+    records = records.eager(options[:include]) if options[:include]
     records = records.limit(options[:limit], options[:offset]) if options[:limit]
     records.all
   end
@@ -137,11 +138,6 @@ module ScaffoldingExtensions::MetaSequel
   def scaffold_habtm_reflection_options(association)
     reflection = scaffold_association(association)
     [reflection[:class], reflection[:left_key], reflection[:right_key], reflection[:join_table]]
-  end
-
-  # Sequel doesn't do eager loading yet, so this is always nil 
-  def scaffold_include(action = :default)
-    nil
   end
 
   # Returns a hash of values to be used as url parameters on the link to create a new
@@ -184,11 +180,6 @@ module ScaffoldingExtensions::MetaSequel
   end
 
   private
-    # Sequel doesn't do eager loading yet
-    def scaffold_include_association(association)
-      nil
-    end
-    
     # Updates associated records for a given reflection and from record to point to the
     # to record
     def scaffold_reflection_merge(reflection, from, to)
@@ -216,9 +207,4 @@ class Sequel::Model
   extend ScaffoldingExtensions::MetaModel
   extend ScaffoldingExtensions::MetaSequel
   extend ScaffoldingExtensions::Overridable
-  class << self
-    extend ScaffoldingExtensions::MetaOverridable
-    scaffold_override_methods(:add_associated_objects, :associated_objects, :association_find_object, :association_find_objects, :find_object, :find_objects, :new_associated_object_values, :remove_associated_objects, :save, :unassociated_objects, :filter_attributes)
-    scaffold_override_iv_methods(:associated_human_name, :association_use_auto_complete, :fields, :select_order, :attributes, :select_order_association)
-  end
 end

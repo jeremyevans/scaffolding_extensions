@@ -1,5 +1,13 @@
 module ScaffoldingExtensions
   module Overridable
+    def self.extended(klass)
+      class << klass
+        extend ScaffoldingExtensions::MetaOverridable
+        scaffold_override_methods(:add_associated_objects, :associated_objects, :association_find_object, :association_find_objects, :find_object, :find_objects, :new_associated_object_values, :remove_associated_objects, :save, :unassociated_objects, :filter_attributes)
+        scaffold_override_iv_methods(:associated_human_name, :association_use_auto_complete, :fields, :include, :select_order, :attributes, :include_association, :select_order_association) 
+      end
+    end
+
     private
       # If a method exists matches scaffold_#{action}_#{m}, return a proc that calls it.
       # If not and the instance variable @scaffold_#{action}_#{m} is defined, return a

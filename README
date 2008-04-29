@@ -24,11 +24,11 @@ Scaffolding Extensions currently supports:
   * Rails 2.0
   * Ramaze 0.3.9.5
   * Camping 1.5
-  * Sinatra 0.2.0
+  * Sinatra 0.2.2
 * Object/Relational Mappers
   * ActiveRecord 2.0
-  * DataMapper 0.3.0
-  * Sequel 1.4.0
+  * DataMapper 0.3.1
+  * Sequel 1.5.0
 * Javascript Libaries (used for Ajax/Autocompleting)
   * Prototype 1.6.0.1
   * JQuery 1.2.3
@@ -48,7 +48,7 @@ You can get Scaffolding Extensions via git or as a gem:
 * git: git://github.com/jeremyevans/scaffolding_extensions.git
 * gem: sudo gem install scaffolding_extensions
 * demo: http://scaffolding-extensions.jeremyevans.net
-* github: http://github.com/jeremyevans/scaffolding_extensions/tree/master
+* github: http://github.com/jeremyevans/scaffolding_extensions
 * RDoc: http://code.jeremyevans.net/doc/scaffolding_extensions
 * Bug Tracker: http://rubyforge.org/tracker/?atid=22169&group_id=5726&func=browse
 * Forum: http://rubyforge.org/forum/forum.php?forum_id=22403

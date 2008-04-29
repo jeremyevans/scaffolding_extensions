@@ -153,12 +153,6 @@ class Sinatra::EventContext
   include ScaffoldingExtensions::TextRenderer
 end
 
-class NilClass
-  def from_param
-    nil
-  end
-end
-
 def scaffold(root, model, options = {})
   scaffold_setup(root).send(:scaffold, model, options)
 end

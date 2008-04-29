@@ -105,7 +105,6 @@ module ScaffoldingExtensions::MetaDataMapper
 
   # Retrieve multiple objects given a hash of options
   def scaffold_get_objects(options)
-    options.delete(:include)
     options[:conditions] = scaffold_merge_conditions(options[:conditions])
     all(options)
   end
@@ -114,11 +113,6 @@ module ScaffoldingExtensions::MetaDataMapper
   def scaffold_habtm_reflection_options(association)
     reflection = scaffold_association(association)
     [reflection.constant, reflection.left_foreign_key, reflection.right_foreign_key, reflection.join_table]
-  end
-
-  # DataMapper doesn't use includes, so this is always nil
-  def scaffold_include(action = :default)
-    nil
   end
 
   # Returns a hash of values to be used as url parameters on the link to create a new
@@ -150,11 +144,6 @@ module ScaffoldingExtensions::MetaDataMapper
   end
 
   private
-    # DataMapper doesn't need to include, so this is always nil
-    def scaffold_include_association(association)
-      nil
-    end
-    
     # Updates associated records for a given reflection and from record to point to the
     # to record
     def scaffold_reflection_merge(reflection, from, to)
@@ -182,9 +171,4 @@ class DataMapper::Base
   extend ScaffoldingExtensions::MetaARDM
   extend ScaffoldingExtensions::MetaDataMapper
   extend ScaffoldingExtensions::Overridable
-  class << self
-    extend ScaffoldingExtensions::MetaOverridable
-    scaffold_override_methods(:add_associated_objects, :associated_objects, :association_find_object, :association_find_objects, :find_object, :find_objects, :new_associated_object_values, :remove_associated_objects, :save, :unassociated_objects, :filter_attributes)
-    scaffold_override_iv_methods(:associated_human_name, :association_use_auto_complete, :fields, :select_order, :attributes, :select_order_association)
-  end
 end

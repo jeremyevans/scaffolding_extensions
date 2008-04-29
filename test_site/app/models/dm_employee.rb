@@ -10,5 +10,6 @@ class DmEmployee < DataMapper::Base
 
   @scaffold_name = 'employee'
   @scaffold_human_name = 'Employee'
-  @scaffold_select_order = 'name'
+  @scaffold_select_order = 'employees.name'
+  #@scaffold_include = :position
 end

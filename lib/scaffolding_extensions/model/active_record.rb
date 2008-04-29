@@ -104,12 +104,6 @@ module ScaffoldingExtensions::MetaActiveRecord
     [reflection.klass, reflection.primary_key_name, reflection.association_foreign_key, reflection.options[:join_table]]
   end
 
-  # Which associations to include when querying for multiple objects.
-  # Can be set with an instance variable.
-  def scaffold_include(action = :default)
-    @scaffold_include
-  end
-
   # Returns a hash of values to be used as url parameters on the link to create a new
   # :has_many associated object.  Defaults to setting the foreign key field to the
   # record's primary key, and the STI type to this model's name, if :as is one of
@@ -144,11 +138,6 @@ module ScaffoldingExtensions::MetaActiveRecord
   end
 
   private
-    # The associations to include when loading the association
-    def scaffold_include_association(association)
-      scaffold_associated_class(association).scaffold_include(:association)
-    end
-    
     # Updates associated records for a given reflection and from record to point to the
     # to record
     def scaffold_reflection_merge(reflection, from, to)
@@ -176,9 +165,4 @@ class ActiveRecord::Base
   extend ScaffoldingExtensions::MetaARDM
   extend ScaffoldingExtensions::MetaActiveRecord
   extend ScaffoldingExtensions::Overridable
-  class << self
-    extend ScaffoldingExtensions::MetaOverridable
-    scaffold_override_methods(:add_associated_objects, :associated_objects, :association_find_object, :association_find_objects, :find_object, :find_objects, :new_associated_object_values, :remove_associated_objects, :save, :unassociated_objects, :filter_attributes)
-    scaffold_override_iv_methods(:associated_human_name, :association_use_auto_complete, :fields, :include, :select_order, :attributes, :include_association, :select_order_association)
-  end
 end
