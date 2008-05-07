@@ -29,7 +29,7 @@ module ScaffoldingExtensions::MetaSequel
   
   # The class that this model is associated with via the association
   def scaffold_associated_class(association)
-    associated_class(association_reflection(association))
+    association_reflection(association).associated_class
   end
   
   # All objects that are currently associated with the given object. This method does not
@@ -186,11 +186,14 @@ module ScaffoldingExtensions::MetaSequel
       case reflection[:type]
         when :one_to_many
           foreign_key = reflection[:key]
-          db << "UPDATE #{reflection[:class].table_name} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}"
+          table = reflection.associated_class.table_name
         when :many_to_many
           foreign_key = reflection[:left_key]
-          db << "UPDATE #{reflection[:join_table]} SET #{foreign_key} = #{to} WHERE #{foreign_key} = #{from}" 
+          table = reflection[:join_table]
+        else
+          return
       end
+      db[table].filter(foreign_key=>from).update(foreign_key=>to)
     end
     
     # Remove the associated object from object's association

@@ -28,7 +28,7 @@ Scaffolding Extensions currently supports:
 * Object/Relational Mappers
   * ActiveRecord 2.0
   * DataMapper 0.3.1
-  * Sequel 1.5.0
+  * Sequel HEAD (latest git branch)
 * Javascript Libaries (used for Ajax/Autocompleting)
   * Prototype 1.6.0.1
   * JQuery 1.2.3
