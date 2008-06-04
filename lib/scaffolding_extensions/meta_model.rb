@@ -573,7 +573,7 @@ module ScaffoldingExtensions::MetaModel
     # Set the object's attributes with the given attributes
     def scaffold_set_attributes(object, attributes)
       attributes.each do |k,v|
-        v = nil if v.empty? && scaffold_table_column_type(k) == :boolean
+        v = nil if v.empty? and scaffold_table_column_type(k) == :boolean
         object.send("#{k}=", v)
       end 
     end 

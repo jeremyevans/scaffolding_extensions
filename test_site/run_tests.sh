@@ -1,5 +1,5 @@
 #!/bin/sh
-WAITTIME=3
+WAITTIME=5
 frameworks="rails ramaze camping sinatra"
 fw=""
 orm=""

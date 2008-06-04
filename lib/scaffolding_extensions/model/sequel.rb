@@ -137,7 +137,7 @@ module ScaffoldingExtensions::MetaSequel
   # Return the class, left foreign key, right foreign key, and join table for this habtm association
   def scaffold_habtm_reflection_options(association)
     reflection = scaffold_association(association)
-    [reflection[:class], reflection[:left_key], reflection[:right_key], reflection[:join_table]]
+    [reflection.associated_class, reflection[:left_key], reflection[:right_key], reflection[:join_table]]
   end
 
   # Returns a hash of values to be used as url parameters on the link to create a new
@@ -157,15 +157,22 @@ module ScaffoldingExtensions::MetaSequel
     object.save
   end
   
-  # Sequel doesn't keep enough reflection information, so assume string unless
-  # specified by @scaffold_column_types.
+  # Get the column type from the schema.  Sequel doesn't differentiate between string and
+  # text columns (since both are the same in ruby), so check if the database type is
+  # text or if more than 255 characters allowed in the field and return :text if the type
+  # is string.
   def scaffold_table_column_type(column)
-    # column is provided by the user, so we can't just .to_sym it
-    @scaffold_column_types_strings ||= Hash.new do |h,k1| 
-      @scaffold_column_types.each{|k2,v| h[k2] = v; h[k2.to_s] = v}
-      h[k1] if h.include?(k1)
+    if String === column
+      return nil unless str_columns.include?(column)
+      column = column.to_sym
     end
-    @scaffold_column_types_strings[column] || :string
+    if column_info = db_schema[column] and type = column_info[:type]
+      if type == :string && (column_info[:db_type] == "text" || ((mc = column_info[:max_chars]) && mc > 255))
+        :text
+      else
+        type
+      end
+    end
   end
 
   # The name of the underlying table

@@ -6,6 +6,5 @@ class SqEmployee < Sequel::Model
   @scaffold_name = 'employee'
   @scaffold_human_name = 'Employee'
   @scaffold_select_order = :name
-  @scaffold_column_types = {:active=>:boolean, :comment=>:text}
   @scaffold_include = :position
 end
