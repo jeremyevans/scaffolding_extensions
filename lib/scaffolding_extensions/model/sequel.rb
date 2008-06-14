@@ -64,7 +64,7 @@ module ScaffoldingExtensions::MetaSequel
   # List of symbols for associations to display on the scaffolded edit page. Defaults to
   # all associations. Can be set with an instance variable.
   def scaffold_associations
-    associations.sort_by{|name| name.to_s}
+    @scaffold_associations ||= associations.sort_by{|name| name.to_s}
   end
 
   # Destroys the object
