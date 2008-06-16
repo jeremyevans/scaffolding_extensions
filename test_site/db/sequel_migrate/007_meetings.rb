@@ -7,6 +7,6 @@ class CreateMeetings < Sequel::Migration
   end
 
   def down
-    drop_table :officers
+    drop_table :meetings
   end
 end
