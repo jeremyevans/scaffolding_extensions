@@ -10,5 +10,5 @@ spec = Gem::Specification.new do |s|
   s.has_rdoc = true
   s.rdoc_options = %w'--inline-source --line-numbers README lib'
   s.rubyforge_project = 'scaffolding-ext'
-  s.homepage = 'http://scaffolding_extensions.jeremyevans.net'
+  s.homepage = 'http://scaffolding-ext.rubyforge.org/'
 end

@@ -49,7 +49,7 @@ You can get Scaffolding Extensions via git or as a gem:
 * gem: sudo gem install scaffolding_extensions
 * demo: http://scaffolding-extensions.jeremyevans.net
 * github: http://github.com/jeremyevans/scaffolding_extensions
-* RDoc: http://code.jeremyevans.net/doc/scaffolding_extensions
+* RDoc: http://scaffolding-ext.rubyforge.org
 * Bug Tracker: http://rubyforge.org/tracker/?atid=22169&group_id=5726&func=browse
 * Forum: http://rubyforge.org/forum/forum.php?forum_id=22403
 
