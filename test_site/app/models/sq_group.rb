@@ -1,5 +1,4 @@
-class SqGroup < Sequel::Model
-  set_dataset db[:groups]
+class SqGroup < Sequel::Model(:groups)
   many_to_many :employees, :class_name=>'SqEmployee', :join_table=>:employees_groups, :left_key=>:group_id, :right_key=>:employee_id
 
   @scaffold_name = 'group'

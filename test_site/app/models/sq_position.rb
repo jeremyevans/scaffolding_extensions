@@ -1,5 +1,4 @@
-class SqPosition < Sequel::Model
-  set_dataset db[:positions]
+class SqPosition < Sequel::Model(:positions)
   one_to_many :employees, :class_name=>'SqEmployee', :key=>:position_id
 
   @scaffold_name = 'position'
