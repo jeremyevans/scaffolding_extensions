@@ -10,4 +10,4 @@ class MainController < Ramaze::Controller
   scaffold_all_models :only=>[SqEmployee, SqGroup, SqMeeting, SqOfficer, SqPosition]
 end
 
-Ramaze.start :adapter=>:mongrel, :port=>7980, :sourcereload=>false
+Ramaze.start :adapter=>:mongrel, :port=>7980, :sourcereload=>false, :force=>true, :test_connections=>false
