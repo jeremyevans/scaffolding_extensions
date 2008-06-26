@@ -97,6 +97,6 @@ If you can't upgrade to the new version of the plugin and you want to use the
 old version, use the following svn revision depending on the version of Rails
 you are using:
 
-Rails 2.0: svn revision 89
-Rails 1.2: svn revision 81
-Rails 1.1: svn revision 61
+- Rails 2.0: svn revision 89
+- Rails 1.2: svn revision 81
+- Rails 1.1: svn revision 61

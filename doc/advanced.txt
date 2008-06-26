@@ -72,9 +72,6 @@ Note how :sql_name can pull in data from multiple tables, since they are
 specified via @scaffold_include.  Note that the syntax might be database
 specific (the accounting applation only supports PostreSQL).
 
-Autocompleting currently requires the Prototype library (prototype.js,
-effects.js, and controls.js).
-
 == Customization
 
 Scaffolding Extensions is extremely customizable.  The database layer is split
@@ -135,9 +132,6 @@ association's model uses autocompleting), as well as a button that adds those
 objects to the association via Ajax.  There is also a list of currently
 associated objects that can be removed from the associated via Ajax.  This
 allows for quick modification of habtm associations.
-
-HABTM Ajax functionality currently requires the Prototype library
-(prototype.js).
 
 == merge scaffolding
 
