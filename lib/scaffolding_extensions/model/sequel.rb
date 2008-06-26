@@ -105,6 +105,9 @@ module ScaffoldingExtensions::MetaSequel
   # Retrieve multiple objects given a hash of options
   def scaffold_get_objects(options)
     records = dataset
+    records = records.send(scaffold_use_eager_graph ? :eager_graph : :eager, *options[:include]) if options[:include]
+    records = records.order(*options[:order]) if options[:order]
+    records = records.limit(options[:limit], options[:offset]) if options[:limit]
     conditions = options[:conditions]
     if conditions && Array === conditions && conditions.length > 0
       if String === conditions[0]
@@ -120,17 +123,6 @@ module ScaffoldingExtensions::MetaSequel
         end
       end
     end
-    order = options[:order]
-    order = [order] unless Array === order
-    order.each do |o|
-      next if o.nil?
-      records = case o
-        when Proc then records.order(&o)
-        else records.order(o)
-      end
-    end
-    records = records.eager(options[:include]) if options[:include]
-    records = records.limit(options[:limit], options[:offset]) if options[:limit]
     records.all
   end
 
@@ -178,6 +170,13 @@ module ScaffoldingExtensions::MetaSequel
   # The name of the underlying table
   def scaffold_table_name
     table_name
+  end
+
+  # Whether to use eager_graph instead of eager for eager loading.  This is
+  # necessary if you need to reference associated tables when filtering.
+  # Can be set with an instance variable. 
+  def scaffold_use_eager_graph
+    @scaffold_use_eager_graph ||= false
   end
 
   # Sequel doesn't allow you to use transaction on a model (only on a database),
