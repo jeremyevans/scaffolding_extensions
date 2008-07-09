@@ -1,6 +1,17 @@
-If you are using Rails and want some basic generic tests, looking the test
-folder for details on the Rails testing helper methods (e.g.
-test_scaffold_all_models).
+If you are using Rails and want some basic generic tests, you can run the
+following code inside test_helper.rb:
+
+  require 'scaffolding_extensions/rails_test_help'
+
+This gives you the following test class methods:
+
+  test_scaffold_all_models
+  test_scaffold
+
+And the following test instance methods:
+
+  scaffold_test
+  scaffold_habtm_test
 
 There is an automated test suite that tests the plugin against all supported web
 frameworks and ORMs. It is now available in the same github repository as the

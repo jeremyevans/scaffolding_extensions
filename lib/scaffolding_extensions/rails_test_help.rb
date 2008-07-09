@@ -16,6 +16,11 @@ class Test::Unit::TestCase
     define_method("test_scaffold_#{model.scaffold_name}"){scaffold_test(model, options)}
   end
 
+  # Default scaffold session hash to use.
+  def scaffold_session
+    {}
+  end
+
   # Test that getting all display actions for the scaffold returns success
   def scaffold_test(model, options = {})
     klass = @controller.class
@@ -23,15 +28,9 @@ class Test::Unit::TestCase
     methods -= klass.scaffold_normalize_options(options[:except]) if options[:except]
     methods.each do |action|
       assert_nothing_raised("Error requesting scaffolded action #{action} for model #{model.name}") do
-        get "#{action}_#{model.scaffold_name}"
+        get "#{action}_#{model.scaffold_name}", nil, scaffold_session
       end
       assert_response :success, "Response for scaffolded action #{action} for model #{model.name} not :success"
-      # # The habtm scaffolds can't be tested without an id.  If the fixture for the
-      # # main scaffolded class is loaded and it has id = 1, you may want to enable
-      # # the following code for testing those scaffolds.
-      # model.scaffold_habtm_associations.each do |association|
-      #   scaffold_habtm_test(model, association, 1)
-      # end
     end
   end
   
