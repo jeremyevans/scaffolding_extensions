@@ -24,8 +24,8 @@ class Test::Unit::TestCase
   # Test that getting all display actions for the scaffold returns success
   def scaffold_test(model, options = {})
     klass = @controller.class
-    methods = options[:only] ? klass.scaffold_normalize_options(options[:only]) : ScaffoldingExtensions::DEFAULT_METHODS
-    methods -= klass.scaffold_normalize_options(options[:except]) if options[:except]
+    methods = options[:only] ? klass.send(:scaffold_normalize_options, options[:only]) : ScaffoldingExtensions::DEFAULT_METHODS
+    methods -= klass.send(:scaffold_normalize_options, options[:except]) if options[:except]
     methods.each do |action|
       assert_nothing_raised("Error requesting scaffolded action #{action} for model #{model.name}") do
         get "#{action}_#{model.scaffold_name}", nil, scaffold_session

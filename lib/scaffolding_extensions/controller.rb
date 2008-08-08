@@ -48,9 +48,9 @@ module ScaffoldingExtensions
       def scaffold_redirect(action, suffix, notice=nil, oid=nil)
         action_suffix = "#{action}#{suffix}"
         meth = "scaffold_#{action_suffix}_redirect"
-        return send(meth, notice) if respond_to?(meth)
+        return send(meth, notice) if respond_to?(meth, true)
         meth = "scaffold_#{action}_redirect"
-        return send(meth, suffix, notice) if respond_to?(meth)
+        return send(meth, suffix, notice) if respond_to?(meth, true)
         scaffold_flash[:notice] = notice if notice
         scaffold_redirect_to(scaffold_url(action_suffix, oid ? {:id=>oid} : {}))
       end

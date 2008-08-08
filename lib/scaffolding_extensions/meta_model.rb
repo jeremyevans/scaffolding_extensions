@@ -48,6 +48,8 @@ module ScaffoldingExtensions::MetaModel
   #   for fields of type text (iv: @scaffold_convert_text_to_string)
   # - :table_classes: Set the default table classes for different scaffolded HTML tables
   #   (iv: @scaffold_table_classes)
+  # - :column_type_options: Override the default options for a given column type
+  #   (iv: @scaffold_column_type_options)
   # - :column_types: Override the default column type for a given attribute 
   #   (iv: @scaffold_column_types)
   # - :column_options: Override the default column options for a given attribute
@@ -71,6 +73,7 @@ module ScaffoldingExtensions::MetaModel
   #   autocompleter (iv: @scaffold_auto_complete_options)
   SCAFFOLD_OPTIONS = {:text_to_string=>false, 
     :table_classes=>{:form=>'formtable', :list=>'sortable', :show=>'sortable'},
+    :column_type_options=>{},
     :column_types=>{},
     :column_options=>{},
     :association_list_class=>''.freeze,
@@ -220,8 +223,10 @@ module ScaffoldingExtensions::MetaModel
   # @scaffold_column_names, a hash with the column name as a symbol key and the human name
   # string as the value.
   def scaffold_column_name(column_name)
-    @scaffold_column_names ||= SCAFFOLD_OPTIONS[:column_names].dup
-    @scaffold_column_names[column_name] ||= if scaffold_association(column_name)
+    @scaffold_column_names ||= {}
+    @scaffold_column_names[column_name] ||= if n = SCAFFOLD_OPTIONS[:column_names][column_name]
+      n
+    elsif scaffold_association(column_name)
       scaffold_associated_human_name(column_name)
     else
       column_name.to_s.humanize
@@ -232,8 +237,9 @@ module ScaffoldingExtensions::MetaModel
   # @scaffold_column_options_hash, a hash with the column name as a symbol key and the html
   # options hash as the value.
   def scaffold_column_options(column_name)
-    @scaffold_column_options_hash ||= SCAFFOLD_OPTIONS[:column_options].dup
-    @scaffold_column_options_hash[column_name] || {}
+    @scaffold_column_options_hash ||= {}
+    @scaffold_column_options ||= {}
+    @scaffold_column_options[column_name] ||= scaffold_merge_hashes(@scaffold_column_options_hash[column_name], SCAFFOLD_OPTIONS[:column_options][column_name], scaffold_column_type_options(scaffold_column_type(column_name)))
   end
 
   # Returns the column type for the given scaffolded column name.  Can be set via the instance
@@ -241,8 +247,8 @@ module ScaffoldingExtensions::MetaModel
   # type symbol as a value.  Associations have the :association type, and other types are looked
   # up via columns_hash[column_name].type.  If no type is provided, :string is used by default.
   def scaffold_column_type(column_name)
-    @scaffold_column_types ||= SCAFFOLD_OPTIONS[:column_types].dup
-    if type = @scaffold_column_types[column_name]
+    @scaffold_column_types ||= {}
+    @scaffold_column_types[column_name] ||= if type = SCAFFOLD_OPTIONS[:column_types][column_name]
       type
     elsif scaffold_association(column_name)
       :association
@@ -251,6 +257,15 @@ module ScaffoldingExtensions::MetaModel
     else
       :string
     end
+  end
+
+  # The HTML options for a given column type, affecting all columns of that type.
+  # Can be set with the @scaffold_column_type_options instance variable, which should
+  # be a hash with the column type as a symbol key and the html options hash
+  # as the value.
+  def scaffold_column_type_options(type)
+    @scaffold_column_type_options ||= {}
+    @scaffold_column_type_options[type] ||= SCAFFOLD_OPTIONS[:column_type_options][type] || {}
   end
 
   # Returns the foreign key for the field if it is an association, or the field
@@ -445,8 +460,8 @@ module ScaffoldingExtensions::MetaModel
   # the instance variable @scaffold_table_classes, a hash with the type as the symbol key
   # and the value as the html class string.
   def scaffold_table_class(type)
-    @scaffold_table_classes ||= SCAFFOLD_OPTIONS[:table_classes].dup
-    @scaffold_table_classes[type]
+    @scaffold_table_classes ||= {}
+    @scaffold_table_classes[type] ||= SCAFFOLD_OPTIONS[:table_classes][type]
   end
   
   # Run the block inside a database transaction
@@ -546,6 +561,14 @@ module ScaffoldingExtensions::MetaModel
     # The associations to include when loading the association
     def scaffold_include_association(association)
       scaffold_associated_class(association).scaffold_include(:association)
+    end
+
+    # Merge all given hashes in order of preference, so earlier hashes are considered more important.
+    # A nil value is treated the same as the empty hash.
+    def scaffold_merge_hashes(*hashes)
+      h = {}
+      hashes.reverse.each{|hash| h.merge!(hash) if hash}
+      h
     end
 
     # Condition to ensure field is not NULL

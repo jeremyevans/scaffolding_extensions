@@ -15,7 +15,7 @@ module ScaffoldingExtensions
       def scaffold_method_iv_override(m, action)
         return nil unless action
         meth = "scaffold_#{action}_#{m}"
-        if respond_to?(meth)
+        if respond_to?(meth, true)
           Proc.new{send(meth)}
         elsif instance_variables.include?(meth = "@#{meth}")
           Proc.new{instance_variable_get(meth)}
@@ -27,7 +27,7 @@ module ScaffoldingExtensions
       def scaffold_method_override(m, action, *args)
         return nil unless action
         meth = "scaffold_#{action}_#{m}"
-        Proc.new{send(meth, *args)} if respond_to?(meth)
+        Proc.new{send(meth, *args)} if respond_to?(meth, true)
       end
   end
 
