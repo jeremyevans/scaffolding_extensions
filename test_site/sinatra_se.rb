@@ -1,19 +1,20 @@
 #!/usr/local/bin/ruby
 require 'rubygems'
 SE_TEST_FRAMEWORK='sinatra'
-require 'active_record_setup'
-require 'data_mapper_setup'
-require 'sequel_setup'
-
 require 'sinatra'
-app = Sinatra.application
-app.options.env = :production
-
-def app.reload!
-  nil
+set(:port=>7976, :host=>'0.0.0.0', :env=>:production, :app_file=>'sinatra_se', :raise_errors=>true, :logging=>true)
+configure do
+  require 'active_record_setup'
+  require 'data_mapper_setup'
+  require 'sequel_setup'
+  require 'se_setup'
 end
 
-require 'se_setup'
+error StandardError do
+  e = request.env['sinatra.error']
+  puts e.message
+  e.backtrace.each{|x| puts x}
+end
 
 scaffold('/active_record', ArOfficer)
 scaffold('/active_record', ArMeeting)
