@@ -1,0 +1,10 @@
+#!/bin/sh
+rake db:migrate
+sequel -m db/sequel_migrate sqlite://db/rails.sequel.sqlite3
+ruby -rubygems -e "SE_TEST_FRAMEWORK='rails'; require 'data_mapper_setup.rb'; DataMapper::Base.auto_migrate!"
+cd db
+for f in *.sqlite3; do
+  cp $f ramaze${f#rails}
+  cp $f camping${f#rails}
+  cp $f sinatra${f#rails}
+done
