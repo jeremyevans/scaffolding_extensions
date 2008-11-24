@@ -90,7 +90,7 @@ module ScaffoldingExtensions::MetaDataMapper
       fields << r.name 
       fields.delete(r.foreign_key_name.to_sym)
     end
-    @scaffold_fields = fields.sort_by{|x| x.to_s}
+    @scaffold_fields = fields.sort_by{|x| x.to_s}.uniq
   end
   
   # The foreign key for the given reflection
