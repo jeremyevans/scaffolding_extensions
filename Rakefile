@@ -1,6 +1,9 @@
 require 'rake'
-require 'rake/clean'
-require 'rake/rdoctask'
+begin
+  require 'hanna/rdoctask'
+rescue LoadError
+  require 'rake/rdoctask'
+end
 
 Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = "rdoc"
@@ -11,8 +14,8 @@ Rake::RDocTask.new do |rdoc|
 end
 
 desc "Update docs and upload to rubyforge.org"
-task :doc_rforge => [:rdoc]
-task :doc_rforge do
+task :website => [:rdoc]
+task :website do
   sh %{chmod -R g+w rdoc/*}
   sh %{scp -rp rdoc/* rubyforge.org:/var/www/gforge-projects/scaffolding-ext}
 end
