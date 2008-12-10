@@ -82,6 +82,7 @@ require 'scaffolding_extensions/controller/action_controller' if defined? Action
 require 'scaffolding_extensions/controller/camping' if defined? Camping::Controllers
 require 'scaffolding_extensions/controller/ramaze' if defined? Ramaze::Controller
 require 'scaffolding_extensions/controller/sinatra' if defined? Sinatra
+require 'scaffolding_extensions/controller/merb' if defined? Merb
 
 require 'scaffolding_extensions/model/active_record' if defined? ActiveRecord::Base
 require 'scaffolding_extensions/model/data_mapper' if defined? DataMapper::Base

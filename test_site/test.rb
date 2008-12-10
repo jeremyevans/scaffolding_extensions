@@ -6,15 +6,19 @@ require 'set'
 require 'open-uri'
 require 'net/http'
 
-ORMS = ['active_record', 'data_mapper', 'sequel']
-FRAMEWORKS = {'rails'=>7979, 'ramaze'=>7978, 'camping'=>7977, 'sinatra'=>7976}
+ORMS = {}
+POSSIBLE_ORMS = %w'active_record data_mapper sequel'
+ORM_MAP = {'active_record'=>'ar', 'data_mapper'=>'dm', 'sequel'=>'asq'}
+FRAMEWORKS = {'rails'=>7979, 'ramaze'=>7978, 'camping'=>7977, 'sinatra'=>7976, 'merb'=>7975}
 PORTS = FRAMEWORKS.invert
 
 ARGV.each do |arg|
-  raise ArgumentError, 'Not a valid ORM or framework' unless ORMS.include?(arg) || FRAMEWORKS.include?(arg)
-  ORMS.replace([arg]) if ORMS.include?(arg)
+  raise ArgumentError, 'Not a valid ORM or framework' unless POSSIBLE_ORMS.include?(arg) || FRAMEWORKS.include?(arg)
+  POSSIBLE_ORMS.replace([arg]) if POSSIBLE_ORMS.include?(arg)
   FRAMEWORKS.replace({arg=>FRAMEWORKS[arg]}) if FRAMEWORKS.include?(arg)
 end
+FRAMEWORKS.each{|k,v| ORMS[v] = POSSIBLE_ORMS}
+ORMS[FRAMEWORKS['merb']] = POSSIBLE_ORMS.map{|v| ORM_MAP[v]}
 
 class ScaffoldingExtensionsTest < Test::Unit::TestCase
   HOST='localhost'
@@ -26,7 +30,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     meths = methods.sort.grep(/\A_test_\d\d/)
     FRAMEWORKS.values.sort.reverse.each do |port|
       t0 = Time.now
-      ORMS.each do |root|
+      ORMS[port].each do |root|
         t1 = Time.now
         meths.each do |meth|
           print "#{PORTS[port]} #{root} #{meth} "
@@ -83,7 +87,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       opts = p/:option
       opts.shift
       opts.each do |opt| 
-        res = post(port, "#{root}/destroy_#{model}", :id=>opt[:value])
+        res = post(port, "#{root}/destroy_#{model}", 'id'=>opt[:value])
         assert_se_path port, root, "/delete_#{model}", res['Location']
       end
     end
@@ -598,7 +602,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal 2, (p/'select#remove option').length
 
     # DATAMAPPER_BUG: No ordering of HABTM associations
-    if root == '/data_mapper'
+    if %w'/data_mapper /dm'.include?(root)
       assert_equal %w'Bestgroup Testgroup', (p/:option).collect{|x|x.inner_html}.sort
       assert_equal [tg, bg].sort, (p/:option).collect{|x|x[:value]}.sort
     else

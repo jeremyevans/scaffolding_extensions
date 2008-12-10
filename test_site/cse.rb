@@ -11,21 +11,29 @@ require 'data_mapper_setup'
 require 'sequel_setup'
 require 'se_setup'
 
-module Cse::Controllers
-  class ActiveRecord < scaffold_R("/active_record")
-    scaffold ArOfficer
-    scaffold ArMeeting
-    scaffold_all_models :only=>[ArEmployee, ArGroup, ArPosition]
+module Cse
+  module Controllers
+    class ActiveRecord < scaffold_R("/active_record")
+      scaffold ArOfficer
+      scaffold ArMeeting
+      scaffold_all_models :only=>[ArEmployee, ArGroup, ArPosition]
+    end
+    class DataMapper < scaffold_R("/data_mapper")
+      scaffold DmOfficer
+      scaffold DmMeeting
+      scaffold_all_models :only=>[DmEmployee, DmGroup, DmPosition]
+    end
+    class Sequel < scaffold_R("/sequel")
+      scaffold SqOfficer
+      scaffold SqMeeting
+      scaffold_all_models :only=>[SqEmployee, SqGroup, SqPosition]
+    end
   end
-  class DataMapper < scaffold_R("/data_mapper")
-    scaffold DmOfficer
-    scaffold DmMeeting
-    scaffold_all_models :only=>[DmEmployee, DmGroup, DmPosition]
-  end
-  class Sequel < scaffold_R("/sequel")
-    scaffold SqOfficer
-    scaffold SqMeeting
-    scaffold_all_models :only=>[SqEmployee, SqGroup, SqPosition]
+  
+  def service(*args)
+    r = super(*args)
+    ActiveRecord::Base.clear_active_connections!
+    r
   end
 end
 

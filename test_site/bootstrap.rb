@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-FRAMEWORKS=%w'ramaze camping sinatra'
+FRAMEWORKS=%w'ramaze camping sinatra merb'
 ORMS=%w'active_record data_mapper sequel'
 SE_TEST_FRAMEWORK='rails'
 # Make log and tmp directories

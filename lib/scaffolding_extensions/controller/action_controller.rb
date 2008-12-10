@@ -23,7 +23,7 @@ module ScaffoldingExtensions
       end
   end
   
-  # Instance methods for ActionController::Base related necessary for Scaffolding Extensions
+  # Instance methods for ActionController::Base necessary for Scaffolding Extensions
   module ActionController
     private
       def scaffold_flash
@@ -93,7 +93,7 @@ module ScaffoldingExtensions
       end
   end
   
-  # Class methods for ActionController::Base related necessary for Scaffolding Extensions
+  # Class methods for ActionController::Base necessary for Scaffolding Extensions
   module MetaActionController
     private
       # Adds a before filter for checking nonidempotent requests use method POST

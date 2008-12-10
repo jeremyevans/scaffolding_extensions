@@ -1,0 +1,13 @@
+To use this plugin after installing the gem, somewhere in your Merb config,
+add:
+
+  require 'scaffolding_extensions'
+ 
+Then you can use scaffold, scaffold_habtm, or scaffold_all_models in your
+controllers:
+
+  class Admin < Merb::Controller
+    scaffold Model1
+    scaffold_habtm Model1, :things
+    scaffold_all_models :only=>[Model1, Model2, Model3]
+  end

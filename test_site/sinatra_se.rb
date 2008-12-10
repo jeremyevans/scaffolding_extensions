@@ -16,6 +16,18 @@ error StandardError do
   e.backtrace.each{|x| puts x}
 end
 
+class CleanUpARGarbage
+  def initialize(app, opts={})
+    @app = app
+  end
+  def call(env)
+    res = @app.call(env)
+    ActiveRecord::Base.clear_active_connections!
+    res
+  end
+end
+use CleanUpARGarbage
+
 scaffold('/active_record', ArOfficer)
 scaffold('/active_record', ArMeeting)
 scaffold_all_models('/active_record', :only=>[ArEmployee, ArGroup, ArPosition])
