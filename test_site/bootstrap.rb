@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'rubygems'
 FRAMEWORKS=%w'ramaze camping sinatra merb'
-ORMS=%w'active_record data_mapper sequel'
+ORMS=%w'active_record sequel'
 SE_TEST_FRAMEWORK='rails'
 # Make log and tmp directories
 system 'mkdir -p log tmp tmp/{sessions,sockets,cache,pids}'
@@ -10,8 +10,6 @@ system 'touch log/{development,production,test}.log'
 # Create the Rails databases
 system 'rake db:create'
 system 'rake db:migrate'
-require 'data_mapper_setup'
-DataMapper::Persistence.auto_migrate!
 require 'sequel_setup'
 Sequel::Migrator.apply(SequelDB, 'db/sequel_migrate')
 # Copy the Rails databases to the other frameworks

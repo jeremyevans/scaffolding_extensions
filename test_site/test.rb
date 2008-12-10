@@ -7,8 +7,8 @@ require 'open-uri'
 require 'net/http'
 
 ORMS = {}
-POSSIBLE_ORMS = %w'active_record data_mapper sequel'
-ORM_MAP = {'active_record'=>'ar', 'data_mapper'=>'dm', 'sequel'=>'asq'}
+POSSIBLE_ORMS = %w'active_record sequel'
+ORM_MAP = {'active_record'=>'ar', 'sequel'=>'asq'}
 FRAMEWORKS = {'rails'=>7979, 'ramaze'=>7978, 'camping'=>7977, 'sinatra'=>7976, 'merb'=>7975}
 PORTS = FRAMEWORKS.invert
 
@@ -601,16 +601,10 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal 0, (p/'select#add option').length
     assert_equal 2, (p/'select#remove option').length
 
-    # DATAMAPPER_BUG: No ordering of HABTM associations
-    if %w'/data_mapper /dm'.include?(root)
-      assert_equal %w'Bestgroup Testgroup', (p/:option).collect{|x|x.inner_html}.sort
-      assert_equal [tg, bg].sort, (p/:option).collect{|x|x[:value]}.sort
-    else
-      assert_equal 'Bestgroup', (p/:option).first.inner_html
-      assert_equal 'Testgroup', (p/:option).last.inner_html
-      assert_equal bg, (p/:option).first[:value]
-      assert_equal tg, (p/:option).last[:value]
-    end
+    assert_equal 'Bestgroup', (p/:option).first.inner_html
+    assert_equal 'Testgroup', (p/:option).last.inner_html
+    assert_equal bg, (p/:option).first[:value]
+    assert_equal tg, (p/:option).last[:value]
 
     # Update the groups
     res = post(port, p.at(:form)[:action], p.at('select#remove')[:name]=>tg)

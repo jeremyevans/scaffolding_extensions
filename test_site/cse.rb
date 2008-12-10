@@ -7,7 +7,6 @@ require 'mongrel/camping'
 Camping.goes :Cse
 SE_TEST_FRAMEWORK='camping'
 require 'active_record_setup'
-require 'data_mapper_setup'
 require 'sequel_setup'
 require 'se_setup'
 
@@ -17,11 +16,6 @@ module Cse
       scaffold ArOfficer
       scaffold ArMeeting
       scaffold_all_models :only=>[ArEmployee, ArGroup, ArPosition]
-    end
-    class DataMapper < scaffold_R("/data_mapper")
-      scaffold DmOfficer
-      scaffold DmMeeting
-      scaffold_all_models :only=>[DmEmployee, DmGroup, DmPosition]
     end
     class Sequel < scaffold_R("/sequel")
       scaffold SqOfficer

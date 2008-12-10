@@ -7,13 +7,6 @@ class ActiveRecordController < Ramaze::Controller
   scaffold_all_models :only=>[ArEmployee, ArGroup, ArPosition]
 end
 
-class DataMapperController < Ramaze::Controller
-  map '/data_mapper'
-  scaffold DmOfficer
-  scaffold DmMeeting
-  scaffold_all_models :only=>[DmEmployee, DmGroup, DmPosition]
-end
-
 class ASequelController < Ramaze::Controller
   map '/sequel'
   scaffold SqOfficer

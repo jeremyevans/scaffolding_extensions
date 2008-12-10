@@ -4,7 +4,6 @@ $:.unshift('/data/code/merb/merb-core/lib')
 require 'merb-core'
 SE_TEST_FRAMEWORK='merb'
 require 'active_record_setup'
-require 'data_mapper_setup'
 require 'sequel_setup'
 require 'se_setup'
 
@@ -36,11 +35,6 @@ class Ar < Merb::Controller
   def clean_up_ar_garbage
     ActiveRecord::Base.clear_active_connections!
   end
-end
-class Dm < Merb::Controller
-  scaffold DmOfficer
-  scaffold DmMeeting
-  scaffold_all_models :only=>[DmEmployee, DmGroup, DmPosition]
 end
 class Asq < Merb::Controller
   scaffold SqOfficer

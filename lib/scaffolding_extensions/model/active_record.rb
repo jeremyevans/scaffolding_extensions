@@ -1,5 +1,3 @@
-require 'scaffolding_extensions/model/ardm'
-
 ScaffoldingExtensions::MODEL_SUPERCLASSES << ::ActiveRecord::Base
 
 # Instance methods added to ActiveRecord::Base to allow it to work with Scaffolding Extensions.
@@ -7,6 +5,11 @@ module ScaffoldingExtensions::ActiveRecord
   # Get value for given attribute
   def scaffold_attribute_value(field)
     self[field]
+  end
+
+  # the value of the primary key for this object
+  def scaffold_id
+    id
   end
 end
 
@@ -138,6 +141,32 @@ module ScaffoldingExtensions::MetaActiveRecord
   end
 
   private
+    # Merge an array of conditions into a single condition array
+    def scaffold_merge_conditions(conditions)
+      new_conditions = [[]]
+      if Array === conditions
+        if conditions.length == 0 || (conditions.length == 1 && conditions[0].nil?)
+          nil
+        elsif Array === conditions[0]
+          conditions.each do |cond|
+            next unless cond
+            new_conditions[0] << cond.shift
+            cond.each{|c| new_conditions << c}
+          end
+          if new_conditions[0].length > 0
+            new_conditions[0] = "(#{new_conditions[0].join(") AND (")})"
+            new_conditions
+          else
+            nil
+          end
+        else
+          conditions
+        end
+      else
+        conditions
+      end
+    end
+
     # Updates associated records for a given reflection and from record to point to the
     # to record
     def scaffold_reflection_merge(reflection, from, to)
@@ -153,16 +182,19 @@ module ScaffoldingExtensions::MetaActiveRecord
       end
       connection.update(sql)
     end
+
+    # Remove the associated object from object's association
+    def scaffold_remove_associated_object(association, object, associated_object)
+      object.send(association).delete(associated_object)
+    end
 end
 
 # Add the class methods and instance methods from Scaffolding Extensions
 class ActiveRecord::Base
   SCAFFOLD_OPTIONS = ::ScaffoldingExtensions::MetaModel::SCAFFOLD_OPTIONS
   include ScaffoldingExtensions::Model
-  include ScaffoldingExtensions::ARDM
   include ScaffoldingExtensions::ActiveRecord
   extend ScaffoldingExtensions::MetaModel
-  extend ScaffoldingExtensions::MetaARDM
   extend ScaffoldingExtensions::MetaActiveRecord
   extend ScaffoldingExtensions::Overridable
 end

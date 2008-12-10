@@ -5,7 +5,6 @@ require 'sinatra'
 set(:port=>7976, :host=>'0.0.0.0', :env=>:production, :app_file=>'sinatra_se', :raise_errors=>true, :logging=>true)
 configure do
   require 'active_record_setup'
-  require 'data_mapper_setup'
   require 'sequel_setup'
   require 'se_setup'
 end
@@ -31,9 +30,6 @@ use CleanUpARGarbage
 scaffold('/active_record', ArOfficer)
 scaffold('/active_record', ArMeeting)
 scaffold_all_models('/active_record', :only=>[ArEmployee, ArGroup, ArPosition])
-scaffold('/data_mapper', DmOfficer)
-scaffold('/data_mapper', DmMeeting)
-scaffold_all_models('/data_mapper', :only=>[DmEmployee, DmGroup, DmPosition])
 scaffold('/sequel', SqOfficer)
 scaffold('/sequel', SqMeeting)
 scaffold_all_models('/sequel', :only=>[SqEmployee, SqGroup, SqPosition])
