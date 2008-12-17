@@ -38,7 +38,7 @@ module ScaffoldingExtensions
       # use the contents of it as the template without the layout.
       #
       # There may well be a much better way to do this via modifying the _template_roots, but
-      # I didn't have much luck and decided to take the path I used with Camping and Sinatra,
+      # I didn't have much luck and decided to take the path I used with Camping,
       # rendering the templates directly.
       def scaffold_render_template(action, options = {}, render_options = {})
         suffix = options[:suffix]

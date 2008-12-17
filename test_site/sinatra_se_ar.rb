@@ -2,10 +2,9 @@
 require 'rubygems'
 SE_TEST_FRAMEWORK='sinatra'
 require 'sinatra'
-set(:port=>7976, :host=>'0.0.0.0', :env=>:production, :app_file=>'sinatra_se', :raise_errors=>true, :logging=>true)
+set(:port=>7974, :host=>'0.0.0.0', :env=>:production, :app_file=>'sinatra_se_ar', :raise_errors=>true, :logging=>true)
 configure do
   require 'active_record_setup'
-  require 'sequel_setup'
   require 'se_setup'
 end
 
@@ -30,6 +29,3 @@ use CleanUpARGarbage
 scaffold('/active_record', ArOfficer)
 scaffold('/active_record', ArMeeting)
 scaffold_all_models('/active_record', :only=>[ArEmployee, ArGroup, ArPosition])
-scaffold('/sequel', SqOfficer)
-scaffold('/sequel', SqMeeting)
-scaffold_all_models('/sequel', :only=>[SqEmployee, SqGroup, SqPosition])

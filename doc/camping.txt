@@ -23,3 +23,6 @@ For example:
   end
 
 The path given to scaffold_R will be the root of the plugin.
+
+Camping is not fully supported in that you can't override the scaffolded
+layout or scaffold templates without changing the scaffold_template_dir.

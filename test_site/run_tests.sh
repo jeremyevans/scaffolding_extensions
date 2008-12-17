@@ -1,10 +1,10 @@
 #!/bin/sh
 WAITTIME=5
-frameworks="rails ramaze camping sinatra merb"
+frameworks="rails ramaze camping sinatra merb sinatra_ar"
 fw=""
 orm=""
 if [ $# != 0 ]; then
-  case $1 in rails|ramaze|camping|sinatra|merb) frameworks=$1; fw=$1;;
+  case $1 in rails|ramaze|camping|sinatra|merb|sinatra_ar) frameworks=$1; fw=$1;;
   esac
   case $1 in active_record|sequel) orm=$1;;
   esac

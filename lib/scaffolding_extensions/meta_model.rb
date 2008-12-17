@@ -471,7 +471,7 @@ module ScaffoldingExtensions::MetaModel
   
   # Returns all objects of the associated class not currently associated with this object.
   def scaffold_unassociated_objects(association, object, options)
-    scaffold_associated_class(association).scaffold_get_objects(:conditions=>[scaffold_unassociated_condition(association, object), scaffold_session_conditions(options[:session])], :order=>scaffold_select_order_association(association), :include=>scaffold_include_association(association))
+    scaffold_associated_class(association).scaffold_get_objects(:conditions=>[scaffold_unassociated_condition(association, object), scaffold_associated_class(association).scaffold_session_conditions(options[:session])], :order=>scaffold_select_order_association(association), :include=>scaffold_include_association(association))
   end
   
   # Updates attributes for the given action, but does not save the record.

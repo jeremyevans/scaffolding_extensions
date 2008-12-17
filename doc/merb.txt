@@ -11,3 +11,8 @@ controllers:
     scaffold_habtm Model1, :things
     scaffold_all_models :only=>[Model1, Model2, Model3]
   end
+
+Merb isn't fully supported in that if you override a scaffolded form
+but don't add your own layout, it won't use the scaffolded layout. Also,
+using your own layout and overriding the scaffolded forms is untested,
+though it should work.
