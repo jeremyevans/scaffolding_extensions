@@ -24,7 +24,7 @@ Scaffolding Extensions currently supports:
   * Rails 2.2.2
   * Ramaze 2009.01
   * Camping 1.5
-  * Sinatra 0.3.3
+  * Sinatra 0.9.0.4
   * Merb 1.0.4
 * Object/Relational Mappers
   * ActiveRecord 2.2.2

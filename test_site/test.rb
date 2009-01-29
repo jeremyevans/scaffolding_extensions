@@ -9,7 +9,7 @@ require 'net/http'
 ORMS = {}
 POSSIBLE_ORMS = %w'active_record sequel'
 ORM_MAP = {'active_record'=>'ar', 'sequel'=>'asq'}
-FRAMEWORKS = {'rails'=>7979, 'ramaze'=>7978, 'camping'=>7977, 'sinatra'=>7976, 'merb'=>7975, 'sinatra_ar'=>7974}
+FRAMEWORKS = {'rails'=>7979, 'ramaze'=>7978, 'camping'=>7977, 'sinatra'=>7976, 'merb'=>7975}
 PORTS = FRAMEWORKS.invert
 
 ARGV.each do |arg|
@@ -19,8 +19,6 @@ ARGV.each do |arg|
 end
 FRAMEWORKS.each{|k,v| ORMS[v] = POSSIBLE_ORMS}
 ORMS[FRAMEWORKS['merb']] = POSSIBLE_ORMS.map{|v| ORM_MAP[v]}
-ORMS[FRAMEWORKS['sinatra']] = %w'sequel'
-ORMS[FRAMEWORKS['sinatra_ar']] = %w'active_record'
 
 class ScaffoldingExtensionsTest < Test::Unit::TestCase
   HOST='localhost'

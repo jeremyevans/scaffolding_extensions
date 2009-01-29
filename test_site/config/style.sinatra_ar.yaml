@@ -1,8 +1,0 @@
---- 
-:bind: 0.0.0.0
-:port: 7974
-:unsupervised: 1
-:adapter: sinatra_se_ar
-:handler: mongrel
-:logfile: log/style-sinatra_ar.log
-:pidfile: log/style-sinatra_ar.pid

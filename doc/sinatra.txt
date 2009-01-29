@@ -12,9 +12,22 @@ To use the plugin if installing the gem:
 
   require 'scaffolding_extensions'
 
-To use the plugin, just call one of the root level scaffold methods with the
-path at which you want the plugin mounted:
+To use the plugin, call one of the scaffold methods inside a Sinatra::Base
+subclass:
 
-  scaffold '/admin', Model1
-  scaffold_habtm '/admin', Model1, :things
-  scaffold_all_models '/admin', :only=>[Model1, Model2, Model3]
+  class Scaf < Sinatra::Base
+    scaffold Model1
+    scaffold_habtm Model1, :things
+    scaffold_all_models :only=>[Model1, Model2, Model3]
+  end
+
+As this is going to add paths directly to where Scaf is mounted, you generally
+are going to want to mount Scaf at a subpath and build and run you own Rack app:
+
+  app = Rack::Builder.app do
+    map("/"){run MainApp}
+    map("/admin"){run Scaf}
+  end
+  Rack::Handler.get('mongrel').run(app, :Host=>'0.0.0.0', :Port=>7976) do |server|
+    trap(:INT){server.stop}
+  end

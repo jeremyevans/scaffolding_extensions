@@ -50,11 +50,11 @@ module ScaffoldingExtensions
         @scaffold_class ||= @scaffold_options[:class]
         if render_options.include?(:inline)
           use_js = @scaffold_javascript
-          headers('Content-Type'=>'text/javascript') if use_js
+          response['Content-Type'] = 'text/javascript' if use_js
           render(:erb, scaffold_fix_template(render_options[:inline]), :layout=>false)
         else
-          template = resolve_template(:erb, suffix_action.to_sym, render_options, false) || scaffold_fix_template(File.read(scaffold_path(action)))
-          layout = determine_layout(:erb, :layout, {}) || scaffold_fix_template(File.read(scaffold_path('layout'))).gsub('@content', 'yield')
+          template = lookup_template(:erb, suffix_action.to_sym, render_options) rescue scaffold_fix_template(File.read(scaffold_path(action)))
+          layout, _ = lookup_layout(:erb, render_options) || [scaffold_fix_template(File.read(scaffold_path('layout'))).gsub('@content', 'yield'), nil]
           render(:erb, template, :layout=>layout)
         end
       end
@@ -76,17 +76,7 @@ module ScaffoldingExtensions
       end
       
       def scaffold_request_param(v)
-        sparams = params
-        unless param = sparams[v.to_sym]
-          param = {}
-          sparams.each do |k,value|
-           if match = /#{v}\[([^\]]+)\]/.match(k.to_s)
-              param[match[1]] = value
-            end 
-          end
-          param = nil if param.empty?
-        end
-        param
+        params[v]
       end
       
       # You need to enable Sinatra's session support for this to work, 
@@ -108,49 +98,33 @@ module ScaffoldingExtensions
         "#{@scaffold_path}/#{action}#{id}"
       end
   end
-end
 
-class Sinatra::EventContext
-  SCAFFOLD_ROOTS = []
-  extend ScaffoldingExtensions::MetaController
-
-  def self.scaffold_setup_helper
-  end
-
-  def self.scaffold_action_setup(root)
-    if SCAFFOLD_ROOTS.empty?
+  module MetaSinatraController
+    def scaffold_setup_helper
       include ScaffoldingExtensions::Controller
       include ScaffoldingExtensions::SinatraController
       include ScaffoldingExtensions::Helper
       include ScaffoldingExtensions::PrototypeHelper
       include ScaffoldingExtensions::SinatraHelper
-    end
-    unless SCAFFOLD_ROOTS.include?(root)
-      SCAFFOLD_ROOTS << root
       [:get, :post].each do |req_meth|
-        Object.send(req_meth, "#{root}/?:meth?/?:request_id?") do
-          @scaffold_path = root
-          @scaffold_method = meth = params[:meth] ||= 'index'
-          params[:id] ||= params[:request_id]
+        sreq_meth = req_meth.to_s.upcase
+        send(req_meth, %r{\A(?:/(\w+)(?:/(\w+))?)?\z}) do
+          captures = params[:captures] || []
+          @scaffold_path = request.env['SCRIPT_NAME']
+          @scaffold_method = meth = captures[0] || 'index'
+          @scaffold_request_method = sreq_meth
+          params[:id] ||= captures[1]
           raise(ArgumentError, 'Method Not Allowed') if req_meth == :get && scaffolded_nonidempotent_method?(meth)
           raise(Sinatra::NotFound) unless scaffolded_method?(meth) 
           send(meth)
         end
       end
+      self
     end
-    self
   end
 end
 
-def scaffold(root, model, options = {})
-  Sinatra::EventContext.scaffold_action_setup(root).send(:scaffold, model, options)
+class Sinatra::Base
+  extend ScaffoldingExtensions::MetaController
+  extend ScaffoldingExtensions::MetaSinatraController
 end
-
-def scaffold_all_models(root, options = {})
-  Sinatra::EventContext.scaffold_action_setup(root).send(:scaffold_all_models, options)
-end
-
-def scaffold_habtm(root, model, association)
-  Sinatra::EventContext.scaffold_action_setup(root).send(:scaffold_habtm, model, association)
-end
-
