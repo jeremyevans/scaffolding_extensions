@@ -36,9 +36,7 @@ module ScaffoldingExtensions
       end
       
       def scaffold_redirect_to(url)
-        env = request.env
-        host = env['HTTP_HOST'] || "#{env['SERVER_NAME']}#{":#{env['SERVER_PORT']}" if env['SERVER_PORT'] && env['SERVER_PORT'].to_i != 80}"
-        redirect("//#{host}#{url}")
+        redirect(url)
       end
       
       # Render's the scaffolded template.  A user can override both the template and the layout.
