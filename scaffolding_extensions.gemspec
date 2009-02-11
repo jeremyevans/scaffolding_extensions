@@ -1,6 +1,6 @@
 spec = Gem::Specification.new do |s|
   s.name = "scaffolding_extensions"
-  s.version = '1.3.3'
+  s.version = '1.3.4'
   s.author = "Jeremy Evans"
   s.email = "code@jeremyevans.net"
   s.platform = Gem::Platform::RUBY

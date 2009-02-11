@@ -45,7 +45,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
   end
 
   def assert_se_path(port, root, path, location)
-    assert_equal "//#{HOST}:#{port}#{root}#{path}", location.sub(/^http:/, '')
+    assert_equal "#{root}#{path}", location.sub(%r{^(http:)?//#{HOST}:#{port}}, '')
   end
   
   def prototype?

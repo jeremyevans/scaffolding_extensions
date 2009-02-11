@@ -92,6 +92,14 @@ module ScaffoldingExtensions::MetaSequel
     @scaffold_fields = fields.sort_by{|f| f.to_s}
   end
   
+  # Set *_on_save_failure = false
+  def scaffold_find_object(*args)
+    obj = super
+    obj.raise_on_save_failure = false
+    obj.raise_on_typecast_failure = false
+    obj
+  end
+
   # The foreign key for the given reflection
   def scaffold_foreign_key(reflection)
     reflection[:key]
@@ -137,6 +145,14 @@ module ScaffoldingExtensions::MetaSequel
   # record's primary key.
   def scaffold_new_associated_object_values(association, record)
     {scaffold_foreign_key(association_reflection(association))=>record.pk}
+  end
+
+  # Set *_on_save_failure = false
+  def scaffold_new_object(*args)
+    obj = super
+    obj.raise_on_save_failure = false
+    obj.raise_on_typecast_failure = false
+    obj
   end
 
   # The primary key for the given table
