@@ -51,10 +51,19 @@ module ScaffoldingExtensions
     attr_accessor :auto_complete_skip_style
     attr_writer :all_models, :model_files
 
-    def all_models
+    # Takes two options, :only and :except.  If :only is given, :except is ignored.  Either
+    # can contain model classes or underscored model name strings.
+    def all_models(options={})
       return @all_models if @all_models
-      possible_models = model_files.collect{|file|File.basename(file).sub(/\.rb\z/, '')}.collect{|m| m.camelize.constantize}
-      possible_models.reject{|m| MODEL_SUPERCLASSES.reject{|klass| !m.ancestors.include?(klass)}.length == 0}
+      if options[:only]
+        Array(options[:only]).collect{|f| f.is_a?(String) ? f.camelize.constantize : f}
+      else
+        string_except, except = Array(options[:except]).partition{|f| f.is_a?(String)}
+        model_files.collect{|file|File.basename(file).sub(/\.rb\z/, '')}.
+         reject{|f| string_except.include?(f)}.
+         map{|f| f.camelize.constantize}.
+         reject{|m| except.include?(m) || !MODEL_SUPERCLASSES.any?{|klass| m.ancestors.include?(klass)}}
+      end
     end
 
     # The stylesheet for the autocompleting text box, or the empty string

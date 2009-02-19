@@ -45,8 +45,8 @@ module ScaffoldingExtensions
         plural_name = singular_name.pluralize
         plural_human_name = singular_human_name.pluralize
         suffix = "_#{singular_name}"
-        add_methods = options[:only] ? scaffold_normalize_options(options[:only]) : scaffold_default_methods
-        add_methods -= scaffold_normalize_options(options[:except])
+        add_methods = options[:only] ? Array(options[:only]) : scaffold_default_methods
+        add_methods -= Array(options[:except])
         scaffold_options = {:singular_name=>singular_name, :plural_name=>plural_name, :singular_human_name=>singular_human_name, :plural_human_name=>plural_human_name, :class=>klass, :suffix=>suffix, :singular_lc_human_name=>singular_human_name.downcase, :plural_lc_human_name=>plural_human_name.downcase}
 
         scaffold_auto_complete_for(klass) if klass.scaffold_use_auto_complete
@@ -202,10 +202,7 @@ module ScaffoldingExtensions
       # Parse the arguments for scaffold_all_models.  Seperated so that it can
       # also be used in testing.
       def scaffold_all_models_parse_options(options={})
-        except = scaffold_normalize_options(options[:except])
-        only = scaffold_normalize_options(options[:only]) if options[:only]
-        models = (only || ScaffoldingExtensions.all_models).reject{|model| except.include?(model)}
-        models.collect{|model| [model, options[model] || {}]}
+        ScaffoldingExtensions.all_models(options).collect{|model| [model, options[model] || {}]}
       end
       
       # Create action for returning results from the scaffold autocompleter
@@ -311,15 +308,6 @@ module ScaffoldingExtensions
             klass.scaffold_remove_associated_objects(association, @scaffold_object, {:session=>scaffold_session}, *scaffold_select_ids(scaffold_request_param(:remove)))
             scaffold_redirect(:edit, suffix, "Updated #{@scaffold_object.scaffold_name}'s #{scaffold_options[:aplch_name]} successfully", @scaffold_object.scaffold_id)
           end
-        end
-      end
-      
-      # Normalizes options to the scaffold command, allowing submission of symbols or arrays of symbols
-      def scaffold_normalize_options(options)
-        case options
-          when Array then options
-          when nil then []
-          else [options]
         end
       end
       
