@@ -48,20 +48,20 @@ module ScaffoldingExtensions
         @scaffold_options ||= options
         @scaffold_suffix ||= suffix
         @scaffold_class ||= @scaffold_options[:class]
-        render_options = if template_exists?("#{self.class.controller_path}/#{suffix_action}")
-          {:action=>suffix_action}.merge(render_options)
-        elsif render_options.include?(:inline)
+        if render_options.include?(:inline)
           headers['Content-Type'] = 'text/javascript' if @scaffold_javascript
-          render_options.merge(:layout=>false)
-        else
+          return render(render_options.merge(:layout=>false))
+        end
+        begin
+          render({:action=>suffix_action}.merge(render_options))
+        rescue ActionView::MissingTemplate
           if active_layout || render_options.include?(:layout)
-            {:file=>scaffold_path(action), :layout=>active_layout}.merge(render_options)
+            render({:file=>scaffold_path(action), :layout=>active_layout}.merge(render_options))
           else
             @content = render_to_string({:file=>scaffold_path(action)}.merge(render_options))
-            {:file=>scaffold_path("layout")}
+            render({:file=>scaffold_path("layout")})
           end
         end
-        render(render_options)
       end
       
       def scaffold_request_action
