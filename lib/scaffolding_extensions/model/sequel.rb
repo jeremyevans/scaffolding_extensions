@@ -171,7 +171,7 @@ module ScaffoldingExtensions::MetaSequel
   # is string.
   def scaffold_table_column_type(column)
     if String === column
-      return nil unless str_columns.include?(column)
+      return nil unless columns.map{|x| x.to_s}.include?(column)
       column = column.to_sym
     end
     if column_info = db_schema[column] and type = column_info[:type]
