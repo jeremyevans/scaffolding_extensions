@@ -51,8 +51,14 @@ module ScaffoldingExtensions
           response['Content-Type'] = 'text/javascript' if use_js
           render(:erb, scaffold_fix_template(render_options[:inline]), :layout=>false)
         else
-          template = lookup_template(:erb, suffix_action.to_sym, render_options) rescue scaffold_fix_template(File.read(scaffold_path(action)))
-          layout, _ = lookup_layout(:erb, render_options) || [scaffold_fix_template(File.read(scaffold_path('layout'))).gsub('@content', 'yield'), nil]
+          views_dir = render_options.delete(:views) || self.class.views || "./views"
+          begin
+            template, filename, line_number = lookup_template(:erb, suffix_action.to_sym, views_dir)
+          rescue
+            template = scaffold_fix_template(File.read(scaffold_path(action)))
+          end
+          layout, filename, line_number = lookup_layout(:erb, :layout, views_dir)
+          layout ||= scaffold_fix_template(File.read(scaffold_path('layout'))).gsub('@content', 'yield')
           render(:erb, template, :layout=>layout)
         end
       end
