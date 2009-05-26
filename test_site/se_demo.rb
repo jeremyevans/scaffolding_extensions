@@ -4,7 +4,7 @@ SE_TEST_FRAMEWORK='se_demo'
 require 'sequel_setup'
 require 'se_setup'
 ScaffoldingExtensions.javascript_library = 'JQuery'
-set :port=>7980
+set :port=>7980, :run=>true
 
 get '/' do
   erb :index
