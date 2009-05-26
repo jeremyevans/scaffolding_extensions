@@ -4,7 +4,7 @@ SE_TEST_FRAMEWORK='sinatra'
 require 'sinatra/base'
 
 class Sinatra::Base
-  set(:environment=>:production, :app_file=>'sinatra_se_sq', :raise_errors=>true, :logging=>true)
+  set(:environment=>:production, :app_file=>'sinatra_se_sq', :raise_errors=>true, :logging=>true, :views=>'blah')
   disable :run
   configure do
     require 'active_record_setup'
