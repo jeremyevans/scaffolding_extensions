@@ -13,7 +13,7 @@ helpers do
     session[:flash] = notice
   end
   def scaffold_get_flash
-    session[:flash]
+    @flash
   end
 end
 
