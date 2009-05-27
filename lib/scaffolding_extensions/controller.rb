@@ -51,7 +51,7 @@ module ScaffoldingExtensions
         return send(meth, notice) if respond_to?(meth, true)
         meth = "scaffold_#{action}_redirect"
         return send(meth, suffix, notice) if respond_to?(meth, true)
-        scaffold_flash[:notice] = notice if notice
+        scaffold_set_flash(notice)
         scaffold_redirect_to(scaffold_url(action_suffix, oid ? {:id=>oid} : {}))
       end
       
@@ -59,6 +59,11 @@ module ScaffoldingExtensions
       # removes all 0 values, and returns the array.
       def scaffold_select_ids(value)
         scaffold_force_array(value).collect{|x| x.to_i}.delete_if{|x| x == 0}
+      end
+
+      # Set the notice entry in the scaffold_flash hash by default.
+      def scaffold_set_flash(notice)
+        scaffold_flash[:notice] = notice if notice
       end
       
       # Return whether scaffolding defined the method, whether or not it was overwritten

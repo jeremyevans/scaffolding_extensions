@@ -154,6 +154,11 @@ module ScaffoldingExtensions
         ''
       end
       
+      # Return the notice entry in the flash hash.
+      def scaffold_get_flash
+        scaffold_flash[:notice]
+      end
+
       # Returns html fragment containing autocompleting text or select boxes to add associated records
       # to the current record, and line items with buttons to remove associated records
       # from the current record.

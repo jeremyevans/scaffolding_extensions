@@ -51,7 +51,7 @@
 </head>
 <body>
 <%= "<h1>#{@scaffold_title}</h1>" if @scaffold_title %>
-<%= "<h4>#{scaffold_flash[:notice]}</h4>" if scaffold_flash[:notice] %>
+<%= "<h4>#{scaffold_get_flash}</h4>" if scaffold_get_flash %>
 
 <%= yield %>
 
