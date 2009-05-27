@@ -209,6 +209,11 @@ module ScaffoldingExtensions
         content
       end
       
+      # Is the action given an idempotent action?  True for show and edit, false otherwise
+      def scaffold_idempotent_action?(action)
+        [:show, :edit].include?(action)
+      end
+
       # Script tag with javascript included inside a CDATA section
       def scaffold_javascript_tag(javascript)
         "<script type='text/javascript'>\n//<![CDATA[\n#{javascript}\n//]]>\n</script>"
