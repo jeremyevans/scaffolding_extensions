@@ -76,7 +76,7 @@ module ScaffoldingExtensions
       end
       
       def scaffold_request_method
-        @scaffold_request_method
+        request.env['REQUEST_METHOD']
       end
       
       def scaffold_request_param(v)
@@ -110,18 +110,18 @@ module ScaffoldingExtensions
       include ScaffoldingExtensions::Helper
       include ScaffoldingExtensions::PrototypeHelper
       include ScaffoldingExtensions::SinatraHelper
+      p = 'POST'
+      block = lambda do
+        captures = params[:captures] || []
+        @scaffold_path = request.env['SCRIPT_NAME']
+        @scaffold_method = meth = captures[0] || 'index'
+        params[:id] ||= captures[1]
+        raise(ArgumentError, 'Method Not Allowed') if scaffold_request_method != p && scaffolded_nonidempotent_method?(meth)
+        scaffolded_method?(meth) ? send(meth) : pass
+      end
+      get('/?', &block)
       [:get, :post].each do |req_meth|
-        sreq_meth = req_meth.to_s.upcase
-        send(req_meth, %r{\A(?:/(\w+)(?:/(\w+))?)?\z}) do
-          captures = params[:captures] || []
-          @scaffold_path = request.env['SCRIPT_NAME']
-          @scaffold_method = meth = captures[0] || 'index'
-          @scaffold_request_method = sreq_meth
-          params[:id] ||= captures[1]
-          raise(ArgumentError, 'Method Not Allowed') if req_meth == :get && scaffolded_nonidempotent_method?(meth)
-          raise(Sinatra::NotFound) unless scaffolded_method?(meth) 
-          send(meth)
-        end
+        send(req_meth, %r{\A/(\w+)(?:/(\w+))?\z}, &block)
       end
       self
     end
