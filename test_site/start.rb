@@ -11,4 +11,4 @@ require 'se_setup'
 require 'controller/main'
 
 #Ramaze::Inform.loggers = []
-Ramaze.start(:adapter=>:mongrel, :port=>7978, :test_connections=>false, :force=>true, :backtrace_size=>20, :sourcereload=>0)
+Ramaze.start(:adapter => :mongrel, :port => 7978, :mode => :live)
