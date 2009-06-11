@@ -4,3 +4,4 @@ SequelDB = Sequel.sqlite("db/#{SE_TEST_FRAMEWORK}.sequel.sqlite3")
 require 'logger'
 #SequelDB.logger = Logger.new(STDOUT)
 require 'sequel/extensions/inflector'
+require 'sequel/extensions/migration'
