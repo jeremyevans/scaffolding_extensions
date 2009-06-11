@@ -1,6 +1,6 @@
 class CreateMeetingsPositions < ActiveRecord::Migration
   def self.up
-    create_table (:meetings_positions, :id=>false) do |t|
+    create_table :meetings_positions, :id => false do |t|
       t.integer :meeting_id
       t.integer :position_id
     end
