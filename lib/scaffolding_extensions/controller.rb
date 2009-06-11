@@ -7,17 +7,6 @@ module ScaffoldingExtensions
         scaffold_method_not_allowed if scaffolded_nonidempotent_method?(scaffold_request_action) && scaffold_request_method != 'POST'
       end
       
-      # Force the given value into an array.  If the items is currently an array,
-      # return it.  If the item is nil or false, return the empty array.  Otherwise,
-      # return an array with the value as the only member.
-      def scaffold_force_array(value)
-        if value
-          Array === value ? value : [value]
-        else
-          []
-        end
-      end
-      
       # Returns path to the given scaffold template file
       def scaffold_path(template_name)
         File.join(self.class.scaffold_template_dir, "#{template_name}.rhtml")
@@ -58,7 +47,7 @@ module ScaffoldingExtensions
       # Converts the value to an array, converts all values of the array to integers,
       # removes all 0 values, and returns the array.
       def scaffold_select_ids(value)
-        scaffold_force_array(value).collect{|x| x.to_i}.delete_if{|x| x == 0}
+        Array(value).collect{|x| x.to_i}.delete_if{|x| x == 0}
       end
 
       # Set the notice entry in the scaffold_flash hash by default.

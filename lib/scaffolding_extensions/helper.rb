@@ -288,7 +288,7 @@ module ScaffoldingExtensions
       
       # The suffix needed to params that should be lists.  The empty string by default.
       def scaffold_param_list_suffix
-        ''
+        '[]'
       end
       
       # A select tag with the provided name for the given collection of items. The options

@@ -149,7 +149,7 @@ module ScaffoldingExtensions
             page = scaffold_request_param(:page).to_i > 1 ? scaffold_request_param(:page).to_i : 1
             page -= 1 if scaffold_request_param(:page_previous)
             page += 1 if scaffold_request_param(:page_next)
-            @scaffold_search_results_form_params, @scaffold_objects = klass.scaffold_search(:model=>scaffold_request_param(singular_name), :notnull=>scaffold_force_array(scaffold_request_param(:notnull)), :null=>scaffold_force_array(scaffold_request_param(:null)), :page=>page, :session=>scaffold_session)
+            @scaffold_search_results_form_params, @scaffold_objects = klass.scaffold_search(:model=>scaffold_request_param(singular_name), :notnull=>Array(scaffold_request_param(:notnull)), :null=>Array(scaffold_request_param(:null)), :page=>page, :session=>scaffold_session)
             @scaffold_listtable_type = :search
             scaffold_render_template(:listtable, scaffold_options)
           end

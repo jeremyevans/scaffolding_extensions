@@ -18,7 +18,3 @@ controllers have been loaded.
 
 Also, note that Scaffolding Extensions uses the :Erubis engine in Ramaze,
 so you must have Erubis installed to use it.
-
-Scaffolding Extensions currently does not support Ramaze 2009.04+ (the
-versions based on Innate).  A patch that gives partial support is
-available at http://pastie.org/484442.

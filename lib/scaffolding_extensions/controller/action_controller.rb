@@ -11,12 +11,6 @@ module ScaffoldingExtensions
   # Helper methods for ActionController::Base that override the defaults in Scaffolding Extensions
   module ActionControllerHelper
     private
-      # ActionController::Base requires that params that are desired to be lists have
-      # the suffix '[]'
-      def scaffold_param_list_suffix
-        '[]'
-      end
-      
       # ActionController::Base allows easy access to the CSRF token via token_tag
       def scaffold_token_tag
         token_tag

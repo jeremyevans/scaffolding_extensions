@@ -16,12 +16,11 @@ end
 # Class methods added to ActiveRecord::Base to allow it to work with Scaffolding Extensions.
 module ScaffoldingExtensions::MetaActiveRecord
   SCAFFOLD_OPTIONS = ::ScaffoldingExtensions::MetaModel::SCAFFOLD_OPTIONS
-
+  
   # Add the associated object to the object's association
   def scaffold_add_associated_object(association, object, associated_object)
     association_proxy = object.send(association)
-    return if association_proxy.include?(associated_object)
-    association_proxy << associated_object
+    association_proxy << associated_object unless association_proxy.include?(associated_object)
   end
 
   # Array of all association reflections for this model

@@ -126,11 +126,8 @@ module ScaffoldingExtensions::MetaModel
   def scaffold_add_associated_objects(association, object, options, *associated_object_ids)
     unless associated_object_ids.empty?
       scaffold_transaction do
-        associated_objects = associated_object_ids.collect do |associated_object_id|
-          associated_object = scaffold_association_find_object(association, associated_object_id.to_i, :session=>options[:session])
-          scaffold_add_associated_object(association, object, associated_object)
-          associated_object
-        end
+        associated_objects = associated_object_ids.map{|i| scaffold_association_find_object(association, i.to_i, :session=>options[:session])}
+        associated_objects.each{|o| scaffold_add_associated_object(association, object, o)}
         associated_object_ids.length == 1 ? associated_objects.first : associated_objects
       end
     end

@@ -19,7 +19,7 @@ module ScaffoldingExtensions::MetaSequel
   
   # Add the associated object to the object's association
   def scaffold_add_associated_object(association, object, associated_object)
-    object.send(association_reflection(association).add_method, associated_object)
+    object.send(association_reflection(association).add_method, associated_object) unless object.send(association).include?(associated_object)
   end
 
   # Array of all association reflections for this model

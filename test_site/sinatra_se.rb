@@ -2,6 +2,7 @@
 require 'rubygems'
 SE_TEST_FRAMEWORK='sinatra'
 require 'sinatra/base'
+require 'ar_garbage'
 
 class Sinatra::Base
   set(:environment=>:production, :app_file=>'sinatra_se_sq', :raise_errors=>true, :logging=>true, :views=>'blah')
@@ -28,17 +29,6 @@ class ActiveRecordController < Sinatra::Base
   scaffold ArOfficer
   scaffold ArMeeting
   scaffold_all_models :only=>[ArEmployee, ArGroup, ArPosition]
-end
-
-class CleanUpARGarbage
-  def initialize(app, opts={})
-    @app = app
-  end
-  def call(env)
-    res = @app.call(env)
-    ActiveRecord::Base.clear_active_connections!
-    res
-  end
 end
 
 app = Rack::Builder.app do
