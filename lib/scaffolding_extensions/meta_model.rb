@@ -307,7 +307,7 @@ module ScaffoldingExtensions::MetaModel
   # The name string to use in urls, defaults to name.underscore.  Can be set with an 
   # instance variable.
   def scaffold_name
-    @scaffold_name ||= name.underscore
+    @scaffold_name ||= name.underscore.gsub('/', '__')
   end
 
   # Merges the record with id from into the record with id to.  Updates all 
