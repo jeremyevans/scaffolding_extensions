@@ -549,10 +549,19 @@ module ScaffoldingExtensions::MetaModel
     end
 
     # Filters the provided attributes to just the ones given by scaffold_attributes for
-    # the given action.
+    # the given action, and converts foreign key fields to integers so that autocompleting
+    # works correctly.
     def scaffold_filter_attributes(action, attributes)
-      allowed_attributes = scaffold_attributes(action).collect{|x| x.to_s}
-      attributes.reject{|k,v| !allowed_attributes.include?(k.to_s.split('(')[0])}
+      convert_attributes, allowed_attributes = scaffold_fields(action).partition{|x| scaffold_association(x)}.map{|x| x.map{|y| scaffold_field_id(y).to_s}}
+      h = {}
+      attributes.each do |k,v|
+        if allowed_attributes.include?(k)
+          h[k] = v
+        elsif convert_attributes.include?(k)
+          h[k] = v.to_i.to_s
+        end
+      end
+      h
     end
     
     # The associations to include when loading the association
