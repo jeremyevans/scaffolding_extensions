@@ -8,6 +8,7 @@ spec = Gem::Specification.new do |s|
   s.files = %w'LICENSE README' + Dir['{lib,doc,contrib,scaffolds}/**/*']
   s.require_paths = ["lib"]
   s.has_rdoc = true
+  s.required_ruby_version = ">= 1.8.6"
   s.rdoc_options = %w'--inline-source --line-numbers README LICENSE lib' + Dir['doc/*.txt']
   s.rubyforge_project = 'scaffolding-ext'
   s.homepage = 'http://scaffolding-ext.rubyforge.org/'
