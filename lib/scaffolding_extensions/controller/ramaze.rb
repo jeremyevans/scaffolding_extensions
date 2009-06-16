@@ -75,10 +75,8 @@ module ScaffoldingExtensions
 
   # Class methods for Ramaze::Controller related necessary for Scaffolding Extensions
   module MetaRamazeController
-    DENY_LAYOUT_RE = %r{\A(scaffold_auto_complete_for|associations|add|remove)_}
 
     private
-    # Denies the layout to names that match DENY_LAYOUT_RE (the Ajax methods).
     # Sets request.params['id'] if it was given as part of the request path.
     # Checks nonidempotent requests require POST.
     def scaffold_define_method(name, &block)
@@ -98,7 +96,7 @@ module ScaffoldingExtensions
       map_views '/'
       map_layouts '/'
       engine :Erubis
-      layout(:layout){|name, wish| DENY_LAYOUT_RE !~ name }
+      layout(:layout){|name, wish| !request.xhr? }
 
       o = Ramaze::App[:scaffolding_extensions].options
       o.roots = [scaffold_template_dir]
