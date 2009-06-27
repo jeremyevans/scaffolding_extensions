@@ -16,8 +16,7 @@ end
 desc "Update docs and upload to rubyforge.org"
 task :website => [:rdoc]
 task :website do
-  sh %{chmod -R g+w rdoc/*}
-  sh %{scp -rp rdoc/* rubyforge.org:/var/www/gforge-projects/scaffolding-ext}
+  sh %{rsync -rvt rdoc/* rubyforge.org:/var/www/gforge-projects/scaffolding-ext/}
 end
 
 desc "Package Scaffolding Extensions"

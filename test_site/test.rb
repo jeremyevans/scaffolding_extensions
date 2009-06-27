@@ -58,6 +58,12 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     f.close
     h
   end
+
+  def page_xhr(port, path)
+    req = Net::HTTP::Get.new(path)
+    req['X-Requested-With'] = 'XMLHttpRequest'
+    Hpricot(Net::HTTP.new(HOST, port).start{|http| http.request(req)}.body)
+  end
   
   def post(port, path, params)
     req = Net::HTTP::Post.new(path)
@@ -785,25 +791,25 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     end
   
     # Test regular auto completing
-    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z")
+    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?id=Z")
     assert_equal "<ul><li>#{i} - Zofficer</li></ul>", p.inner_html
-    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X")
+    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?id=X")
     assert_equal '<ul></ul>', p.inner_html
     
     # Tset auto completing for belongs to associations
     p = page(port, "#{root}/browse_position")
     ip = (p/:form)[1][:action].split('/')[-1]
-    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z&association=position")
+    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?id=Z&association=position")
     assert_equal "<ul><li>#{ip} - Zposition</li></ul>", p.inner_html
-    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=position")
+    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=position")
     assert_equal '<ul></ul>', p.inner_html
     
     # Test auto completing for habtm associations
     p = page(port, "#{root}/browse_group")
     ig = (p/:form)[1][:action].split('/')[-1]
-    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=Z&association=groups")
+    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?id=Z&association=groups")
     assert_equal "<ul><li>#{ig} - Zgroup</li></ul>", p.inner_html
-    p = page(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=groups")
+    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=groups")
     assert_equal '<ul></ul>', p.inner_html
   end
   
