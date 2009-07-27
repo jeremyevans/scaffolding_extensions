@@ -121,6 +121,10 @@ module ScaffoldingExtensions
               associated_objects = klass.scaffold_association_find_objects(field, :session=>scaffold_session, :object=>object)
               "<select #{scaffold_options_to_html(options)}><option></option>#{associated_objects.collect{|ao| "<option value='#{i = ao.scaffold_id}' #{s[i]}>#{h ao.scaffold_name}</option>"}.join}</select>"
             end
+          when :enum
+            select_options = options.delete(:select_options) || []
+            s = {value.to_s => "selected='selected'"}
+            "<select #{scaffold_options_to_html(options)}><option></option>#{select_options.collect{|o| "<option value='#{o[1]}' #{s[o[1]]}>#{o[0].to_s}</option>"}.join}</select>"
           else
             options[:type] = :text
             case field_type
