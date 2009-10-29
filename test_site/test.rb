@@ -554,6 +554,57 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_equal 'page_next', (p/:input)[5][:name]
       assert_equal "Next Page", (p/:input)[5][:value]
       assert_equal "submit", (p/:input)[5][:type]
+
+      # Check pagination works when searching with model fields
+      p = page(port, "#{root}/results_#{model}?#{model}[name]=est")
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
+      assert_equal "#{root}/results_#{model}", (p/:form)[3][:action]
+      assert_equal "post", (p/:form)[3][:method]
+      assert_equal "page", (p/:input)[3][:name]
+      assert_equal "1", (p/:input)[3][:value]
+      assert_equal "hidden", (p/:input)[3][:type]
+      assert_equal "#{model}[name]", (p/:input)[4][:name]
+      assert_equal "est", (p/:input)[4][:value]
+      assert_equal "hidden", (p/:input)[4][:type]
+      assert_equal 'page_next', (p/:input)[5][:name]
+      assert_equal "Next Page", (p/:input)[5][:value]
+      assert_equal "submit", (p/:input)[5][:type]
+
+      # Check second object shows up on second search page
+      p = page(port, "#{root}/results_#{model}?#{model}[name]=est&page_next=Next+Page&page=1")
+      assert_match %r|#{root}/show_#{model}/#{t}|, (p/:form)[0][:action]
+      assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
+      assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
+      assert_equal "#{root}/results_#{model}", (p/:form)[3][:action]
+      assert_equal "post", (p/:form)[3][:method]
+      assert_equal "page", (p/:input)[3][:name]
+      assert_equal "2", (p/:input)[3][:value]
+      assert_equal "hidden", (p/:input)[3][:type]
+      assert_equal "#{model}[name]", (p/:input)[4][:name]
+      assert_equal "est", (p/:input)[4][:value]
+      assert_equal "hidden", (p/:input)[4][:type]
+      assert_equal 'page_previous', (p/:input)[5][:name]
+      assert_equal "Previous Page", (p/:input)[5][:value]
+      assert_equal "submit", (p/:input)[5][:type]
+
+      # Check first object shows up on first search page
+      p = page(port, "#{root}/results_#{model}?#{model}[name]=est&page_previous=Previous+Page&page=2")
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
+      assert_equal "#{root}/results_#{model}", (p/:form)[3][:action]
+      assert_equal "post", (p/:form)[3][:method]
+      assert_equal "page", (p/:input)[3][:name]
+      assert_equal "1", (p/:input)[3][:value]
+      assert_equal "hidden", (p/:input)[3][:type]
+      assert_equal "#{model}[name]", (p/:input)[4][:name]
+      assert_equal "est", (p/:input)[4][:value]
+      assert_equal "hidden", (p/:input)[4][:type]
+      assert_equal 'page_next', (p/:input)[5][:name]
+      assert_equal "Next Page", (p/:input)[5][:value]
+      assert_equal "submit", (p/:input)[5][:type]
     end
   end
 
