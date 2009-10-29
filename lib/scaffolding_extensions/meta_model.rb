@@ -558,7 +558,7 @@ module ScaffoldingExtensions::MetaModel
         if allowed_attributes.include?(k)
           h[k] = v
         elsif convert_attributes.include?(k)
-          h[k] = v.to_i.to_s
+          h[k] = v.blank? ? '' : v.to_i.to_s
         end
       end
       h

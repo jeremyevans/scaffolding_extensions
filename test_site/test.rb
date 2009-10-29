@@ -315,7 +315,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_se_path port, root, "/edit_employee", res['Location']
     p = page(port, "#{root}/show_employee/#{i}")
     assert_equal %w'Active true Comment Comment Name Testemployee Password password Position Testposition', (p/:td).collect{|x| x.inner_html}
-
+    
     # Edit page
     p1 = p = page(port, (p/:a)[0][:href])
     assert_equal 3, (p/'select#employee_active option').length
@@ -420,6 +420,12 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal 'Manage groups', (p/:a)[2].inner_html
     assert_equal "#{root}/manage_employee", (p/:a)[0][:href]
     assert_equal "#{root}/edit_group_employees/#{group_id}", (p/:a)[1][:href]
+
+    # Make sure foreign key set to NULL works
+    post(port, "#{root}/update_employee/#{i}", 'employee[position_id]'=>'')
+    p = page(port, "#{root}/show_employee/#{i}")
+    assert_equal %w'Active true Comment Comment Name Testemployee Password password Position' + [''], (p/:td).collect{|x| x.inner_html}
+    post(port, "#{root}/update_employee/#{i}", 'employee[position_id]'=>position_id)
   end
 
   def _test_04_browse_search(port, root)
