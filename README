@@ -37,17 +37,11 @@ Support for other web frameworks and ORMs can be added, see the
 controller_spec.txt and model_spec.txt files for the methods that need to be
 defined.
 
-The current version of Scaffolding Extensions is quite different from older
-versions (svn revision 89 and previous).  Older versions of Rails should be
-able to use an older version of the plugin, which won't be discussed further as
-it is substantially different from the current version (see the conversion.txt
-file for details).
-
 You can get Scaffolding Extensions via git or as a gem:
 
 * git: git://github.com/jeremyevans/scaffolding_extensions.git
 * gem: sudo gem install scaffolding_extensions
-* demo: http://scaffolding-extensions.jeremyevans.net
+* demo: http://se-demo.heroku.com
 * github: http://github.com/jeremyevans/scaffolding_extensions
 * RDoc: http://scaffolding-ext.rubyforge.org
 * Bug Tracker: http://rubyforge.org/tracker/?atid=22169&group_id=5726&func=browse
