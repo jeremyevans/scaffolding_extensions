@@ -7,8 +7,10 @@
 ["Merge #{plural_name}", :merge],
 ["Search #{plural_name}", :search],
 ["Show #{singular_name}", :show]].each do |text, action| -%>
-  <% link = scaffold_check_link(text, true, "#{action}#{@scaffold_suffix}") -%>
-  <%= "<li>#{link}</li>" unless link == '' %>
+  <% link = scaffold_check_link(text, true, "#{action}#{@scaffold_suffix}") 
+  unless link == '' %>
+    <li><%= link %></li>
+  <% end %>
 <% end %>
 </ul>
 

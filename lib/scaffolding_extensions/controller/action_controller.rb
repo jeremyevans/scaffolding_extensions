@@ -92,9 +92,22 @@ module ScaffoldingExtensions
     private
       # Adds a before filter for checking nonidempotent requests use method POST
       def scaffold_setup_helper
-        helper ScaffoldingExtensions::Helper
+        mod = ScaffoldingExtensions::Helper.clone
+        helper mod
+        if mod.respond_to?(:safe_helper, true)
+          mod.send(:safe_helper, :scaffold_association_links, :scaffold_auto_complete_result,
+            :scaffold_button_to, :scaffold_button_to_remote, :scaffold_field_tag,
+            :scaffold_form, :scaffold_habtm_ajax_associations,
+            :scaffold_habtm_association_line_item, :scaffold_javascript_tag,
+            :scaffold_label, :scaffold_link, :scaffold_manage_link,
+            :scaffold_model_error_messages, :scaffold_model_field_tags,
+            :scaffold_model_form, :scaffold_select_tag,
+            :scaffold_add_habtm_element, :scaffold_remove_existing_habtm_element,
+            :scaffold_text_field_tag_with_auto_complete,
+            :scaffold_form_remote_tag, :scaffold_javascript_autocompleter,
+            :scaffold_load_associations_with_ajax_link)
+        end
         helper ScaffoldingExtensions::ActionControllerHelper
-        helper ScaffoldingExtensions::PrototypeHelper
         include ScaffoldingExtensions::Controller
         include ScaffoldingExtensions::ActionController
         helper_method "scaffolded_method?", "scaffolded_nonidempotent_method?", :scaffold_url, :scaffold_flash, :scaffold_session
