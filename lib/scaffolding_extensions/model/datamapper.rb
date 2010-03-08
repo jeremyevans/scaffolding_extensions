@@ -16,7 +16,11 @@ ScaffoldingExtensions::MODEL_SUPERCLASSES << DataMapper::Resource
 
   def get_ordering_options(ordopts)
     result = []
-    ordering = ordopts.dup
+    if ordoptions then
+      ordering = ordopts.dup
+    else
+      return nil
+    end
     ordering = ordering.split(',') unless ordering.is_a?(Array)
     ordering.each do |ord|
       asc = :asc
@@ -183,7 +187,9 @@ module ScaffoldingExtensions::MetaDataMapper
     # TODO includes break SQL generation
     # optionshash[:links] = options[:include] if options[:include]
     # optionshash[:links] = [optionshash[:links]] unless optionshash[:links].is_a?(Array)
-    optionshash[:order] = get_ordering_options(options[:order])
+    if options[:order] then
+      optionshash[:order] = get_ordering_options(options[:order])
+    end
     if slice then
       q = data.all(optionshash).slice(*slice)
     else
