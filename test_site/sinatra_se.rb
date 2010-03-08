@@ -5,7 +5,7 @@ require 'sinatra/base'
 require 'ar_garbage'
 
 class Sinatra::Base
-  set(:environment=>:production, :app_file=>'sinatra_se_sq', :raise_errors=>true, :logging=>true, :views=>'blah')
+  set(:environment=>:production, :app_file=>'sinatra_se.rb', :raise_errors=>true, :logging=>true, :views=>'blah')
   disable :run
   configure do
     require 'datamapper_setup'
