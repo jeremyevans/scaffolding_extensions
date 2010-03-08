@@ -94,6 +94,9 @@ require 'scaffolding_extensions/controller/sinatra' if defined? Sinatra
 require 'scaffolding_extensions/controller/merb' if defined? Merb
 
 require 'scaffolding_extensions/model/active_record' if defined? ActiveRecord::Base
+if defined? DataMapper::Resource
+  require 'scaffolding_extensions/model/datamapper'
+end
 if defined? Sequel::Model
   require('sequel/extensions/inflector') unless [:singularize, :pluralize, :camelize, :underscore, :constantize].all?{|meth| "".respond_to?(meth)}
   require 'scaffolding_extensions/model/sequel'
