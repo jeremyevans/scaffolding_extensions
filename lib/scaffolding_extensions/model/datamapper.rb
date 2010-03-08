@@ -16,7 +16,7 @@ ScaffoldingExtensions::MODEL_SUPERCLASSES << DataMapper::Resource
 
   def get_ordering_options(ordopts)
     result = []
-    if ordoptions then
+    if ordopts then
       ordering = ordopts.dup
     else
       return nil
