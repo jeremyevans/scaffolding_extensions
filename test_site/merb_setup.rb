@@ -5,6 +5,7 @@ require 'merb-core'
 SE_TEST_FRAMEWORK='merb'
 require 'active_record_setup'
 require 'sequel_setup'
+require 'datamapper_setup'
 require 'se_setup'
 
 use_template_engine :erb
@@ -41,6 +42,11 @@ class Asq < Merb::Controller
   scaffold SqMeeting
   scaffold_all_models :only=>[SqEmployee, SqGroup, SqPosition]
 end
-
+class Dm < Merb::Controller
+  add_scaffolding_methods [DmOfficer, DmMeeting, DmEmployee, DmGroup, DmPosition]
+  scaffold DmOfficer
+  scaffold DmMeeting
+  scaffold_all_models :only =>[DmEmployee, DmGroup, DmPosition]
+end
 Merb.disable(:initfile)
 Merb.start(%w'-a mongrel')

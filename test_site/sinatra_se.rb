@@ -8,6 +8,7 @@ class Sinatra::Base
   set(:environment=>:production, :app_file=>'sinatra_se_sq', :raise_errors=>true, :logging=>true, :views=>'blah')
   disable :run
   configure do
+    require 'datamapper_setup'
     require 'active_record_setup'
     require 'sequel_setup'
     require 'se_setup'
@@ -31,6 +32,13 @@ class ActiveRecordController < Sinatra::Base
   scaffold_all_models :only=>[ArEmployee, ArGroup, ArPosition]
 end
 
+class DatamapperController < Sinatra::Base
+  add_scaffolding_methods [DmOfficer, DmMeeting, DmEmployee, DmGroup, DmPosition]
+  scaffold DmOfficer
+  scaffold DmMeeting
+  scaffold_all_models :only=>[DmEmployee, DmGroup, DmPosition]
+end
+
 app = Rack::Builder.app do
   map "/sequel" do
     run SequelController
@@ -39,7 +47,10 @@ app = Rack::Builder.app do
     use CleanUpARGarbage
     run ActiveRecordController
   end
-end 
+  map "/datamapper" do
+    run DatamapperController
+  end
+end
 
 puts "== Sinatra/#{Sinatra::VERSION} has taken the stage on 7976 with backup from Mongrel"
 Rack::Handler.get('mongrel').run(app, :Host=>'0.0.0.0', :Port=>7976) do |server|

@@ -6,9 +6,9 @@ orm=""
 if [ $# != 0 ]; then
   case $1 in rails|ramaze|camping|sinatra|merb) frameworks=$1; fw=$1;;
   esac
-  case $1 in active_record|sequel) orm=$1;;
+  case $1 in active_record|sequel|datamapper) orm=$1;;
   esac
-  case $2 in active_record|sequel) orm=$2;;
+  case $2 in active_record|sequel|datamapper) orm=$2;;
   esac
 fi
 ./clear_logs

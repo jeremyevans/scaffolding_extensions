@@ -6,6 +6,7 @@ require 'mongrel/camping'
 
 Camping.goes :Cse
 SE_TEST_FRAMEWORK='camping'
+require 'datamapper_setup'
 require 'active_record_setup'
 require 'sequel_setup'
 require 'se_setup'
@@ -22,8 +23,14 @@ module Cse
       scaffold SqMeeting
       scaffold_all_models :only=>[SqEmployee, SqGroup, SqPosition]
     end
+    class Datamapper < scaffold_R("/datamapper")
+      add_scaffolding_methods [DmOfficer, DmMeeting, DmEmployee, DmGroup, DmPosition]
+      scaffold DmOfficer
+      scaffold DmMeeting
+      scaffold_all_models :only=>[DmEmployee, DmGroup, DmPosition]
+    end
   end
-  
+
   def service(*args)
     r = super(*args)
     ActiveRecord::Base.clear_active_connections!

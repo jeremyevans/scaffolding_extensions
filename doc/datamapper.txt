@@ -1,0 +1,19 @@
+The DataMapper module has some quirks, mainly:
+
+1. For models that have the "storage_name" explicitly defined,
+   the "has n, :through => Resource" relation doesn't work well.
+   Don't use models, that have non-standard table names, or
+   create the habtm resource by hand (check the test application)
+
+2. Because DataMapper uses a module instead of a superclass, you have
+   to add the appropriate scaffolding_extensions modules by hand.
+   The simplest way is to use the `add_scaffolding_methods` method in
+   your controller, or initialization script:
+
+   class Dm < Merb::Controller
+     add_scaffolding_methods [DmOfficer, DmMeeting, DmEmployee, DmGroup, DmPosition]
+     scaffold DmOfficer
+     scaffold DmMeeting
+     scaffold_all_models :only =>[DmEmployee, DmGroup, DmPosition]
+   end
+

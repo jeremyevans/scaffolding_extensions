@@ -7,6 +7,7 @@ class String
 end
 require 'active_record_setup'
 require 'sequel_setup'
+require 'datamapper_setup'
 require 'se_setup'
 require 'controller/main'
 require 'ar_garbage'
