@@ -37,9 +37,7 @@ module ScaffoldingExtensions::MetaSequel
   # constraint, as it is assumed that all objects currently assocated with the given object
   # have already met the criteria.  If that is not the case, you should override this method.
   def scaffold_associated_objects(association, object, options)
-    assoc = object.send(association)
-    reflection = association_reflection(association)
-    reflection[:cache] || reflection[:type] == :many_to_one ? assoc : assoc.all
+    object.send(association)
   end
   
   # The association reflection for this association
@@ -51,9 +49,9 @@ module ScaffoldingExtensions::MetaSequel
   # associated with the current object), :edit for :many_to_many (since you
   # can edit the list of associated objects), or :one for :many_to_one.
   def scaffold_association_type(association)
-    case scaffold_association(association)[:type]
+    case (a = scaffold_association(association))[:type]
       when :one_to_many
-        :new
+        a[:one_to_one] ? :one : :new
       when :many_to_many
         :edit
       else
