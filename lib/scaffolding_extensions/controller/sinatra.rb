@@ -51,18 +51,14 @@ module ScaffoldingExtensions
           response['Content-Type'] = 'text/javascript' if use_js
           render(:erb, scaffold_fix_template(render_options[:inline]), :layout=>false)
         else
-          views_dir = render_options.delete(:views) || self.class.views || "./views"
-          begin
-            template, filename, line_number = lookup_template(:erb, suffix_action.to_sym, views_dir)
-          rescue
-            template = scaffold_fix_template(File.read(scaffold_path(action)))
-          end
-          layout, filename, line_number = lookup_layout(:erb, :layout, views_dir)
-          layout ||= scaffold_fix_template(File.read(scaffold_path('layout'))).gsub('@content', 'yield')
+          views_path = render_options.delete(:views) || self.class.views || "./views"
+          views_dir = Dir.new(views_path) rescue nil
+          template = scaffold_template_code(views_dir, suffix_action, action)
+          layout = scaffold_template_code(views_dir, 'layout', 'layout'){|s| s.gsub('@content', 'yield')}
           render(:erb, template, :layout=>layout)
         end
       end
-      
+
       def scaffold_request_action
         @scaffold_method
       end
@@ -89,6 +85,16 @@ module ScaffoldingExtensions
       # scaffold_session_value, it shouldn't matter.
       def scaffold_session
         session
+      end
+
+      def scaffold_template_code(views_dir, sin_name, se_name)
+        if views_dir && views_dir.member?("#{sin_name}.erb")
+          sin_name.to_sym
+        else
+          code = scaffold_fix_template(File.read(scaffold_path(se_name))) 
+          code = yield code if block_given?
+          code
+        end
       end
       
       # Treats the id option as special, appending it to the path.
