@@ -1,5 +1,5 @@
 require 'erb'
-require 'cgi'
+require 'rack'
 
 module ScaffoldingExtensions
   class << self
@@ -13,11 +13,11 @@ module ScaffoldingExtensions
   module SinatraHelper
     private
       def u(s)
-        CGI.escape(s.to_s)
+        Rack::Utils.escape(s.to_s)
       end 
     
       def h(s)
-        CGI.escapeHTML(s.to_s)
+        Rack::Utils.escape_html(s.to_s)
       end 
   end
 
