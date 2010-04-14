@@ -1,0 +1,22 @@
+Scaffolding Extensions includes a native rack adapter that can run
+directly on top of rack with no framework in between.  However, this
+mode does not support custom layouts or views.
+
+Here's an simple example of use:
+
+  require 'sequel'
+  require 'models/employee'
+  require 'scaffolding_extensions'
+  require 'scaffolding_extensions/controller/rack'
+  
+  class SequelRack < ScaffoldingExtensions::RackController
+    scaffold Employee
+  end
+  
+  puts "ScaffoldingExtensions::Rack started on port 7974"
+  Rack::Handler.get('mongrel').run(app, :Host=>'0.0.0.0', :Port=>7974) do |server|
+    trap(:INT) do
+      server.stop
+      puts "\nScaffoldingExtensions::Rack shutdown"
+    end
+  end

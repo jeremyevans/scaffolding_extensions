@@ -26,6 +26,7 @@ Scaffolding Extensions currently supports:
   * Camping 1.5
   * Sinatra 1.0
   * Merb 1.0.4
+  * Rack 1.0
 * Object Relational Mappers
   * ActiveRecord 2.3.5
   * Sequel 3.10.0

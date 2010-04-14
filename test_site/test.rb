@@ -9,7 +9,7 @@ require 'net/http'
 ORMS = {}
 POSSIBLE_ORMS = %w'active_record sequel datamapper'
 ORM_MAP = {'active_record'=>'ar', 'sequel'=>'asq', 'datamapper'=>'dm'}
-FRAMEWORKS = {'rails'=>7979, 'ramaze'=>7978, 'camping'=>7977, 'sinatra'=>7976, 'merb'=>7975}
+FRAMEWORKS = {'rails'=>7979, 'ramaze'=>7978, 'camping'=>7977, 'sinatra'=>7976, 'merb'=>7975, 'rack'=>7974}
 PORTS = FRAMEWORKS.invert
 
 ARGV.each do |arg|
