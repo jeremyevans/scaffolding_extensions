@@ -1,8 +1,7 @@
 #!/usr/local/bin/ruby
 require 'rubygems'
 require 'camping'
-require 'mongrel'
-require 'mongrel/camping'
+require 'rack'
 
 Camping.goes :Cse
 SE_TEST_FRAMEWORK='camping'
@@ -36,6 +35,8 @@ module Cse
     ActiveRecord::Base.clear_active_connections!
     r
   end
+
+  puts "** Starting Mongrel on 0.0.0.0:7977"
+  Rack::Handler::Mongrel.run(self, :Port => 7977, :Host => '0.0.0.0')
 end
 
-Mongrel::Camping::start("0.0.0.0",7977,"/",Cse).run.join rescue nil

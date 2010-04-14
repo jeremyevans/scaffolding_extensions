@@ -78,7 +78,7 @@ module ScaffoldingExtensions
       end
       
       def scaffold_request_id
-        @input[:id] || @scaffold_request_id
+        @input['id'] || @scaffold_request_id
       end
       
       def scaffold_request_method
@@ -86,7 +86,7 @@ module ScaffoldingExtensions
       end
       
       def scaffold_request_param(v)
-        @input[v]
+        @input[v.to_s]
       end
       
       # You need to enable Camping's session support for this to work, 
