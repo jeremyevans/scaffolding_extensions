@@ -22,11 +22,11 @@ Scaffolding Extensions currently supports:
 
 * Web Frameworks
   * Rails 2.3.5 (with or without RailsXss plugin)
-  * Ramaze 2009.06.12
+  * Ramaze 2010.04.04
   * Camping 2.0
   * Sinatra 1.0
   * Merb 1.0.4
-  * Rack 1.0
+  * Rack 1.1.0
 * Object Relational Mappers
   * ActiveRecord 2.3.5
   * Sequel 3.10.0
