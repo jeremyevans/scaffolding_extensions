@@ -30,11 +30,6 @@ module ScaffoldingExtensions
         {}
       end
 
-      # Sinatra's ERB renderer doesn't like "-%>"
-      def scaffold_fix_template(text)
-        text.gsub('-%>', '%>')
-      end
-      
       def scaffold_redirect_to(url)
         redirect(url)
       end
@@ -49,7 +44,7 @@ module ScaffoldingExtensions
         if render_options.include?(:inline)
           use_js = @scaffold_javascript
           response['Content-Type'] = 'text/javascript' if use_js
-          render(:erb, scaffold_fix_template(render_options[:inline]), :layout=>false)
+          render(:erb, render_options[:inline], :layout=>false)
         else
           views_path = render_options.delete(:views) || self.class.views || "./views"
           views_dir = Dir.new(views_path) rescue nil
@@ -91,7 +86,7 @@ module ScaffoldingExtensions
         if views_dir && views_dir.member?("#{sin_name}.erb")
           sin_name.to_sym
         else
-          code = scaffold_fix_template(File.read(scaffold_path(se_name))) 
+          code = File.read(scaffold_path(se_name)) 
           code = yield code if block_given?
           code
         end

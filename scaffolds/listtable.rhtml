@@ -2,7 +2,7 @@
 
 <table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class(:list) %>">
   <thead><tr>
-  <% @scaffold_class.scaffold_fields(@scaffold_listtable_type).each do |column| -%>
+  <% @scaffold_class.scaffold_fields(@scaffold_listtable_type).each do |column| %>
     <th><%=h @scaffold_class.scaffold_column_name(column) %></th>
   <% end %>
   <% if show = scaffolded_method?(ss = "show#{@scaffold_suffix}") %>
@@ -45,13 +45,13 @@
 <% if @scaffold_listtable_type == :search && @scaffold_search_results_form_params && (@scaffold_search_results_form_params[:page] > 1 || @scaffold_search_results_form_params[:next_page]) %>
   <%= scaffold_form(scaffold_url("results#{@scaffold_suffix}")) %>
   <%= scaffold_field_tag(:hidden, :value=>@scaffold_search_results_form_params[:page], :id=>'page') %>
-  <% @scaffold_search_results_form_params[:model].each do |key, value| -%>
+  <% @scaffold_search_results_form_params[:model].each do |key, value| %>
     <%= scaffold_field_tag(:hidden, :value=>value, :id=>"#{@scaffold_options[:singular_name]}_#{key}", :name=>"#{@scaffold_options[:singular_name]}[#{key}]") %>
   <% end %>
-  <% @scaffold_search_results_form_params[:notnull].each do |field| -%>
+  <% @scaffold_search_results_form_params[:notnull].each do |field| %>
     <%= scaffold_field_tag(:hidden, :value=>field, :name=>"notnull#{scaffold_param_list_suffix}") %>
   <% end %>
-  <% @scaffold_search_results_form_params[:null].each do |field| -%>
+  <% @scaffold_search_results_form_params[:null].each do |field| %>
     <%= scaffold_field_tag(:hidden, :value=>field, :name=>"null#{scaffold_param_list_suffix}") %>
   <% end %>
   <% if @scaffold_search_results_form_params[:page] > 1 %>

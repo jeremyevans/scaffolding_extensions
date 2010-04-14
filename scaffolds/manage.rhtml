@@ -6,7 +6,7 @@
 ["Edit #{singular_name}", :edit],
 ["Merge #{plural_name}", :merge],
 ["Search #{plural_name}", :search],
-["Show #{singular_name}", :show]].each do |text, action| -%>
+["Show #{singular_name}", :show]].each do |text, action| %>
   <% link = scaffold_check_link(text, true, "#{action}#{@scaffold_suffix}") 
   unless link == '' %>
     <li><%= link %></li>
