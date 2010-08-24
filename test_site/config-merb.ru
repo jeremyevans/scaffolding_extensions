@@ -11,6 +11,8 @@ require 'se_setup'
 use_template_engine :erb
 
 Merb::Config.use { |c|
+  c[:merb_root]           = File.expand_path(File.dirname(__FILE__))
+  c[:environment]         = ENV['RACK_ENV']
   c[:session_store]       = 'cookie'
   c[:session_secret_key]  = 'cookie'*10
   c[:exception_details]   = true
@@ -49,4 +51,8 @@ class Dm < Merb::Controller
   scaffold_all_models :only =>[DmEmployee, DmGroup, DmPosition]
 end
 Merb.disable(:initfile)
-Merb.start(%w'-a mongrel')
+Merb.environment = Merb::Config[:environment]
+Merb.root = Merb::Config[:merb_root]
+Merb::BootLoader.run
+
+run Merb::Rack::Application.new

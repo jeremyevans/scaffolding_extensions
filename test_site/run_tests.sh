@@ -1,6 +1,6 @@
 #!/bin/sh
-WAITTIME=5
-frameworks="rails ramaze camping sinatra merb"
+WAITTIME=2
+frameworks="rails ramaze camping sinatra merb rack"
 fw=""
 orm=""
 if [ $# != 0 ]; then
@@ -13,10 +13,10 @@ if [ $# != 0 ]; then
 fi
 ./clear_logs
 for framework in $frameworks; do
-	style -c config/style.$framework.yaml start
-	sleep $WAITTIME
+  unicorn -c unicorn-$framework.conf -D config-$framework.ru
+  sleep $WAITTIME
 done
 ruby test.rb $fw $orm
 for framework in $frameworks; do
-	style -c config/style.$framework.yaml stop
+  kill `cat log/unicorn-$framework.pid`
 done

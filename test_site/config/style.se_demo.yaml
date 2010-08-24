@@ -1,6 +1,0 @@
---- 
-:port: 7980
-:adapter: se_demo
-:handler: mongrel
-:logfile: log/style-se_demo.log
-:pidfile: log/style-se_demo.pid

@@ -51,11 +51,4 @@ app = Rack::Builder.app do
     run DatamapperController
   end
 end
-
-puts "== Sinatra/#{Sinatra::VERSION} has taken the stage on 7976 with backup from Mongrel"
-Rack::Handler.get('mongrel').run(app, :Host=>'0.0.0.0', :Port=>7976) do |server|
-  trap(:INT) do 
-    server.stop
-    puts "\n== Sinatra has ended his set (crowd applauds)"
-  end
-end
+run app

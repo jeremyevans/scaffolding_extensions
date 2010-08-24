@@ -1,8 +1,0 @@
---- 
-:bind: 0.0.0.0
-:port: 7978
-:unsupervised: 1
-:adapter: start
-:handler: mongrel
-:logfile: log/style-ramaze.log
-:pidfile: log/style-ramaze.pid

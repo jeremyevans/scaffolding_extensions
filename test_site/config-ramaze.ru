@@ -12,5 +12,7 @@ require 'se_setup'
 require 'controller/main'
 require 'ar_garbage'
 
-#Ramaze::Inform.loggers = []
-Ramaze.start(:adapter => :mongrel, :port => 7978, :mode => :live){|m| m.use CleanUpARGarbage; m.run Ramaze::AppMap}
+Ramaze.options.mode = :live
+use CleanUpARGarbage
+Ramaze.start(:root => File.dirname(File.expand_path(__FILE__)), :started => true)
+run Ramaze

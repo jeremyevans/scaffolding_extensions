@@ -43,11 +43,4 @@ app = Rack::Builder.app do
     run DatamapperRack
   end
 end
-
-puts "ScaffoldingExtensions::Rack started on port 7974"
-Rack::Handler.get('mongrel').run(app, :Host=>'0.0.0.0', :Port=>7974) do |server|
-  trap(:INT) do 
-    server.stop
-    puts "\nScaffoldingExtensions::Rack shutdown"
-  end
-end
+run app

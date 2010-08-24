@@ -25,7 +25,7 @@ With this plugin installed, the html will be escaped.  So you will need to do on
     def some_helper
       (1..5).map do |i|
         "<li>#{i}</li>"
-      end.join("\n").html_safe!
+      end.join("\n").html_safe
     end
   
 3) Use the safe_helper meta programming method:
@@ -82,9 +82,9 @@ This is intended functionality and can't be fixed.
 Getting Started
 ===============
 
-1. Install rails 2.3.5 or higher, or freeze rails from 2-3-stable.
+1. Install rails 2.3.8 or higher, or freeze rails from 2-3-stable.
 2. Install erubis (gem install erubis)
-3. Install this plugin (ruby script/plugin install git://github.com/NZKoz/rails_xss.git)
+3. Install this plugin (ruby script/plugin install git://github.com/rails/rails_xss.git)
 4. Report anything that breaks.
 
 Copyright (c) 2009 Koziarski Software Ltd, released under the MIT license. For full details see MIT-LICENSE included in this distribution.

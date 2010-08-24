@@ -1,8 +1,0 @@
---- 
-:bind: 0.0.0.0
-:port: 7974
-:unsupervised: 1
-:adapter: rack_se
-:handler: mongrel
-:logfile: log/style-rack.log
-:pidfile: log/style-rack.pid

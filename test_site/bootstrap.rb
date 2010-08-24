@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-FRAMEWORKS=%w'ramaze camping sinatra merb'
+FRAMEWORKS=%w'ramaze camping sinatra merb rack'
 ORMS=%w'active_record sequel datamapper'
 SE_TEST_FRAMEWORK='rails'
 # Make log and tmp directories
@@ -16,4 +16,3 @@ require 'datamapper_setup'
 DataMapper.auto_migrate!
 # Copy the Rails databases to the other frameworks
 FRAMEWORKS.each{|f| ORMS.each{|o| system "cp db/#{SE_TEST_FRAMEWORK}.#{o}.sqlite3 db/#{f}.#{o}.sqlite3"}}
-system "cp db/#{SE_TEST_FRAMEWORK}.sequel.sqlite3 db/se_demo.sequel.sqlite3"

@@ -35,8 +35,6 @@ module Cse
     ActiveRecord::Base.clear_active_connections!
     r
   end
-
-  puts "** Starting Mongrel on 0.0.0.0:7977"
-  Rack::Handler::Mongrel.run(self, :Port => 7977, :Host => '0.0.0.0')
 end
 
+run Cse
