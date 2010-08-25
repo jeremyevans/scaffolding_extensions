@@ -1,5 +1,6 @@
 require "dm-core"
 require "dm-validations"
+require "dm-transactions"
 require "data_objects"
 require "do_sqlite3"
 DataMapper.setup(:default, {:adapter => "sqlite3", :database => "db/#{SE_TEST_FRAMEWORK}.datamapper.sqlite3" })

@@ -228,13 +228,13 @@ module ScaffoldingExtensions::MetaDataMapper
   end
   
   # The column type for the given table column, or nil if it isn't a table column
-  def scaffold_table_column_type(column)
-    column = self.properties[column]
+  def scaffold_table_column_type(c)
+    column = self.properties[c]
     if column then
-      if column.type == DataMapper::Types::Text
+      if column.type == DataMapper::Property::Text
         :text
       else
-        column.type.to_s.split("::").last.downcase.intern
+        column.class.to_s.split("::").last.downcase.intern
       end
     else
       nil

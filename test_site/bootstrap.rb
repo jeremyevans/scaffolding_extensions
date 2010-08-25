@@ -13,6 +13,7 @@ system 'rake db:migrate'
 require 'sequel_setup'
 Sequel::Migrator.apply(SequelDB, 'db/sequel_migrate')
 require 'datamapper_setup'
+require "dm-migrations"
 DataMapper.auto_migrate!
 # Copy the Rails databases to the other frameworks
 FRAMEWORKS.each{|f| ORMS.each{|o| system "cp db/#{SE_TEST_FRAMEWORK}.#{o}.sqlite3 db/#{f}.#{o}.sqlite3"}}
