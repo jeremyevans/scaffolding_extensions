@@ -1,6 +1,6 @@
 #!/usr/local/bin/ruby
 require 'rubygems'
-SE_TEST_FRAMEWORK='sinatra'
+::SE_TEST_FRAMEWORK='sinatra'
 require 'sinatra/base'
 require 'ar_garbage'
 

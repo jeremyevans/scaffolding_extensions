@@ -4,7 +4,7 @@ require 'camping'
 require 'rack'
 
 Camping.goes :Cse
-SE_TEST_FRAMEWORK='camping'
+::SE_TEST_FRAMEWORK='camping'
 require 'datamapper_setup'
 require 'active_record_setup'
 require 'sequel_setup'

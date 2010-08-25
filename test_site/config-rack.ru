@@ -1,6 +1,6 @@
 #!/usr/local/bin/ruby
 require 'rubygems'
-SE_TEST_FRAMEWORK='rack'
+::SE_TEST_FRAMEWORK='rack'
 require 'rack'
 require 'rack/builder'
 require 'ar_garbage'

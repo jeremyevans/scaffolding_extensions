@@ -2,7 +2,7 @@ ENV['FORK'] = '0'
 require 'rubygems'
 $:.unshift('/data/code/merb/merb-core/lib')
 require 'merb-core'
-SE_TEST_FRAMEWORK='merb'
+::SE_TEST_FRAMEWORK='merb'
 require 'active_record_setup'
 require 'sequel_setup'
 require 'datamapper_setup'
@@ -11,7 +11,7 @@ require 'se_setup'
 use_template_engine :erb
 
 Merb::Config.use { |c|
-  c[:merb_root]           = File.expand_path(File.dirname(__FILE__))
+  c[:merb_root]           = ::File.expand_path(::File.dirname(__FILE__))
   c[:environment]         = ENV['RACK_ENV']
   c[:session_store]       = 'cookie'
   c[:session_secret_key]  = 'cookie'*10
