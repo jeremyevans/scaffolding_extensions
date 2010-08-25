@@ -28,9 +28,9 @@ Scaffolding Extensions currently supports:
   * Merb 1.0.4
   * Rack 1.1.0
 * Object Relational Mappers
-  * ActiveRecord 2.3.5
-  * Sequel 3.10.0
-  * DataMapper 0.10.2 (see doc/datamapper.txt for details)
+  * ActiveRecord 2.3.8
+  * Sequel 3.14.0
+  * DataMapper 1.0 (see doc/datamapper.txt for details)
 * Javascript Libaries (used for Ajax/Autocompleting)
   * Prototype 1.6.0.3
   * JQuery 1.2.3
