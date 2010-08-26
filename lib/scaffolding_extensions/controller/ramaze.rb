@@ -92,13 +92,10 @@ module ScaffoldingExtensions
     # Adds a default scaffolded layout if none has been set.  Activates the Erubis
     # engine.  Includes the necessary scaffolding helper and controller methods.
     def scaffold_setup_helper
-      map generate_mapping, :scaffolding_extensions
-      map_views '/'
-      map_layouts '/'
       engine :Erubis
       layout(:layout){|name, wish| !request.xhr? }
 
-      o = Ramaze::App[:scaffolding_extensions].options
+      o = app.options
       o.roots = [scaffold_template_dir]
       o.views = ['/']
       o.layouts = ['/']

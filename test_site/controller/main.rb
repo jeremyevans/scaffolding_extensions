@@ -5,7 +5,7 @@ class ActiveRecordController < Ramaze::Controller
   scaffold_all_models :only=>[ArEmployee, ArGroup, ArPosition]
 end
 
-class SequelController < Ramaze::Controller
+class SequController < Ramaze::Controller
   map '/sequel'
   scaffold SqOfficer
   scaffold SqMeeting
