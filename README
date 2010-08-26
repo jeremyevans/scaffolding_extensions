@@ -35,6 +35,23 @@ Scaffolding Extensions currently supports:
   * Prototype 1.6.0.3
   * JQuery 1.2.3
   
+There are differing levels of support for the web frameworks, mostly related
+to whether or not you can use custom views and layouts.  Custom views mean
+that you can keep the scaffolded controller action, and change how the
+view is displayed.  Custom layouts mean you can provide your own layout,
+which the scaffolded views use.  Here's the current level of support:
+
+* Scaffold view, scaffold layout (all)
+* Scaffold view, custom layout (Rails, Sinatra)
+* Custom view, custom layout (Rails, Sinatra)
+* Custom view, scaffold layout (Sinatra)
+
+For the web frameworks that don't have support for custom layouts and views,
+you can still customize the scaffolded views and layout, but you need to copy
+the scaffold template directory from the plugin and set the
+@scaffold_template_dir class instance variable in the controller to the path
+to your scaffold template directory.
+
 Support for other web frameworks and ORMs can be added, see the
 controller_spec.txt and model_spec.txt files for the methods that need to be
 defined.

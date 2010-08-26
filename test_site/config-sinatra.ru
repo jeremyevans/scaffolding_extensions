@@ -21,12 +21,14 @@ class Sinatra::Base
 end
 
 class SequelController < Sinatra::Base
+  set(:views=>'views')
   scaffold SqOfficer
   scaffold SqMeeting
   scaffold_all_models :only=>[SqEmployee, SqGroup, SqPosition]
 end
 
 class ActiveRecordController < Sinatra::Base
+  set(:views=>'views2')
   scaffold ArOfficer
   scaffold ArMeeting
   scaffold_all_models :only=>[ArEmployee, ArGroup, ArPosition]
