@@ -94,12 +94,28 @@ module ScaffoldingExtensions
     def scaffold_setup_helper
       engine :Erubis
       layout(:layout){|name, wish| !request.xhr? }
-
-      o = app.options
-      o.roots = [scaffold_template_dir]
-      o.views = ['/']
-      o.layouts = ['/']
-
+      
+      # Instantiates the controller's App (necessary to have a valid
+      # Ramaze::Controller.options, which is actually just a shortcut
+      # to controller's App options)
+      setup
+      
+      # Retrieves current controller options, and ensure the required ones
+      # are properly initialized
+      o = options
+      o.roots ||= []
+      o.views ||= []
+      o.layouts ||= []
+      
+      # Adds scaffold_template_dir to the controller roots
+      o.roots += [scaffold_template_dir] unless o.roots.include?(scaffold_template_dir)
+      
+      # The scaffolding_extensions templates are located directly in the
+      # scaffold_template_dir, not in a view/ or layout/ subdirectory,
+      # so adds '/' to the views et layout default search paths
+      o.views << '/' unless o.views.include? '/'
+      o.layouts << '/' unless o.layouts.include? '/'
+      
       include ScaffoldingExtensions::Controller
       include ScaffoldingExtensions::RamazeController
       include ScaffoldingExtensions::Helper
