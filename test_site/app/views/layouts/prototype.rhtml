@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Scaffolding Extensions Custom Layout<%= " - #{@scaffold_title}" if @scaffold_title %></title>
+  <title>Scaffolding Extensions<%= " - #{@scaffold_title}" if @scaffold_title %></title>
   <%= javascript_include_tag :all %>
   <style type="text/css">
     body { background-color: #fff; color: #333; }
@@ -51,8 +51,13 @@
   </style>
 </head>
 <body>
-<%= "<h1>#{@scaffold_title}</h1>" if @scaffold_title %>
-<%= "<h4>#{scaffold_get_flash}</h4>" if scaffold_get_flash %>
+<% if @scaffold_title %>
+<h1><%= @scaffold_title %></h1>
+<% end %>
+<% if scaffold_get_flash %>
+<h4><%= scaffold_get_flash %></h4>
+<% end %>
+<p>Custom Layout</p>
 
 <%= yield %>
 

@@ -1,7 +1,6 @@
 <html>
 <head>
-  <title>Scaffolding Extensions Custom Layout <%= " - #{@scaffold_title}" if @scaffold_title %></title>
-  <script type="text/javascript" src="/js/jquery.combined.js"></script>
+  <title>Scaffolding Extensions<%= " - #{@scaffold_title}" if @scaffold_title %></title>
   <style type="text/css">
     body { background-color: #fff; color: #333; }
 
@@ -52,8 +51,10 @@
 <body>
 <%= "<h1>#{@scaffold_title}</h1>" if @scaffold_title %>
 <%= "<h4>#{scaffold_get_flash}</h4>" if scaffold_get_flash %>
+<p>Custom Layout</p>
 
 <%= yield %>
 
+<script type="text/javascript" src="/js/jquery.combined.js"></script>
 </body>
 </html>
