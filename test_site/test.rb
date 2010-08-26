@@ -19,6 +19,9 @@ ARGV.each do |arg|
 end
 FRAMEWORKS.each{|k,v| ORMS[v] = POSSIBLE_ORMS}
 ORMS[FRAMEWORKS['merb']] = POSSIBLE_ORMS.map{|v| ORM_MAP[v]}
+CUSTOM_LAYOUT_CUSTOM_VIEW = [7979, 7976]
+CUSTOM_LAYOUT_SCAFFOLD_VIEW = [7979, 7976]
+SCAFFOLD_LAYOUT_CUSTOM_VIEW = [7976]
 
 class ScaffoldingExtensionsTest < Test::Unit::TestCase
   HOST='localhost'
@@ -100,6 +103,23 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
   end
 
   def _test_01_no_objects(port, root)
+     if root =~ /sequel/
+       if CUSTOM_LAYOUT_SCAFFOLD_VIEW.include?(port)
+         p = page(port, root)    
+         assert_equal 'Custom Layout', p.at(:p).inner_html
+       end
+       if CUSTOM_LAYOUT_CUSTOM_VIEW.include?(port)
+         p = page(port, "#{root}/manage_employee")    
+         assert_equal 'Custom Layout', p.at(:p).inner_html
+         assert_equal 'Custom View', (p/:p)[-1].inner_html
+       end
+     elsif root =~ /active_record/
+       if SCAFFOLD_LAYOUT_CUSTOM_VIEW.include?(port)
+         p = page(port, "#{root}/manage_employee")    
+         assert_equal 'Custom View', (p/:p)[-1].inner_html
+       end
+     end
+
      p = page(port, root)    
      assert_equal 'Scaffolding Extensions - Manage Models', p.at(:title).inner_html
      assert_equal 'Manage Models', p.at(:h1).inner_html
