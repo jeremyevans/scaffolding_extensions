@@ -9,12 +9,12 @@
 ["Show #{singular_name}", :show]].each do |text, action| %>
   <% link = scaffold_check_link(text, true, "#{action}#{@scaffold_suffix}") 
   unless link == '' %>
-    <li><%= link %></li>
+    <li><%=scaffold_raw link %></li>
   <% end %>
 <% end %>
 </ul>
 
-<%= scaffold_check_link('Manage Models', true, 'index') %>
+<%=scaffold_raw scaffold_check_link('Manage Models', true, 'index') %>
 
 <p>Custom View</p>
 

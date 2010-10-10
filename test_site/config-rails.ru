@@ -1,7 +1,4 @@
-::SE_TEST_FRAMEWORK='rails'
-ENV["RAILS_ENV"] ||= ENV["RACK_ENV"]
-require "config/environment"
-require 'action_controller/rack_lint_patch'
-use Rails::Rack::Static
-run ActionController::Dispatcher.new
+# This file is used by Rack-based servers to start the application.
 
+require ::File.expand_path('../config/environment',  __FILE__)
+run TestSite::Application

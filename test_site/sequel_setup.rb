@@ -1,5 +1,7 @@
+$:.unshift('/data/code/sequel/lib')
 require 'sequel'
-SequelDB = Sequel.sqlite("db/#{SE_TEST_FRAMEWORK}.sequel.sqlite3")
+Sequel.single_threaded = true
+SequelDB = Sequel.sqlite("db/#{SE_TEST_FRAMEWORK}.sequel.sqlite3", :single_threaded=>true, :foreign_keys=>false)
 %w'sq_employee sq_group sq_position sq_officer sq_meeting'.each{|x| require "model/#{x}"}
 require 'logger'
 #SequelDB.logger = Logger.new(STDOUT)

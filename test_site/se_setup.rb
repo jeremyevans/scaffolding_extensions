@@ -1,5 +1,5 @@
 unless defined?(ScaffoldingExtensions)
-  $:.unshift('../lib')
+  $:.unshift(File.expand_path('../lib'))
   require 'scaffolding_extensions'
 end
 
