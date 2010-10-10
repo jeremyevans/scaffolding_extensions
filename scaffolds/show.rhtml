@@ -1,6 +1,6 @@
 <% @scaffold_title = "Showing #{@scaffold_options[:singular_lc_human_name]}" %>
 <% if '' != (edit_link = scaffold_check_link('Edit', true, "edit_#{@scaffold_options[:singular_name]}", :id=>@scaffold_object.scaffold_id)) %>
-  <h2><%= edit_link %></h2>
+  <h2><%=scaffold_raw edit_link %></h2>
 <% end %>
 
 <table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class(:show) %>">
@@ -14,6 +14,6 @@
 <% end %>
 </tbody></table>
 
-<%= scaffold_association_links %>
+<%=scaffold_raw scaffold_association_links %>
 
-<%= scaffold_manage_link %>
+<%=scaffold_raw scaffold_manage_link %>

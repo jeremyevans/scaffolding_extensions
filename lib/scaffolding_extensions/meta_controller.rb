@@ -124,7 +124,7 @@ module ScaffoldingExtensions
           if klass.scaffold_load_associations_with_ajax
             scaffold_define_method("associations#{suffix}") do
               @scaffold_object ||= klass.scaffold_find_object(:edit, scaffold_request_id, :session=>scaffold_session)
-              scaffold_render_template(:associations, scaffold_options, :inline=>"<%= scaffold_habtm_ajax_associations %>\n<%= scaffold_association_links %>\n")
+              scaffold_render_template(:associations, scaffold_options, :inline=>"<%=scaffold_raw scaffold_habtm_ajax_associations %>\n<%=scaffold_raw scaffold_association_links %>\n")
             end
           end
         end
@@ -272,7 +272,7 @@ module ScaffoldingExtensions
               @auto_complete = auto_complete
               @element_id = element_id
               @scaffold_javascript = true
-              scaffold_render_template(add_meth, {}, :inline=>'<%= scaffold_add_habtm_element %>')
+              scaffold_render_template(add_meth, {}, :inline=>'<%=scaffold_raw scaffold_add_habtm_element %>')
             else
               scaffold_redirect_to(scaffold_url("edit#{suffix}", :id=>@record.scaffold_id))
             end
@@ -289,7 +289,7 @@ module ScaffoldingExtensions
               @select_value = @associated_record.scaffold_id
               @select_text = @associated_record.scaffold_name
               @scaffold_javascript = true
-              scaffold_render_template(remove_meth, {}, :inline=>'<%= scaffold_remove_existing_habtm_element %>')
+              scaffold_render_template(remove_meth, {}, :inline=>'<%=scaffold_raw scaffold_remove_existing_habtm_element %>')
             else
               scaffold_redirect_to(scaffold_url("edit#{suffix}", :id=>@record.scaffold_id))
             end

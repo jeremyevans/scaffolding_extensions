@@ -1,18 +1,18 @@
 <% @scaffold_title = "Update #{sn = h(@scaffold_object.scaffold_name)}'s #{mpn = (so = @scaffold_options )[:aplch_name]}" %>
 
-<%= scaffold_form(scaffold_url("update#{@scaffold_suffix}", :id=>(soid=@scaffold_object.scaffold_id))) %>
+<%=scaffold_raw scaffold_form(scaffold_url("update#{@scaffold_suffix}", :id=>(soid=@scaffold_object.scaffold_id))) %>
 
 <% if @scaffold_class.scaffold_association_use_auto_complete(assoc = so[:association]) %>
   <h4>Add this <%= so[:aslhc_name] %></h4>
-  <%= scaffold_text_field_tag_with_auto_complete('add', so[:singular_name], assoc) %>
+  <%=scaffold_raw scaffold_text_field_tag_with_auto_complete('add', so[:singular_name], assoc) %>
 <% elsif @items_to_add.length > 0 %>
   <h4>Add these <%= mpn %></h4>
-  <%= scaffold_select_tag('add', @items_to_add, true) %>
+  <%=scaffold_raw scaffold_select_tag('add', @items_to_add, true) %>
 <% end %>
 
 <% if @items_to_remove.length > 0 %> 
   <h4>Remove these <%= mpn %></h4>
-  <%= scaffold_select_tag('remove', @items_to_remove, true) %>
+  <%=scaffold_raw scaffold_select_tag('remove', @items_to_remove, true) %>
 <% end %>
 
 <br /><br />
@@ -20,5 +20,5 @@
 </form>
 
 <% if '' != (edit_link = scaffold_check_link("Edit #{sn}", true, "edit_#{@scaffold_options[:singular_name]}", :id=>soid)) %>
-  <h2><%= edit_link %></h2>
+  <h2><%=scaffold_raw edit_link %></h2>
 <% end %>

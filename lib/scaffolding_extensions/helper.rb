@@ -55,7 +55,7 @@ module ScaffoldingExtensions
         content = '<ul>'
         entries.collect{|entry| content << "<li>#{h(entry.scaffold_name_with_id)}</li>"}
         content << '</ul>'
-        content
+        scaffold_raw content
       end
       
       # Simple button with label text that submits a form to the given url, options are
@@ -293,6 +293,11 @@ module ScaffoldingExtensions
       # The suffix needed to params that should be lists.  The empty string by default.
       def scaffold_param_list_suffix
         '[]'
+      end
+
+      # Empty method, used in certain frameworks for marking strings as raw
+      def scaffold_raw(s)
+        s
       end
       
       # A select tag with the provided name for the given collection of items. The options

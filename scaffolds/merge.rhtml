@@ -1,23 +1,23 @@
 <% @scaffold_title = "Merge two #{@scaffold_options[:plural_lc_human_name]}" %>
 
-<%= scaffold_form(scaffold_url("merge_update#{@scaffold_suffix}")) %>
+<%=scaffold_raw scaffold_form(scaffold_url("merge_update#{@scaffold_suffix}")) %>
 <p>Merge:
 <% if @scaffold_class.scaffold_use_auto_complete %>
-  <%= scaffold_text_field_tag_with_auto_complete('from', @scaffold_options[:singular_name]) %>
+  <%=scaffold_raw scaffold_text_field_tag_with_auto_complete('from', @scaffold_options[:singular_name]) %>
 <% else %>
-  <%= scaffold_select_tag('from', @scaffold_objects) %>
+  <%=scaffold_raw scaffold_select_tag('from', @scaffold_objects) %>
 <% end %>
 </p>
 
 <p>into: 
 <% if @scaffold_class.scaffold_use_auto_complete %>
-  <%= scaffold_text_field_tag_with_auto_complete('to', @scaffold_options[:singular_name]) %>
+  <%=scaffold_raw scaffold_text_field_tag_with_auto_complete('to', @scaffold_options[:singular_name]) %>
 <% else %>
-  <%= scaffold_select_tag('to', @scaffold_objects) %>
+  <%=scaffold_raw scaffold_select_tag('to', @scaffold_objects) %>
 <% end %>
 </p>
 
 <input type="submit" value="Merge <%= @scaffold_options[:plural_lc_human_name] %>" />
 </form>
 
-<%= scaffold_manage_link %>
+<%=scaffold_raw scaffold_manage_link %>

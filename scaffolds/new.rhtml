@@ -1,5 +1,5 @@
 <% @scaffold_title = "Create new #{@scaffold_options[:singular_lc_human_name]}" %>
 
-<%= scaffold_model_form('create', @scaffold_class.scaffold_fields(:new)) %>
+<%=scaffold_raw scaffold_model_form('create', @scaffold_class.scaffold_fields(:new)) %>
 
-<%= scaffold_manage_link %>
+<%=scaffold_raw scaffold_manage_link %>

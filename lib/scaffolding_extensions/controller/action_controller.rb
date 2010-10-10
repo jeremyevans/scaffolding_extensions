@@ -15,6 +15,11 @@ module ScaffoldingExtensions
       def scaffold_token_tag
         token_tag
       end
+
+      # Mark the output as safe for raw display
+      def scaffold_raw(s)
+        raw(s)
+      end
   end
   
   # Instance methods for ActionController::Base necessary for Scaffolding Extensions
@@ -49,10 +54,15 @@ module ScaffoldingExtensions
         begin
           render({:action=>suffix_action}.merge(render_options))
         rescue ActionView::MissingTemplate
-          if active_layout || render_options.include?(:layout)
-            render({:file=>scaffold_path(action), :layout=>active_layout}.merge(render_options))
+          if render_options.include?(:layout) || _default_layout
+            render({:file=>scaffold_path(action)}.merge(render_options))
           else
-            @content = render_to_string({:file=>scaffold_path(action)}.merge(render_options))
+            options = _normalize_args({:file=>scaffold_path(action)}.merge(render_options))
+            _normalize_options(options)
+            _process_options(options)
+            vc = view_context
+            @content = vc.render(options)
+            vc.instance_variables.each{|iv| instance_variable_set(iv, vc.instance_variable_get(iv))}
             render({:file=>scaffold_path("layout")})
           end
         end
@@ -92,21 +102,7 @@ module ScaffoldingExtensions
     private
       # Adds a before filter for checking nonidempotent requests use method POST
       def scaffold_setup_helper
-        mod = ScaffoldingExtensions::Helper.clone
-        helper mod
-        if mod.respond_to?(:safe_helper, true)
-          mod.send(:safe_helper, :scaffold_association_links, :scaffold_auto_complete_result,
-            :scaffold_button_to, :scaffold_button_to_remote, :scaffold_field_tag,
-            :scaffold_form, :scaffold_habtm_ajax_associations,
-            :scaffold_habtm_association_line_item, :scaffold_javascript_tag,
-            :scaffold_label, :scaffold_link, :scaffold_manage_link,
-            :scaffold_model_error_messages, :scaffold_model_field_tags,
-            :scaffold_model_form, :scaffold_select_tag,
-            :scaffold_add_habtm_element, :scaffold_remove_existing_habtm_element,
-            :scaffold_text_field_tag_with_auto_complete,
-            :scaffold_form_remote_tag, :scaffold_javascript_autocompleter,
-            :scaffold_load_associations_with_ajax_link)
-        end
+        helper ScaffoldingExtensions::Helper
         helper ScaffoldingExtensions::ActionControllerHelper
         include ScaffoldingExtensions::Controller
         include ScaffoldingExtensions::ActionController
