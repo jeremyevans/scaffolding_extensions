@@ -815,7 +815,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     else
       @js_lib = :jquery
       assert_equal 'autocomplete', p.at("input#from")[:class]
-      assert_equal "\n//<![CDATA[\n$('#from').autocomplete({ajax:'#{root}/scaffold_auto_complete_for_officer'});\n//]]>\n", (p/:script)[0].inner_html
+      assert_equal "\n//<![CDATA[\n$('#from').autocomplete('#{root}/scaffold_auto_complete_for_officer');\n//]]>\n", (p/:script)[0].inner_html
     end
     assert_equal 1, (p/"input#to").length
     assert_equal 'text', p.at("input#to")[:type]
@@ -824,7 +824,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_equal "\n//<![CDATA[\nvar to_auto_completer = new Ajax.Autocompleter('to', 'to_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get'})\n//]]>\n", (p/:script)[1].inner_html
     else
       assert_equal 'autocomplete', p.at("input#to")[:class]
-      assert_equal "\n//<![CDATA[\n$('#to').autocomplete({ajax:'#{root}/scaffold_auto_complete_for_officer'});\n//]]>\n", (p/:script)[1].inner_html
+      assert_equal "\n//<![CDATA[\n$('#to').autocomplete('#{root}/scaffold_auto_complete_for_officer');\n//]]>\n", (p/:script)[1].inner_html
     end
     
     %w'delete edit show'.each do |action|
@@ -836,7 +836,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
         assert_equal "\n//<![CDATA[\nvar id_auto_completer = new Ajax.Autocompleter('id', 'id_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get'})\n//]]>\n", p.at(:script).inner_html
       else
         assert_equal 'autocomplete', p.at("input#id")[:class]
-        assert_equal "\n//<![CDATA[\n$('#id').autocomplete({ajax:'#{root}/scaffold_auto_complete_for_officer'});\n//]]>\n", p.at(:script).inner_html
+        assert_equal "\n//<![CDATA[\n$('#id').autocomplete('#{root}/scaffold_auto_complete_for_officer');\n//]]>\n", p.at(:script).inner_html
       end
     end
     
@@ -851,7 +851,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
         assert_equal "\n//<![CDATA[\nvar officer_position_id_auto_completer = new Ajax.Autocompleter('officer_position_id', 'officer_position_id_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get', parameters:'association=position'})\n//]]>\n", p.at(:script).inner_html
       else
         assert_equal 'autocomplete', p.at("input#officer_position_id")[:class]
-        assert_equal "\n//<![CDATA[\n$('#officer_position_id').autocomplete({ajax:'#{root}/scaffold_auto_complete_for_officer', association:'position'});\n//]]>\n", p.at(:script).inner_html
+        assert_equal "\n//<![CDATA[\n$('#officer_position_id').autocomplete('#{root}/scaffold_auto_complete_for_officer', {extraParams: {association: 'position'}});\n//]]>\n", p.at(:script).inner_html
       end
     end
     
@@ -864,30 +864,31 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_equal "\n//<![CDATA[\nvar add_auto_completer = new Ajax.Autocompleter('add', 'add_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_officer', {paramName:'id', method:'get', parameters:'association=groups'})\n//]]>\n", p.at(:script).inner_html
     else
       assert_equal 'autocomplete', p.at("input#add")[:class]
-      assert_equal "\n//<![CDATA[\n$('#add').autocomplete({ajax:'#{root}/scaffold_auto_complete_for_officer', association:'groups'});\n//]]>\n", p.at(:script).inner_html
+      assert_equal "\n//<![CDATA[\n$('#add').autocomplete('#{root}/scaffold_auto_complete_for_officer', {extraParams: {association: 'groups'}});\n//]]>\n", p.at(:script).inner_html
     end
   
+    param = prototype? ? 'id' : 'q'
     # Test regular auto completing
-    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?id=Z")
-    assert_equal "<ul><li>#{i} - Zofficer</li></ul>", p.inner_html
-    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?id=X")
-    assert_equal '<ul></ul>', p.inner_html
+    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?#{param}=Z")
+    assert_equal (prototype? ? "<ul><li>#{i} - Zofficer</li></ul>" : "#{i} - Zofficer"), p.inner_html
+    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?#{param}=X")
+    assert_equal (prototype? ? '<ul></ul>' : ''), p.inner_html.strip
     
     # Tset auto completing for belongs to associations
     p = page(port, "#{root}/browse_position")
     ip = (p/:form)[1][:action].split('/')[-1]
-    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?id=Z&association=position")
-    assert_equal "<ul><li>#{ip} - Zposition</li></ul>", p.inner_html
-    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=position")
-    assert_equal '<ul></ul>', p.inner_html
+    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?#{param}=Z&association=position")
+    assert_equal (prototype? ? "<ul><li>#{ip} - Zposition</li></ul>" : "#{ip} - Zposition"), p.inner_html
+    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?#{param}=X&association=position")
+    assert_equal (prototype? ? '<ul></ul>' : ''), p.inner_html.strip
     
     # Test auto completing for habtm associations
     p = page(port, "#{root}/browse_group")
     ig = (p/:form)[1][:action].split('/')[-1]
-    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?id=Z&association=groups")
-    assert_equal "<ul><li>#{ig} - Zgroup</li></ul>", p.inner_html
-    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?id=X&association=groups")
-    assert_equal '<ul></ul>', p.inner_html
+    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?#{param}=Z&association=groups")
+    assert_equal (prototype? ? "<ul><li>#{ig} - Zgroup</li></ul>" : "#{ig} - Zgroup"), p.inner_html
+    p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?#{param}=X&association=groups")
+    assert_equal (prototype? ? '<ul></ul>' : ''), p.inner_html.strip
   end
   
   def _test_08_ajax(port, root)
@@ -961,7 +962,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_equal "\n//<![CDATA[\nvar meeting_positions_id_auto_completer = new Ajax.Autocompleter('meeting_positions_id', 'meeting_positions_id_scaffold_auto_complete', '#{root}/scaffold_auto_complete_for_meeting', {paramName:'id', method:'get', parameters:'association=positions'})\n//]]>\n", p.at(:script).inner_html
     else
       assert_equal 'autocomplete', p.at("input#meeting_positions_id")[:class]
-      assert_equal "\n//<![CDATA[\n$('#meeting_positions_id').autocomplete({ajax:'#{root}/scaffold_auto_complete_for_meeting', association:'positions'});\n//]]>\n", p.at(:script).inner_html
+      assert_equal "\n//<![CDATA[\n$('#meeting_positions_id').autocomplete('#{root}/scaffold_auto_complete_for_meeting', {extraParams: {association: 'positions'}});\n//]]>\n", p.at(:script).inner_html
     end
     assert_equal 3, (p/:input).length
     assert_equal 'Add Group', (p/:input)[0][:value]

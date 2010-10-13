@@ -33,7 +33,7 @@ Scaffolding Extensions currently supports:
   * DataMapper 1.0 (see doc/datamapper.txt for details)
 * Javascript Libaries (used for Ajax/Autocompleting)
   * Prototype 1.6.0.3
-  * JQuery 1.2.3
+  * JQuery 1.4.2 (with JQuery-Autocomplete 1.1) 
   
 There are differing levels of support for the web frameworks, mostly related
 to whether or not you can use custom views and layouts.  Custom views mean

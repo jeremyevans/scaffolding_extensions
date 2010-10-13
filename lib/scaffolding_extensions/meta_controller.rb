@@ -224,7 +224,8 @@ module ScaffoldingExtensions
             if scaffold_request_param(:association) && !allowed_associations.include?(association)
               scaffold_method_not_allowed
             else
-              @items = klass.scaffold_auto_complete_find(scaffold_request_id.to_s, :association=>(association.to_sym if scaffold_request_param(:association)), :session=>scaffold_session)
+              # Prototype uses the request id, JQuery-Autocomplete uses the q parameter
+              @items = klass.scaffold_auto_complete_find((scaffold_request_id || scaffold_request_param(:q)).to_s, :association=>(association.to_sym if scaffold_request_param(:association)), :session=>scaffold_session)
               scaffold_render_template(meth, {}, :inline => "<%= scaffold_auto_complete_result(@items) %>")
             end
           end

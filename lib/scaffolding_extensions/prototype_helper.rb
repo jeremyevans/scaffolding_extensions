@@ -19,6 +19,15 @@ module ScaffoldingExtensions
         content
       end
       
+      # Prototype wants the auto_complete result as an unordered list.
+      def scaffold_auto_complete_result(entries)
+        return unless entries
+        content = '<ul>'
+        entries.collect{|entry| content << "<li>#{h(entry.scaffold_name_with_id)}</li>"}
+        content << '</ul>'
+        scaffold_raw content
+      end
+      
       # A form tag with an onsubmit attribute that submits the form to the given url via Ajax
       def scaffold_form_remote_tag(url, options)
         u = scaffold_url(url, options)

@@ -18,6 +18,12 @@ module ScaffoldingExtensions
         end
         content
       end
+
+      # JQuery-Autocomplete expects the autocomplete result to be plain text
+      # with a single line per row.
+      def scaffold_auto_complete_result(entries)
+        scaffold_raw(entries.map{|e| h(e.scaffold_name_with_id)}.join("\n")) if entries
+      end
       
       # A form tag with an onsubmit attribute that submits the form to the given url via Ajax
       def scaffold_form_remote_tag(url, options)
@@ -30,7 +36,7 @@ module ScaffoldingExtensions
       # (with the association if one is given), using the get method, and displaying values
       # in #{id}_scaffold_auto_complete.
       def scaffold_javascript_autocompleter(id, model_name, association)
-        scaffold_javascript_tag("$('##{id}').autocomplete({ajax:'#{scaffold_url("scaffold_auto_complete_for_#{model_name}")}'#{", association:'#{association}'" if association}});")
+        scaffold_javascript_tag("$('##{id}').autocomplete('#{scaffold_url("scaffold_auto_complete_for_#{model_name}")}'#{", {extraParams: {association: '#{association}'}}" if association});")
       end
       
       # Filters some html entities and replaces them with their javascript equivalents

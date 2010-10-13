@@ -47,17 +47,6 @@ module ScaffoldingExtensions
         content << "</ul>\n"
       end
       
-      # Formats the records returned by scaffold autocompleting to be displayed,
-      # should be an unordered list.  By default uses the scaffold_name and id of
-      # the entries as the value.
-      def scaffold_auto_complete_result(entries)
-        return unless entries
-        content = '<ul>'
-        entries.collect{|entry| content << "<li>#{h(entry.scaffold_name_with_id)}</li>"}
-        content << '</ul>'
-        scaffold_raw content
-      end
-      
       # Simple button with label text that submits a form to the given url, options are
       # passed to scaffold_form.
       def scaffold_button_to(text, url, options={})
