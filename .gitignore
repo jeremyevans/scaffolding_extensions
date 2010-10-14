@@ -3,4 +3,5 @@ test_site/log*
 test_site/vendor/plugins/scaffolding_extensions
 test_site/tmp*
 test_site/Gemfile.lock
+/*.gem
 rdoc
