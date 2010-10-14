@@ -941,8 +941,8 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_equal "new Ajax.Request('#{root}/add_positions_to_meeting/#{i}', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;", (p/:form).last[:onsubmit]
     else
       assert_equal 2, (p/:div).length
-      assert_equal "$.post('#{root}/add_groups_to_meeting/#{i}', $(this).serialize(), function(data, textStatus){eval(data);}); return false;", (p/:form).first[:onsubmit]
-      assert_equal "$.post('#{root}/add_positions_to_meeting/#{i}', $(this).serialize(), function(data, textStatus){eval(data);}); return false;", (p/:form).last[:onsubmit]
+      assert_equal "$.post('#{root}/add_groups_to_meeting/#{i}', $(this).serialize(), function(data, textStatus){}); return false;", (p/:form).first[:onsubmit]
+      assert_equal "$.post('#{root}/add_positions_to_meeting/#{i}', $(this).serialize(), function(data, textStatus){}); return false;", (p/:form).last[:onsubmit]
     end
     assert_equal 1, (p/"select#meeting_groups_id").length
     assert_equal 2, (p/:option).length
@@ -995,7 +995,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     if prototype?
       assert_equal "new Ajax.Request('#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;", p.at("li form")[:onsubmit]
     else
-      assert_equal "$.post('#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}', $(this).serialize(), function(data, textStatus){eval(data);}); return false;", p.at("li form")[:onsubmit]
+      assert_equal "$.post('#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}', $(this).serialize(), function(data, textStatus){}); return false;", p.at("li form")[:onsubmit]
     end
     assert_equal 1, (p/"li form input").length
     assert_equal "Remove", p.at("li form input")[:value]
@@ -1024,7 +1024,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     if prototype?
       assert_equal "new Insertion.Top('meeting_associated_records_list', \"\\u003Cli id='meeting_#{i}_groups_#{gi}'\\u003E\\n\\u003Ca href='#{root}/manage_group'\\u003EGroups\\u003C/a\\u003E - \\n\\u003Ca href='#{root}/edit_group/#{gi}'\\u003EZgroup\\u003C/a\\u003E\\n\\u003Cform method='post' action='#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}' onsubmit=\\\"new Ajax.Request('#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;\\\"\\u003E\\n\\n\\n\\u003Cinput type='submit' value=Remove /\\u003E\\n\\u003C/form\\u003E\\n\\u003C/li\\u003E\\n\");\nElement.remove('meeting_groups_id_#{gi}');\n$('meeting_groups_id').selectedIndex = 0;\n", res.body
     else
-      assert_equal "$('#meeting_associated_records_list').prepend(\"\\u003Cli id='meeting_#{i}_groups_#{gi}'\\u003E\\n\\u003Ca href='#{root}/manage_group'\\u003EGroups\\u003C/a\\u003E - \\n\\u003Ca href='#{root}/edit_group/#{gi}'\\u003EZgroup\\u003C/a\\u003E\\n\\u003Cform method='post' action='#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}' onsubmit=\\\"$.post('#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}', $(this).serialize(), function(data, textStatus){eval(data);}); return false;\\\"\\u003E\\n\\n\\n\\u003Cinput type='submit' value=Remove /\\u003E\\n\\u003C/form\\u003E\\n\\u003C/li\\u003E\\n\");\n$('#meeting_groups_id_#{gi}').remove();\n$('#meeting_groups_id').selectedIndex = 0;\n", res.body
+      assert_equal "$('#meeting_associated_records_list').prepend(\"\\u003Cli id='meeting_#{i}_groups_#{gi}'\\u003E\\n\\u003Ca href='#{root}/manage_group'\\u003EGroups\\u003C/a\\u003E - \\n\\u003Ca href='#{root}/edit_group/#{gi}'\\u003EZgroup\\u003C/a\\u003E\\n\\u003Cform method='post' action='#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}' onsubmit=\\\"$.post('#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}', $(this).serialize(), function(data, textStatus){}); return false;\\\"\\u003E\\n\\n\\n\\u003Cinput type='submit' value=Remove /\\u003E\\n\\u003C/form\\u003E\\n\\u003C/li\\u003E\\n\");\n$('#meeting_groups_id_#{gi}').remove();\n$('#meeting_groups_id').selectedIndex = 0;\n", res.body
     end
     p = page(port, "#{root}/associations_meeting/#{i}")
     assert_equal 1, (p/:li).length
@@ -1044,7 +1044,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     if prototype?
       assert_equal "new Insertion.Top('meeting_associated_records_list', \"\\u003Cli id='meeting_#{i}_positions_#{pi}'\\u003E\\n\\u003Ca href='#{root}/manage_position'\\u003EPositions\\u003C/a\\u003E - \\n\\u003Ca href='#{root}/edit_position/#{pi}'\\u003EZposition\\u003C/a\\u003E\\n\\u003Cform method='post' action='#{root}/remove_positions_from_meeting/#{i}?meeting_positions_id=#{pi}' onsubmit=\\\"new Ajax.Request('#{root}/remove_positions_from_meeting/#{i}?meeting_positions_id=#{pi}', {asynchronous:true, evalScripts:true, parameters:Form.serialize(this)}); return false;\\\"\\u003E\\n\\n\\n\\u003Cinput type='submit' value=Remove /\\u003E\\n\\u003C/form\\u003E\\n\\u003C/li\\u003E\\n\");\n$('meeting_positions_id').value = '';\n", res.body
     else
-      assert_equal "$('#meeting_associated_records_list').prepend(\"\\u003Cli id='meeting_#{i}_positions_#{pi}'\\u003E\\n\\u003Ca href='#{root}/manage_position'\\u003EPositions\\u003C/a\\u003E - \\n\\u003Ca href='#{root}/edit_position/#{pi}'\\u003EZposition\\u003C/a\\u003E\\n\\u003Cform method='post' action='#{root}/remove_positions_from_meeting/#{i}?meeting_positions_id=#{pi}' onsubmit=\\\"$.post('#{root}/remove_positions_from_meeting/#{i}?meeting_positions_id=#{pi}', $(this).serialize(), function(data, textStatus){eval(data);}); return false;\\\"\\u003E\\n\\n\\n\\u003Cinput type='submit' value=Remove /\\u003E\\n\\u003C/form\\u003E\\n\\u003C/li\\u003E\\n\");\n$('#meeting_positions_id').val('');\n", res.body
+      assert_equal "$('#meeting_associated_records_list').prepend(\"\\u003Cli id='meeting_#{i}_positions_#{pi}'\\u003E\\n\\u003Ca href='#{root}/manage_position'\\u003EPositions\\u003C/a\\u003E - \\n\\u003Ca href='#{root}/edit_position/#{pi}'\\u003EZposition\\u003C/a\\u003E\\n\\u003Cform method='post' action='#{root}/remove_positions_from_meeting/#{i}?meeting_positions_id=#{pi}' onsubmit=\\\"$.post('#{root}/remove_positions_from_meeting/#{i}?meeting_positions_id=#{pi}', $(this).serialize(), function(data, textStatus){}); return false;\\\"\\u003E\\n\\n\\n\\u003Cinput type='submit' value=Remove /\\u003E\\n\\u003C/form\\u003E\\n\\u003C/li\\u003E\\n\");\n$('#meeting_positions_id').val('');\n", res.body
     end
     p = page(port, "#{root}/associations_meeting/#{i}")
     assert_equal 1, (p/:li).length

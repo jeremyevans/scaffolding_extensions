@@ -28,7 +28,7 @@ module ScaffoldingExtensions
       # A form tag with an onsubmit attribute that submits the form to the given url via Ajax
       def scaffold_form_remote_tag(url, options)
         u = scaffold_url(url, options)
-        "<form method='post' action='#{u}' onsubmit=\"$.post('#{u}', $(this).serialize(), function(data, textStatus){eval(data);}); return false;\">\n#{scaffold_token_tag}\n"
+        "<form method='post' action='#{u}' onsubmit=\"$.post('#{u}', $(this).serialize(), function(data, textStatus){}); return false;\">\n#{scaffold_token_tag}\n"
       end
       
       # Javascript that takes the given id as the text box to autocomplete for, 
