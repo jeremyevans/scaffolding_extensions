@@ -22,7 +22,7 @@ module ScaffoldingExtensions
       # JQuery-Autocomplete expects the autocomplete result to be plain text
       # with a single line per row.
       def scaffold_auto_complete_result(entries)
-        scaffold_raw(entries.map{|e| h(e.scaffold_name_with_id)}.join("\n")) if entries
+        scaffold_raw(entries.map{|e| e.scaffold_name_with_id}.join("\n")) if entries
       end
       
       # A form tag with an onsubmit attribute that submits the form to the given url via Ajax
