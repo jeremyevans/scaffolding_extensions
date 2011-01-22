@@ -427,8 +427,15 @@ module ScaffoldingExtensions::MetaModel
   # Returns a completely blank object suitable for searching, updated with the given attributes.
   def scaffold_search_object(attributes = {})
     object = new
+
+    # Blank any fields set by default
     scaffold_attributes(:search).each{|field| object.send("#{field}=", nil) unless object.send(field) == nil}
-    scaffold_set_attributes(object, attributes)
+
+    # Don't set any fields left blank by the user
+    h = {}
+    attributes.each{|k,v| h[k] = v unless v.blank?}
+
+    scaffold_set_attributes(object, h)
     object
   end
   
