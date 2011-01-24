@@ -1,4 +1,5 @@
 #!/usr/local/bin/ruby
+$: << '.'
 require 'rubygems'
 require 'camping'
 require 'rack'

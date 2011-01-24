@@ -1,4 +1,5 @@
 #!/usr/local/bin/ruby
+$: << '.'
 require 'rubygems'
 ::SE_TEST_FRAMEWORK='rack'
 require 'rack'
