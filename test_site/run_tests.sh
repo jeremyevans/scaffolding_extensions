@@ -1,5 +1,11 @@
 #!/bin/sh
 WAITTIME=2
+if [ X"$UNICORN" == "X" ]; then
+  UNICORN=unicorn
+fi
+if [ X"$RUBY" == "X" ]; then
+  RUBY=ruby
+fi
 frameworks="rails ramaze camping sinatra rack"
 fw=""
 orm=""
@@ -13,10 +19,12 @@ if [ $# != 0 ]; then
 fi
 ./clear_logs
 for framework in $frameworks; do
-  unicorn -c unicorn-$framework.conf -D config-$framework.ru
+  echo $UNICORN -c unicorn-$framework.conf -D config-$framework.ru
+  $UNICORN -c unicorn-$framework.conf -D config-$framework.ru
   sleep $WAITTIME
 done
-ruby test.rb $fw $orm
+echo $RUBY test.rb $fw $orm
+$RUBY test.rb $fw $orm
 for framework in $frameworks; do
   kill `cat log/unicorn-$framework.pid`
 done
