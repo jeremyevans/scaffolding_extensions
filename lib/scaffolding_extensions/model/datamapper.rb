@@ -104,7 +104,7 @@ module ScaffoldingExtensions::MetaDataMapper
   def scaffold_associations
     @scaffold_associations ||= relationships.keys.select { |v|
       relationships[v].send(:target_model).respond_to?(:scaffold_name)
-    }
+    }.sort_by{|name| name.to_s}
   end
 
   # Destroys the object
