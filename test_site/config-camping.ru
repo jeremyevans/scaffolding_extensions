@@ -9,6 +9,7 @@ require 'datamapper_setup'
 require 'active_record_setup'
 require 'sequel_setup'
 require 'se_setup'
+ScaffoldingExtensions.javascript_library = 'Prototype'
 
 module Cse
   module Controllers
