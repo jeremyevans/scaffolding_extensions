@@ -5,7 +5,7 @@ spec = Gem::Specification.new do |s|
   s.email = "code@jeremyevans.net"
   s.platform = Gem::Platform::RUBY
   s.summary = "Administrative database front-end for multiple web-frameworks and ORMs"
-  s.files = %w'LICENSE README' + Dir['{lib,doc,contrib,scaffolds}/**/*']
+  s.files = %w'MIT-LICENSE README' + Dir['{lib,doc,contrib,scaffolds}/**/*']
   s.require_paths = ["lib"]
   s.has_rdoc = true
   s.required_ruby_version = ">= 1.8.6"
