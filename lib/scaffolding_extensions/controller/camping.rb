@@ -119,7 +119,6 @@ module ScaffoldingExtensions
         include ScaffoldingExtensions::Controller
         include ScaffoldingExtensions::CampingController
         include ScaffoldingExtensions::Helper
-        include ScaffoldingExtensions::PrototypeHelper
         include ScaffoldingExtensions::CampingHelper
         define_method(:get) do |path, meth, id|
           @scaffold_request_method = 'GET'

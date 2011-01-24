@@ -119,7 +119,6 @@ module ScaffoldingExtensions
       include ScaffoldingExtensions::Controller
       include ScaffoldingExtensions::RamazeController
       include ScaffoldingExtensions::Helper
-      include ScaffoldingExtensions::PrototypeHelper
     end
   end
 end

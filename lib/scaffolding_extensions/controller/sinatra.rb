@@ -109,7 +109,6 @@ module ScaffoldingExtensions
       include ScaffoldingExtensions::Controller
       include ScaffoldingExtensions::SinatraController
       include ScaffoldingExtensions::Helper
-      include ScaffoldingExtensions::PrototypeHelper
       include ScaffoldingExtensions::SinatraHelper
       p = 'POST'
       block = lambda do

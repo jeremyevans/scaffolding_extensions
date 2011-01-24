@@ -15,7 +15,6 @@ module ScaffoldingExtensions
 
     include ScaffoldingExtensions::Controller
     include ScaffoldingExtensions::Helper
-    include ScaffoldingExtensions::PrototypeHelper
     include Rack::Utils
 
     class Redirect < StandardError
