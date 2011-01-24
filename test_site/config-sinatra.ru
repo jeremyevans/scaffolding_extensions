@@ -12,7 +12,6 @@ class Sinatra::Base
     require 'active_record_setup'
     require 'sequel_setup'
     require 'se_setup'
-    ScaffoldingExtensions.javascript_library = 'JQuery'
   end
   error StandardError do
     e = request.env['sinatra.error']
