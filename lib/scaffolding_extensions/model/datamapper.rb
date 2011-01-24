@@ -1,5 +1,3 @@
-require 'pp'
-
 ScaffoldingExtensions::MODEL_SUPERCLASSES << DataMapper::Resource
 
   def get_key_array_safe(key)
@@ -252,14 +250,10 @@ module ScaffoldingExtensions::MetaDataMapper
     def scaffold_reflection_merge(reflection, from, to)
       if reflection.class == DataMapper::Associations::OneToMany::Relationship
         foreign_key = get_key_array_safe(reflection.target_key).name
-        p reflection
-        p reflection.target_model
         table = reflection.target_model
       elsif reflection.class == DataMapper::Associations::ManyToMany::Relationship
         foreign_key = get_key_array_safe(reflection.through.child_key).name
-        p reflection
         table = reflection.send(:through_model)
-        p table
       else
         return
       end
