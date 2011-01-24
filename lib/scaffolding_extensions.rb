@@ -72,7 +72,7 @@ module ScaffoldingExtensions
       auto_complete_skip_style ? '' : AUTO_COMPLETE_CSS
     end
     
-    # The javascript library to use (defaults to Prototype)
+    # The javascript library to use (defaults to JQuery, can be set to 'Prototype')
     def javascript_library=(jslib)
       require "scaffolding_extensions/#{jslib.downcase}_helper"
       ScaffoldingExtensions::Helper.send(:include, const_get("#{jslib}Helper"))
@@ -91,7 +91,6 @@ require 'scaffolding_extensions/controller/action_controller' if defined? Action
 require 'scaffolding_extensions/controller/camping' if defined? Camping::Controllers
 require 'scaffolding_extensions/controller/ramaze' if defined? Ramaze::Controller
 require 'scaffolding_extensions/controller/sinatra' if defined? Sinatra
-require 'scaffolding_extensions/controller/merb' if defined? Merb
 
 require 'scaffolding_extensions/model/active_record' if defined? ActiveRecord::Base
 if defined? DataMapper::Resource
@@ -102,4 +101,4 @@ if defined? Sequel::Model
   require 'scaffolding_extensions/model/sequel'
 end
 
-ScaffoldingExtensions.javascript_library = 'Prototype'
+ScaffoldingExtensions.javascript_library = 'JQuery'
