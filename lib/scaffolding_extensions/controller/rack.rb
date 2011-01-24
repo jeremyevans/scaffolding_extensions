@@ -69,7 +69,7 @@ module ScaffoldingExtensions
         b = 'Not Found'
       end
 
-      [s, h, b]
+      [s, h, [b]]
     end
 
     private
