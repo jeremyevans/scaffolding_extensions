@@ -10,7 +10,7 @@ Rake::RDocTask.new do |rdoc|
   rdoc.options += ["--quiet", "--line-numbers", "--inline-source"]
   rdoc.main = "README"
   rdoc.title = "Scaffolding Extensions: Administrative database front-end for multiple web-frameworks and ORMs"
-  rdoc.rdoc_files.add ["README", "LICENSE", "lib/**/*.rb", "doc/*.txt"]
+  rdoc.rdoc_files.add ["README", "MIT-LICENSE", "lib/**/*.rb", "doc/*.txt"]
 end
 
 desc "Update docs and upload to rubyforge.org"
