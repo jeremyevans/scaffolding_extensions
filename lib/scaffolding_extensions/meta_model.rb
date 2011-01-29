@@ -167,9 +167,10 @@ module ScaffoldingExtensions::MetaModel
   end
 
   # Whether to use autocompleting for linked associations. Defaults to whether the
-  # associated class uses auto completing.
+  # associated class uses auto completing.  Always false if scaffold_association_find_objects
+  # is overridden for the specific association.
   def scaffold_association_use_auto_complete(association)
-    scaffold_associated_class(association).scaffold_use_auto_complete
+    scaffold_associated_class(association).scaffold_use_auto_complete && !respond_to?("scaffold_#{association}_association_find_objects")
   end
 
   # Defaults to associations specified by scaffold fields that are autocompleting. Can be set with an instance variable.
