@@ -21,14 +21,14 @@ to better suit your needs.
 Scaffolding Extensions currently supports:
 
 * Web Frameworks
-  * Rails 3.0.3
-  * Ramaze 2010.06.18
+  * Rails 3.0.9
+  * Ramaze 2011.01.30
   * Camping 2.1
-  * Sinatra 1.1.0
-  * Rack 1.2.1
+  * Sinatra 1.2.6
+  * Rack 1.2.2
 * Object Relational Mappers
-  * ActiveRecord 3.0.3
-  * Sequel 3.19.0
+  * ActiveRecord 3.0.9
+  * Sequel 3.25.0
   * DataMapper 1.0.2 (see doc/datamapper.txt for details)
 * Javascript Libaries (used for Ajax/Autocompleting, default is now JQuery)
   * Prototype 1.6.0.3
