@@ -17,4 +17,6 @@ The DataMapper module has some quirks, mainly:
      scaffold_all_models :only =>[DmEmployee, DmGroup, DmPosition]
    end
 
-You need dm-core, dm-validations, and do_sqlite3 in order to run the test_suite for scaffolding_extensions with datamapper.
+You need dm-core, dm-validations, dm-transactions to use scaffolding
+extensions with datamapper.  You also need do_sqlite3 in order to run
+the test_suite for scaffolding_extensions with datamapper.
