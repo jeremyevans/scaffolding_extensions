@@ -49,7 +49,9 @@ module ScaffoldingExtensions
           views_path = render_options.delete(:views) || self.class.views || "./views"
           views_dir = Dir.new(views_path) rescue nil
           template = scaffold_template_code(views_dir, suffix_action, action)
-          layout = scaffold_template_code(views_dir, 'layout', 'layout'){|s| s.gsub('@content', 'yield')}
+          layout_file = settings.send(:erb)[:layout] if settings.respond_to?(:erb)
+          layout_file ||= :layout
+          layout = scaffold_template_code(views_dir, layout_file, 'layout'){|s| s.gsub('@content', 'yield')}
           render(:erb, template, :layout=>layout)
         end
       end
