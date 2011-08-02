@@ -4,7 +4,7 @@ module ScaffoldingExtensions
       # ActionController::Base is generally used with Rails, which holds model files
       # in app/models/
       def model_files
-        @model_files ||= Dir["#{RAILS_ROOT}/app/models/*.rb"]
+        @model_files ||= Dir["#{Rails.root}/app/models/*.rb"]
       end
   end
 
