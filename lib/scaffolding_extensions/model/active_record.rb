@@ -78,7 +78,7 @@ module ScaffoldingExtensions::MetaActiveRecord
     fields = columns.reject{|c| c.primary || c.name =~ /(\A(created|updated)_at|_count)\z/ || c.name == inheritance_column}.collect{|c| c.name}
     scaffold_all_associations.each do |reflection|
       next if reflection.macro != :belongs_to || reflection.options.include?(:polymorphic)
-      fields.delete(reflection.primary_key_name)
+      fields.delete(reflection.foreign_key)
       fields.push(reflection.name.to_s)
     end
     @scaffold_fields = fields.sort.collect{|f| f.to_sym}
@@ -86,7 +86,7 @@ module ScaffoldingExtensions::MetaActiveRecord
   
   # The foreign key for the given reflection
   def scaffold_foreign_key(reflection)
-    reflection.primary_key_name
+    reflection.foreign_key
   end
   
   # Retrieve a single model object given an id
@@ -103,7 +103,7 @@ module ScaffoldingExtensions::MetaActiveRecord
   # Return the class, left foreign key, right foreign key, and join table for this habtm association
   def scaffold_habtm_reflection_options(association)
     reflection = reflect_on_association(association)
-    [reflection.klass, reflection.primary_key_name, reflection.association_foreign_key, reflection.options[:join_table]]
+    [reflection.klass, reflection.foreign_key, reflection.association_foreign_key, reflection.options[:join_table]]
   end
 
   # Returns a hash of values to be used as url parameters on the link to create a new
@@ -112,7 +112,7 @@ module ScaffoldingExtensions::MetaActiveRecord
   # the association's reflection's options.
   def scaffold_new_associated_object_values(association, record)
     reflection = reflect_on_association(association)
-    vals = {reflection.primary_key_name=>record.id}
+    vals = {reflection.foreign_key=>record.id}
     vals["#{reflection.options[:as]}_type"] = name if reflection.options.include?(:as)
     vals
   end
@@ -169,7 +169,7 @@ module ScaffoldingExtensions::MetaActiveRecord
     # Updates associated records for a given reflection and from record to point to the
     # to record
     def scaffold_reflection_merge(reflection, from, to)
-      foreign_key = reflection.primary_key_name
+      foreign_key = reflection.foreign_key
       sql = case reflection.macro
         when :has_one, :has_many
           return if reflection.options[:through]
