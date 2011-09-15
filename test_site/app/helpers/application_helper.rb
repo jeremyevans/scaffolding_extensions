@@ -1,5 +1,5 @@
 module ApplicationHelper
-  def token_tag
+  def token_tag(at)
     ""
   end
 end

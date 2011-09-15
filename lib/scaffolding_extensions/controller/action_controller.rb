@@ -13,7 +13,7 @@ module ScaffoldingExtensions
     private
       # ActionController::Base allows easy access to the CSRF token via token_tag
       def scaffold_token_tag
-        token_tag
+        token_tag(nil)
       end
 
       # Mark the output as safe for raw display
