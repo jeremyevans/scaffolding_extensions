@@ -17,6 +17,7 @@ ARGV.each do |arg|
   POSSIBLE_ORMS.replace([arg]) if POSSIBLE_ORMS.include?(arg)
   FRAMEWORKS.replace({arg=>FRAMEWORKS[arg]}) if FRAMEWORKS.include?(arg)
 end
+ARGV.clear
 FRAMEWORKS.each{|k,v| ORMS[v] = POSSIBLE_ORMS}
 CUSTOM_LAYOUT_CUSTOM_VIEW = [7979, 7976]
 CUSTOM_LAYOUT_SCAFFOLD_VIEW = [7979, 7976]
