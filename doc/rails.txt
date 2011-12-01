@@ -1,0 +1,4 @@
+Note that using Scaffolding Extensions with Rails requires that the
+Rails app has the catch-all route (/controller/action/index), at
+least for the controllers in which you are using Scaffolding
+Extensions.
