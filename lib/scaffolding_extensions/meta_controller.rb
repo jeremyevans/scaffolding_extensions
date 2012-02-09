@@ -180,7 +180,9 @@ module ScaffoldingExtensions
         if add_methods.include?(:browse)
           scaffold_define_method("browse#{suffix}") do
             @page ||= scaffold_request_param(:page).to_i > 1 ? scaffold_request_param(:page).to_i : 1
-            @next_page, @scaffold_objects = klass.scaffold_browse_find_objects(:session=>scaffold_session, :page=>@page)
+            unless @scaffold_objects
+              @next_page, @scaffold_objects = klass.scaffold_browse_find_objects(:session=>scaffold_session, :page=>@page)
+            end
             @scaffold_listtable_type = :browse
             send(render_meth, :listtable) 
           end
