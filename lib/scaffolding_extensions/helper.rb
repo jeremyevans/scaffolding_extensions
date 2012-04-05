@@ -50,13 +50,13 @@ module ScaffoldingExtensions
       # Simple button with label text that submits a form to the given url, options are
       # passed to scaffold_form.
       def scaffold_button_to(text, url, options={})
-        "#{scaffold_form(url, options)}\n<input type='submit' value='#{text}' />\n</form>"
+        "#{scaffold_form(url, options)}\n<input class=\"btn #{options[:class]}\" type='submit' value='#{text}' />\n</form>"
       end
       
       # Simple button with label text that submits a form via Ajax to the given action,
       # options are passed to scaffold_form_remote_tag.
       def scaffold_button_to_remote(text, action, options)  
-        "#{scaffold_form_remote_tag(action, options)}\n<input type='submit' value=#{text} />\n</form>"
+        "#{scaffold_form_remote_tag(action, options)}\n<input class=\"btn btn-primary\" type='submit' value=#{text} />\n</form>"
       end
       
       # If scaffolding didn't create the action, return the empty string if blank is true
@@ -163,7 +163,7 @@ module ScaffoldingExtensions
         soid = so.scaffold_id
         content = "<div class='habtm_ajax_add_associations' id='#{sn}_habtm_ajax_add_associations'>"
         klass.scaffold_habtm_associations.reject{|association| !scaffolded_method?("add_#{association}_to_#{sn}")}.each do |association|
-          content << "#{scaffold_form_remote_tag("add_#{association}_to_#{sn}", :id=>soid)}\n#{scaffold_habtm_ajax_tag("#{sn}_#{association}_id", so, sn, association)}\n<input name='commit' type='submit' value='Add #{klass.scaffold_associated_human_name(association).singularize}' /></form>\n"
+          content << "#{scaffold_form_remote_tag("add_#{association}_to_#{sn}", :id=>soid)}\n#{scaffold_habtm_ajax_tag("#{sn}_#{association}_id", so, sn, association)}\n<input name='commit' class=\"btn btn-primary\" type='submit' value='Add #{klass.scaffold_associated_human_name(association).singularize}' /></form>\n"
         end
         content << "</div><div class='habtm_ajax_remove_associations' id='#{sn}_habtm_ajax_remove_associations'><ul id='#{sn}_associated_records_list'>"
         klass.scaffold_habtm_associations.reject{|association| !scaffolded_method?("remove_#{association}_from_#{sn}")}.each do |association|
@@ -269,7 +269,7 @@ module ScaffoldingExtensions
         #{scaffold_form(scaffold_url("#{action}#{@scaffold_suffix}", options), :attributes=>scaffold_form_enctype(fields))}
         #{scaffold_model_field_tags(fields)}
         #{(yield content; content) if block_given?}
-        <input type='submit' value="#{@scaffold_submit_value || "#{action.capitalize} #{@scaffold_options[:singular_lc_human_name]}"}" />
+        <input class='btn btn-primary' type='submit' value="#{@scaffold_submit_value || "#{action.capitalize} #{@scaffold_options[:singular_lc_human_name]}"}" />
         </form>
         END
       end

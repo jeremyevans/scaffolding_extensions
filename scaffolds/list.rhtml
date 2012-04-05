@@ -7,7 +7,7 @@
   <%=scaffold_raw scaffold_select_tag('id', @scaffold_objects) %>
 <% end %>
 <br /><br />
-<input type="submit" value="<%= haction %> <%= hn %>" />
+<input class="btn btn-<%= scaffold_idempotent_action?(action) ? 'primary' : 'danger' %>" type="submit" value="<%= haction %> <%= hn %>" />
 </form>
 
 <%=scaffold_raw scaffold_manage_link %>

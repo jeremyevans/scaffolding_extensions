@@ -72,7 +72,7 @@ module ScaffoldingExtensions::MetaModel
   # - :auto_complete: Hash containing the default options to use for the scaffold
   #   autocompleter (iv: @scaffold_auto_complete_options)
   SCAFFOLD_OPTIONS = {:text_to_string=>false, 
-    :table_classes=>{:form=>'formtable', :list=>'sortable', :show=>'sortable'},
+    :table_classes=>{:form=>'table formtable', :list=>'table table-bordered table-condensed sortable', :show=>'table sortable'},
     :column_type_options=>{},
     :column_types=>{},
     :column_options=>{},

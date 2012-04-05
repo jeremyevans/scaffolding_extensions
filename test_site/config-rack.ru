@@ -43,5 +43,8 @@ app = Rack::Builder.app do
   map "/datamapper" do
     run DatamapperRack
   end
+  map "/css" do
+    run Rack::File.new("public/css")
+  end
 end
 run app

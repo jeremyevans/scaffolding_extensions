@@ -16,7 +16,7 @@
 <% end %>
 
 <br /><br />
-<input type='submit' value="Update <%= sn %>'s <%= mpn %>" />
+<input class="btn btn-primary" type='submit' value="Update <%= sn %>'s <%= mpn %>" />
 </form>
 
 <% if '' != (edit_link = scaffold_check_link("Edit #{sn}", true, "edit_#{@scaffold_options[:singular_name]}", :id=>soid)) %>
