@@ -1,4 +1,4 @@
-<% @scaffold_title = "Choose #{hn = @scaffold_options[:singular_lc_human_name]} to #{(haction = (action = @scaffold_action).to_s.humanize).downcase}" %>
+<%= @scaffold_title = "Choose #{hn = @scaffold_options[:singular_lc_human_name]} to #{(haction = (action = @scaffold_action).to_s.humanize).downcase}" %>
 
 <%=scaffold_raw scaffold_form(scaffold_url("#{action}#{@scaffold_suffix}"), :method=>scaffold_idempotent_action?(action) ? :get : :post) %>
 <% if @scaffold_class.scaffold_use_auto_complete %>
