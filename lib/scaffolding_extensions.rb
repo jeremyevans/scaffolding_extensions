@@ -42,11 +42,12 @@ module ScaffoldingExtensions
   END
   ROOT = File.dirname(File.dirname(__FILE__))
   TEMPLATE_DIR = File.join(ROOT, "scaffolds")
+  DEFAULT_ACTION = :browse
   DEFAULT_METHODS = [:manage, :show, :delete, :edit, :new, :search, :merge, :browse]
   MODEL_SUPERCLASSES = []
   
   @auto_complete_skip_style = false
-    
+  
   class << self
     attr_accessor :auto_complete_skip_style
     attr_writer :all_models, :model_files

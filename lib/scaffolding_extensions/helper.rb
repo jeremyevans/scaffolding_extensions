@@ -11,6 +11,7 @@ module ScaffoldingExtensions
         show_edit = read_only ? :show : :edit
         so = @scaffold_object
         soid = so.scaffold_id
+        default_action = @scaffold_options[:default_action]
         singular_name = @scaffold_options[:singular_name]
         content = '<h3 class="scaffold_associated_records_header">Associated Records</h3>'
         content << "<ul id='scaffolded_associations_#{singular_name}_#{soid}' class='#{klass.scaffold_association_list_class}'>\n"
@@ -19,7 +20,7 @@ module ScaffoldingExtensions
           class_name = klass.scaffold_associated_name(association)
           human_name = klass.scaffold_associated_human_name(association)
           content << "<li>"
-          content << scaffold_check_link(human_name, read_only, "manage_#{class_name}") 
+          content << scaffold_check_link(human_name, read_only, "#{default_action}_#{class_name}") 
           content << "\n "
           case klass.scaffold_association_type(association)
             when :one
@@ -193,7 +194,7 @@ module ScaffoldingExtensions
         arid = associated_record.scaffold_id
         rid = record.scaffold_id
         content = "<li id='#{name}_#{rid}_#{association}_#{arid}'>\n"
-        content << scaffold_check_link(klass.scaffold_associated_human_name(association), false, "manage_#{associated_suffix}")
+        content << scaffold_check_link(klass.scaffold_associated_human_name(association), false, "#{scaffold_default_action}_#{associated_suffix}")
         content << " - \n"
         content << scaffold_check_link(associated_record.scaffold_name, false, "edit_#{associated_suffix}", :id=>arid)
         content << "\n"
@@ -294,6 +295,18 @@ module ScaffoldingExtensions
       # true, creates a multi-select box.
       def scaffold_select_tag(name, collection, multiple = false)
         "<select name='#{name}#{scaffold_param_list_suffix if multiple}' id='#{name}' #{"multiple='multiple'" if multiple}>#{'<option></option>' unless multiple}#{collection.collect{|obj| "<option value='#{i = obj.scaffold_id}' id='#{name}_#{i}'>#{h obj.scaffold_name}</option>"}.join("\n")}</select>"
+      end
+      
+      def scaffold_tabs
+        content = '<ul class="nav nav-tabs">'
+        [["#{@scaffold_options[:plural_human_name]}", :browse], ["New", :new], ["Show", :show], ["Edit", :edit], ["Delete", :delete], ["Merge", :merge], ["Search", :search]].each do |text, action|
+          link = scaffold_check_link(text, true, "#{action}#{@scaffold_suffix}")
+          action = :destroy if action == :delete
+          content << '<li'
+          content << ' class="active"' if action == @scaffold_action
+          content << ">#{scaffold_raw(link)}</li>"
+        end
+        content << '</ul>'
       end
       
       # Text field with scaffold autocompleting.  The id is the html id, and the model name and association

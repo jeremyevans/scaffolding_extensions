@@ -3,6 +3,10 @@ module ScaffoldingExtensions
   module MetaController
     attr_accessor :scaffolded_methods, :scaffolded_nonidempotent_methods, :scaffolded_auto_complete_associations
     
+    def scaffold_default_action
+      @scaffold_default_action ||= DEFAULT_ACTION
+    end
+    
     # The location of the scaffold templates
     def scaffold_template_dir
       @scaffold_template_dir ||= TEMPLATE_DIR
@@ -16,6 +20,7 @@ module ScaffoldingExtensions
       #
       # - :except: symbol or array of method symbols not to define
       # - :only: symbol or array of method symbols to define instead of the default
+      # - :default: method symbol to use as default landing page
       #
       # The following method symbols are used to control the methods that get
       # added by the scaffold function:
@@ -39,7 +44,7 @@ module ScaffoldingExtensions
       #   an object, which then shows the attribute name and value for scaffolded fields.
       #   Also shows associations specified in the model's scaffold_associations.
       def scaffold(klass, options = {})
-        scaffold_setup 
+        scaffold_setup
         singular_name = klass.scaffold_name
         singular_human_name = klass.scaffold_human_name
         plural_name = singular_name.pluralize
@@ -48,7 +53,8 @@ module ScaffoldingExtensions
         render_meth = :"render#{suffix}"
         add_methods = options[:only] ? Array(options[:only]) : scaffold_default_methods
         add_methods -= Array(options[:except])
-        scaffold_options = {:singular_name=>singular_name, :plural_name=>plural_name, :singular_human_name=>singular_human_name, :plural_human_name=>plural_human_name, :class=>klass, :suffix=>suffix, :singular_lc_human_name=>singular_human_name.downcase, :plural_lc_human_name=>plural_human_name.downcase}
+        default_action = options[:default] || scaffold_default_action
+        scaffold_options = {:default_action=>default_action, :singular_name=>singular_name, :plural_name=>plural_name, :singular_human_name=>singular_human_name, :plural_human_name=>plural_human_name, :class=>klass, :suffix=>suffix, :singular_lc_human_name=>singular_human_name.downcase, :plural_lc_human_name=>plural_human_name.downcase}
 
         scaffold_auto_complete_for(klass) if klass.scaffold_use_auto_complete
         klass.scaffold_auto_complete_associations.each{|association| scaffold_auto_complete_for(klass, association)}
@@ -60,7 +66,7 @@ module ScaffoldingExtensions
 
         if add_methods.include?(:manage)
           scaffold_define_method("manage#{suffix}") do
-            send(render_meth, :manage) 
+            scaffold_redirect(default_action, suffix)
           end
         end
         
@@ -73,12 +79,12 @@ module ScaffoldingExtensions
         
         if add_methods.include?(:show)
           scaffold_define_method("show#{suffix}") do
+            @scaffold_action = :show
             if scaffold_request_id
               @scaffold_object ||= klass.scaffold_find_object(:show, scaffold_request_id, :session=>scaffold_session)
               @scaffold_associations_readonly = true
-              send(render_meth, :show) 
+              send(render_meth, :show)
             else
-              @scaffold_action = :show
               send("list#{suffix}")
             end
           end
@@ -86,6 +92,10 @@ module ScaffoldingExtensions
         
         if add_methods.include?(:delete)
           scaffold_define_method("delete#{suffix}") do
+            if scaffold_request_id
+              # TODO
+              # if id provided then preselect record, and flash a confirmation message
+            end
             @scaffold_action = :destroy
             send("list#{suffix}")
           end
@@ -101,12 +111,12 @@ module ScaffoldingExtensions
           klass.scaffold_habtm_associations.each{|association| scaffold_habtm(klass, association)}
 
           scaffold_define_method("edit#{suffix}") do
+            @scaffold_action = :edit
             if scaffold_request_id
               @scaffold_show_associations = true if scaffold_request_param(:associations) == 'show'
               @scaffold_object ||= klass.scaffold_find_object(:edit, scaffold_request_id, :session=>scaffold_session)
               send(render_meth, :edit) 
             else
-              @scaffold_action = :edit
               send("list#{suffix}")
             end
           end
@@ -132,6 +142,7 @@ module ScaffoldingExtensions
         if add_methods.include?(:new)
           scaffold_define_method("new#{suffix}") do
             @scaffold_object ||= klass.scaffold_new_object(scaffold_request_param(singular_name), :session=>scaffold_session)
+            @scaffold_action = :new
             send(render_meth, :new) 
           end
           
@@ -148,6 +159,7 @@ module ScaffoldingExtensions
         if add_methods.include?(:search)
           scaffold_define_method("search#{suffix}") do
             @scaffold_object ||= klass.scaffold_search_object
+            @scaffold_action = :search
             send(render_meth, :search) 
           end
           
@@ -156,7 +168,7 @@ module ScaffoldingExtensions
             page -= 1 if scaffold_request_param(:page_previous)
             page += 1 if scaffold_request_param(:page_next)
             @scaffold_search_results_form_params, @scaffold_objects = klass.scaffold_search(:model=>scaffold_request_param(singular_name), :notnull=>Array(scaffold_request_param(:notnull)), :null=>Array(scaffold_request_param(:null)), :page=>page, :session=>scaffold_session)
-            @scaffold_listtable_type = :search
+            @scaffold_action = :search
             send(render_meth, :listtable) 
           end
         end
@@ -164,6 +176,7 @@ module ScaffoldingExtensions
         if add_methods.include?(:merge)
           scaffold_define_method("merge#{suffix}") do
             @scaffold_objects ||= klass.scaffold_find_objects(:merge, :session=>scaffold_session) unless klass.scaffold_use_auto_complete
+            @scaffold_action = :merge
             send(render_meth, :merge) 
           end
           
@@ -183,7 +196,7 @@ module ScaffoldingExtensions
             unless @scaffold_objects
               @next_page, @scaffold_objects = klass.scaffold_browse_find_objects(:session=>scaffold_session, :page=>@page)
             end
-            @scaffold_listtable_type = :browse
+            @scaffold_action = :browse
             send(render_meth, :listtable) 
           end
         end
@@ -199,7 +212,7 @@ module ScaffoldingExtensions
         scaffold_setup
         links = scaffold_all_models_parse_options(options).collect do |model, options|
           scaffold(model, options)
-          ["manage_#{model.scaffold_name}", model.scaffold_human_name]
+          ["#{scaffold_default_action}_#{model.scaffold_name}", model.scaffold_human_name]
         end
         scaffold_define_method('index') do
           @links = links

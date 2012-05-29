@@ -1,4 +1,8 @@
-<% @scaffold_title = "Choose #{hn = @scaffold_options[:singular_lc_human_name]} to #{(haction = (action = @scaffold_action).to_s.humanize).downcase}" %>
+<% (haction = (action = @scaffold_action).to_s.humanize).downcase %>
+<% @scaffold_title = "#{plural_name = @scaffold_options[:plural_human_name]} - #{haction}" %>
+<% @scaffold_heading = @scaffold_options[:singular_human_name] %>
+
+<%= scaffold_tabs %>
 
 <%=scaffold_raw scaffold_form(scaffold_url("#{action}#{@scaffold_suffix}"), :method=>scaffold_idempotent_action?(action) ? :get : :post) %>
 <% if @scaffold_class.scaffold_use_auto_complete %>
@@ -7,7 +11,5 @@
   <%=scaffold_raw scaffold_select_tag('id', @scaffold_objects) %>
 <% end %>
 <br /><br />
-<input class="btn btn-<%= scaffold_idempotent_action?(action) ? 'primary' : 'danger' %>" type="submit" value="<%= haction %> <%= hn %>" />
+<input class="btn btn-<%= scaffold_idempotent_action?(action) ? 'primary' : 'danger' %>" type="submit" value="<%= haction %> <%= @scaffold_options[:singular_lc_human_name] %>" />
 </form>
-
-<%=scaffold_raw scaffold_manage_link %>

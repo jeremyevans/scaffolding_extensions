@@ -1,4 +1,4 @@
-<% @scaffold_title = "Update #{sn = h(@scaffold_object.scaffold_name)}'s #{mpn = (so = @scaffold_options )[:aplch_name]}" %>
+<% @scaffold_heading = @scaffold_title = "Update #{sn = h(@scaffold_object.scaffold_name)}'s #{mpn = (so = @scaffold_options )[:aplch_name]}" %>
 
 <%=scaffold_raw scaffold_form(scaffold_url("update#{@scaffold_suffix}", :id=>(soid=@scaffold_object.scaffold_id))) %>
 
@@ -20,5 +20,5 @@
 </form>
 
 <% if '' != (edit_link = scaffold_check_link("Edit #{sn}", true, "edit_#{@scaffold_options[:singular_name]}", :id=>soid)) %>
-  <h2><%=scaffold_raw edit_link %></h2>
+  <%=scaffold_raw edit_link %>
 <% end %>
