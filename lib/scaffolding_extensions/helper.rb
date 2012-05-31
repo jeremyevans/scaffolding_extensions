@@ -101,7 +101,7 @@ module ScaffoldingExtensions
             "<select #{scaffold_options_to_html(options)}><option></option><option value='f' #{s[false]}>False</option><option value='t' #{s[true]}>True</option></select>"
           when :association
             klass = object.class
-            if klass.scaffold_association_use_auto_complete(field)
+            if klass.scaffold_association_use_auto_complete(field) and not klass.respond_to?(:"scaffold_#{field}_association_find_objects")
               assocated_object = klass.scaffold_associated_objects(field, object, :session=>scaffold_session)
               options[:value] = assocated_object ? assocated_object.scaffold_name_with_id : ''
               scaffold_text_field_tag_with_auto_complete(options[:id], record_name, field, options)
