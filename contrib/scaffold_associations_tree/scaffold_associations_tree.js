@@ -9,7 +9,7 @@ function makeTreesC() {
     uls = document.getElementsByTagName("ul");
     for (uli=0;uli<uls.length;uli++) {
         ul = uls[uli];
-        if (ul.nodeName == "UL" && ul.className == "scaffold_associations_tree") {
+        if (ul.nodeName == "UL" && ul.className.split(" ").indexOf("scaffold_associations_tree") != -1) {
             processULELC(ul);
         }
     }
