@@ -40,21 +40,19 @@
 </table>
 
 <% if @scaffold_action == :browse %>
-<div class="pagination">
-  <ul>
-    <% if @page > 1 %>
-      <li><a href="<%= scaffold_url("browse#{@scaffold_suffix}", :page=>(@page-1)) %>">Previous</a></li>
-    <% else %>
-      <li class="disabled">Previous</li>
-    <% end %>
+<ul class="pager">
+  <% if @page > 1 %>
+    <li><a href="<%= scaffold_url("browse#{@scaffold_suffix}", :page=>(@page-1)) %>">Previous</a></li>
+  <% else %>
+    <li class="disabled"><a href="#">Previous</a></li>
+  <% end %>
 
-    <% if @next_page %>
-      <li><a href="<%= scaffold_url("browse#{@scaffold_suffix}", :page=>(@next_page ? @page+1 : @page)) %>">Next</a></li>
-    <% else %>
-      <li class="disabled">Next</li>
-    <% end %>
-  </ul>
-</div>
+  <% if @next_page %>
+    <li><a href="<%= scaffold_url("browse#{@scaffold_suffix}", :page=>(@next_page ? @page+1 : @page)) %>">Next</a></li>
+  <% else %>
+    <li class="disabled"><a href="#">Next</a></li>
+  <% end %>
+</ul>
 <% end %>
 
 <% if @scaffold_action == :search && @scaffold_search_results_form_params && (@scaffold_search_results_form_params[:page] > 1 || @scaffold_search_results_form_params[:next_page]) %>

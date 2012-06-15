@@ -13,6 +13,7 @@ module ScaffoldingExtensions
         soid = so.scaffold_id
         default_action = @scaffold_options[:default_action]
         singular_name = @scaffold_options[:singular_name]
+        return '' unless klass.scaffold_associations.any?{|a| klass.scaffold_show_association_links?(a)}
         content = '<h3 class="scaffold_associated_records_header">Associated Records</h3>'
         content << "<ul id='scaffolded_associations_#{singular_name}_#{soid}' class='association_links #{klass.scaffold_association_list_class}'>\n"
         klass.scaffold_associations.each do |association| 

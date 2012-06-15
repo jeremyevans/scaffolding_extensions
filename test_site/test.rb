@@ -108,12 +108,12 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
          assert_match /Custom Layout/, p.inner_html
        end
        if CUSTOM_LAYOUT_CUSTOM_VIEW.include?(port)
-         p = page(port, "#{root}/manage_employee")    
+         p = page(port, "#{root}/show_employee")    
          assert_match /Custom View.*Custom Layout/m, p.inner_html
        end
      elsif root =~ /active_record/
        if SCAFFOLD_LAYOUT_CUSTOM_VIEW.include?(port)
-         p = page(port, "#{root}/manage_employee")    
+         p = page(port, "#{root}/show_employee")    
          assert_match /Custom View/, p.inner_html
        end
      end
@@ -154,9 +154,9 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
              assert_equal "Scaffolding Extensions - #{csn}s - Browse", p2.at(:title).inner_html
              assert_equal FIELD_NAMES[sn]+%w'Show Edit Delete', (p2/:th).collect{|x| x.inner_html}
              assert_equal 0, (p2/:td).length
-             assert_equal 2, (p2/"div.pagination"/:li).length
-             assert_equal 0, (p2/"div.pagination"/:li/:a).length
-             assert_equal %w'disabled disabled', (p2/"div.pagination"/:li).map{|t| t[:class]}
+             assert_equal %w'disabled disabled', (p2/"ul.pager li").map{|t| t[:class]}
+             assert_equal %w'# #', (p2/"ul.pager li a").map{|t| t[:href]}
+             assert_equal %w'Previous Next', (p2/"ul.pager li a").map{|t| t.inner_html}
            when 'new'
              assert_equal "Scaffolding Extensions - #{csn}s - New", p2.at(:title).inner_html
              assert_equal "Create New #{csn}", p2.at(:h1).inner_html
@@ -503,36 +503,27 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_match %r|#{root}/show_#{model}/#{b}|, (p/:td/:a)[0][:href]
       assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:td/:a)[1][:href]
       assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[0][:action]
-      assert_equal "disabled", (p/'div.pagination li')[0][:class]
-      assert_equal nil, (p/'div.pagination li')[1][:class]
-      assert_equal nil, p.at('div.pagination li.disabled a')
-      assert_equal "#{root}/browse_#{model}?page=2", p.at('div.pagination li a')[:href]
-      assert_equal "Previous", (p/'div.pagination li.disabled').inner_html
-      assert_equal "Next", (p/'div.pagination a')[0].inner_html
+      assert_equal ['disabled', nil], (p/"ul.pager li").map{|t2| t2[:class]}
+      assert_equal %W'# #{root}/browse_#{model}?page=2', (p/"ul.pager li a").map{|t2| t2[:href]}
+      assert_equal %w'Previous Next', (p/"ul.pager li a").map{|t2| t2.inner_html}
 
       # Check second object shows up on second browse page
-      p = page(port, (p/'div.pagination a')[0][:href])
+      p = page(port, (p/'ul.pager a')[1][:href])
       assert_match %r|#{root}/show_#{model}/#{t}|, (p/:td/:a)[0][:href]
       assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:td/:a)[1][:href]
       assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[0][:action]
-      assert_equal nil, (p/'div.pagination li')[0][:class]
-      assert_equal "disabled", (p/'div.pagination li')[1][:class]
-      assert_equal "#{root}/browse_#{model}?page=1", p.at('div.pagination li a')[:href]
-      assert_equal nil, p.at('div.pagination li.disabled a')
-      assert_equal "Previous", (p/'div.pagination a')[0].inner_html
-      assert_equal "Next", (p/'div.pagination li.disabled').inner_html
+      assert_equal [nil, 'disabled'], (p/"ul.pager li").map{|t2| t2[:class]}
+      assert_equal %W'#{root}/browse_#{model}?page=1 #', (p/"ul.pager li a").map{|t2| t2[:href]}
+      assert_equal %w'Previous Next', (p/"ul.pager li a").map{|t2| t2.inner_html}
 
       # Check link goes back to first browse page
-      p = page(port, (p/'div.pagination a')[0][:href])
+      p = page(port, (p/'ul.pager a')[0][:href])
       assert_match %r|#{root}/show_#{model}/#{b}|, (p/:td/:a)[0][:href]
       assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:td/:a)[1][:href]
       assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[0][:action]
-      assert_equal "disabled", (p/'div.pagination li')[0][:class]
-      assert_equal nil, (p/'div.pagination li')[1][:class]
-      assert_equal nil, p.at('div.pagination li.disabled a')
-      assert_equal "#{root}/browse_#{model}?page=2", p.at('div.pagination li a')[:href]
-      assert_equal "Previous", (p/'div.pagination li.disabled').inner_html
-      assert_equal "Next", (p/'div.pagination a')[0].inner_html
+      assert_equal ['disabled', nil], (p/"ul.pager li").map{|t2| t2[:class]}
+      assert_equal %W'# #{root}/browse_#{model}?page=2', (p/"ul.pager li a").map{|t2| t2[:href]}
+      assert_equal %w'Previous Next', (p/"ul.pager li a").map{|t2| t2.inner_html}
 
       # Get param list suffix
       p = page(port, "#{root}/search_#{model}")
@@ -968,12 +959,11 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal 'meeting_habtm_ajax_add_associations', (p/:div).first[:id]
     assert_equal 'habtm_ajax_remove_associations', (p/:div).last[:class]
     assert_equal 'meeting_habtm_ajax_remove_associations', (p/:div).last[:id]
-    assert_equal 2, (p/:ul).length
+    assert_equal 1, (p/:ul).length
     assert_equal 1, (p/"div#meeting_habtm_ajax_remove_associations ul").length
     assert_equal 'meeting_associated_records_list', p.at("div#meeting_habtm_ajax_remove_associations ul")[:id]
     assert_equal '', p.at("div#meeting_habtm_ajax_remove_associations ul").inner_html.strip
-    assert_equal 1, (p/"ul#scaffolded_associations_meeting_#{i}").length
-    assert_equal '', p.at("ul#scaffolded_associations_meeting_#{i}").inner_html.strip
+    assert_equal nil, p.at("ul#scaffolded_associations_meeting_#{i}")
     assert_equal 0, (p/:li).length
     assert_equal 2, (p/:form).length
     assert_equal 2, (p/"div#meeting_habtm_ajax_add_associations form").length
