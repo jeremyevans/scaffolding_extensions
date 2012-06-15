@@ -145,6 +145,11 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
          assert_match manage_re, el1[:href]
          page_type = manage_re.match(el1[:href])[1]
          p2 = page(port, el1[:href])
+         nav_ul2 = p2.at("ul.nav-tabs")
+         manage_re = %r{\A(#{csn}s|New|Delete|Edit|Merge|Search|Show)\z}
+         assert_match manage_re, el1.inner_html
+         manage_re = %r{\A#{root}/(browse|new|delete|edit|merge|search|show)_#{sn}\z}
+         assert_match manage_re, el1[:href]
          case page_type
            when 'browse'
              assert_equal "Scaffolding Extensions - #{csn}s - Browse", p2.at(:title).inner_html
@@ -231,6 +236,21 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
         assert_equal 'Show', (p/:td/:a)[0].inner_html
         assert_equal 'Edit', (p/:td/:a)[1].inner_html
         assert_equal 'Delete', (p/:input)[0][:value]
+
+        # Test show/edit/delete actions from browse/results pages
+        p1 = page(port, (p/:td/:a)[0][:href])
+        assert_equal (p/:td/:a)[1][:href], p1.at('ul.edit a')[:href]
+        assert_equal "Edit #{model.capitalize}", p1.at('ul.edit a').inner_html
+        p1 = page(port, (p/:td/:a)[1][:href])
+        assert_match %r|#{root}/update_#{model}/\d+|, p1.at(:form)[:action]
+        assert_equal "Update #{model}", (p1/:input)[1][:value]
+        res = post(port, p.at(:form)[:action], {})
+        assert_se_path port, root, "/delete_#{model}", res['Location']
+        p = page(port, "#{root}/edit_#{model}")
+        assert_equal 1, (p/:option).length
+
+        # Recreate model
+        post(port, "#{root}/create_#{model}", "#{model}[name]"=>name)
       end
   
       %w'show edit delete'.each do |action|
@@ -239,6 +259,24 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
         assert_match /\d+/, (p/:option).last[:value]
         assert_equal name, (p/:option).last.inner_html
       end
+
+      # Test destroy from edit form
+      p = page(port, "#{root}/edit_#{model}")
+      i = (p/:option).last[:value]
+      p = page(port, "#{root}/edit_#{model}/#{i}")
+      f = (p/:form).last
+      assert_equal "#{root}/destroy_#{model}/#{i}", f[:action]
+      assert_equal "post", f[:method]
+      d = f.at(:input)
+      assert_equal "Delete #{model}", d[:value]
+      assert_equal "submit", d[:type]
+      res = post(port, f[:action], {})
+      assert_se_path port, root, "/delete_#{model}", res['Location']
+      p = page(port, "#{root}/edit_#{model}")
+      assert_equal 1, (p/:option).length
+
+      # Recreate model
+      res = post(port, "#{root}/create_#{model}", "#{model}[name]"=>name)
   
       p = page(port, "#{root}/merge_#{model}")
       assert_equal 4, (p/:option).length
