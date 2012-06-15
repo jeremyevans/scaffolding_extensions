@@ -6,7 +6,7 @@ require 'sinatra/base'
 require 'ar_garbage'
 
 class Sinatra::Base
-  set(:environment=>:production, :app_file=>'sinatra_se.rb', :raise_errors=>true, :logging=>true, :views=>'blah')
+  set(:environment=>:development, :app_file=>'sinatra_se.rb', :raise_errors=>true, :views=>'blah')
   disable :run
   configure do
     require 'datamapper_setup'
@@ -53,5 +53,6 @@ app = Rack::Builder.app do
   map "/datamapper" do
     run DatamapperController
   end
+  run Rack::File.new("public")
 end
 run app
