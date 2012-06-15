@@ -271,6 +271,7 @@ module ScaffoldingExtensions
       def scaffold_habtm(klass, association)
         scaffold_setup
         sn = klass.scaffold_name
+        shn = klass.scaffold_human_name
         scaffold_auto_complete_for(klass, association) if auto_complete = klass.scaffold_association_use_auto_complete(association)
         
         if klass.scaffold_habtm_with_ajax
@@ -312,9 +313,12 @@ module ScaffoldingExtensions
           end
         else
           suffix = "_#{sn}_#{association}"
+          scaffold_options={:aph_name=>association.to_s.humanize, :singular_name=>sn, :singular_human_name=>shn, :association=>association, :class=>klass, :suffix=>suffix}
+          # ash_name = association singular human name
+          scaffold_options[:ash_name] = scaffold_options[:aph_name].downcase
           # aplch_name = association plural lower case human name
-          scaffold_options={:aplch_name=>association.to_s.humanize.downcase, :singular_name=>sn, :association=>association, :class=>klass, :suffix=>suffix}
-          # aslch_name = association singular lower case human name
+          scaffold_options[:aplch_name] = scaffold_options[:aph_name].downcase
+          # aslhc_name = association singular lower case human name (typo!)
           scaffold_options[:aslhc_name] = scaffold_options[:aplch_name].singularize
           
           scaffold_define_method("edit#{suffix}") do

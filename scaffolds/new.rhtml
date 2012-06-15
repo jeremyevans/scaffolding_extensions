@@ -1,6 +1,9 @@
 <% @scaffold_title = "#{plural_name = @scaffold_options[:plural_human_name]} - New" %>
-<% @scaffold_heading = @scaffold_options[:singular_human_name] %>
 
 <%= scaffold_tabs %>
 
+<h1>Create New <%= @scaffold_options[:singular_human_name] %></h1>
+
 <%=scaffold_raw scaffold_model_form('create', @scaffold_class.scaffold_fields(:new)) %>
+
+<%=scaffold_raw scaffold_check_link('Manage Models', true, 'index') %>

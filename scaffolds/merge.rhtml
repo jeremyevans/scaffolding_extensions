@@ -1,10 +1,9 @@
 <% @scaffold_title = "#{plural_name = @scaffold_options[:plural_human_name]} - Merge" %>
-<% @scaffold_heading = @scaffold_options[:singular_human_name] %>
 
 <%= scaffold_tabs %>
 
 <%=scaffold_raw scaffold_form(scaffold_url("merge_update#{@scaffold_suffix}")) %>
-<p>Merge:
+<p>Merge <%= @scaffold_options[:singular_human_name] %>:
 <% if @scaffold_class.scaffold_use_auto_complete %>
   <%=scaffold_raw scaffold_text_field_tag_with_auto_complete('from', @scaffold_options[:singular_name]) %>
 <% else %>
@@ -12,7 +11,7 @@
 <% end %>
 </p>
 
-<p>into: 
+<p>Into <%= @scaffold_options[:singular_human_name] %>: 
 <% if @scaffold_class.scaffold_use_auto_complete %>
   <%=scaffold_raw scaffold_text_field_tag_with_auto_complete('to', @scaffold_options[:singular_name]) %>
 <% else %>
@@ -22,3 +21,5 @@
 
 <input class="btn btn-danger" type="submit" value="Merge <%= @scaffold_options[:plural_lc_human_name] %>" />
 </form>
+
+<%=scaffold_raw scaffold_check_link('Manage Models', true, 'index') %>

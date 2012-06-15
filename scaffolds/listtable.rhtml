@@ -1,5 +1,4 @@
 <% @scaffold_title = "#{plural_name = @scaffold_options[:plural_human_name]} - Browse" %>
-<% @scaffold_heading = @scaffold_options[:singular_human_name] %>
 
 <%= scaffold_tabs %>
 
@@ -43,8 +42,8 @@
 <% if @scaffold_action == :browse %>
 <div class="pagination">
   <ul>
-    <li<%= ' class="disabled"' unless @page > 1 %>><a href="<%= scaffold_url("browse#{@scaffold_suffix}", :page=>(@page-1)) %>">Previous</a></li>
-    <li<%= ' class="disabled"' unless @next_page %>><a href="<%= scaffold_url("browse#{@scaffold_suffix}", :page=>(@next_page ? @page+1 : @page)) %>">Next</a></li>
+    <li<%=scaffold_raw ' class="disabled"' unless @page > 1 %>><a href="<%= scaffold_url("browse#{@scaffold_suffix}", :page=>(@page-1)) %>">Previous</a></li>
+    <li<%=scaffold_raw ' class="disabled"' unless @next_page %>><a href="<%= scaffold_url("browse#{@scaffold_suffix}", :page=>(@next_page ? @page+1 : @page)) %>">Next</a></li>
   </ul>
 </div>
 <% end %>
@@ -69,3 +68,5 @@
   <% end %>
   </form>
 <% end %>
+
+<%=scaffold_raw scaffold_check_link('Manage Models', true, 'index') %>

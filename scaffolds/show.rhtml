@@ -1,13 +1,8 @@
 <% @scaffold_title = "#{plural_name = @scaffold_options[:plural_human_name]} - Show" %>
-<% @scaffold_heading = @scaffold_options[:singular_human_name] %>
 
 <%= scaffold_tabs %>
 
-<% if edit = scaffolded_method?(es = "edit#{@scaffold_suffix}") %>
-<ul>
-  <li><%=scaffold_raw scaffold_link("Edit #{@scaffold_options[:singular_name]}", es, :id=>@scaffold_object.id) %></li>
-</ul>
-<% end %>
+<h1>Showing <%= @scaffold_options[:singular_human_name] %>: <%= @scaffold_object.scaffold_name %></h1>
 
 <table id="scaffolded" class="<%= @scaffold_class.scaffold_table_class(:show) %>">
 <thead><tr><th>Attribute</th><th>Value</th></tr></thead>
@@ -20,4 +15,12 @@
 <% end %>
 </tbody></table>
 
+<% if edit = scaffolded_method?(es = "edit#{@scaffold_suffix}") %>
+<ul class="edit">
+  <li><%=scaffold_raw scaffold_link("Edit #{@scaffold_options[:singular_human_name]}", es, :id=>@scaffold_object.id) %></li>
+</ul>
+<% end %>
+
 <%= scaffold_raw scaffold_association_links %>
+
+<%=scaffold_raw scaffold_check_link('Manage Models', true, 'index') %>

@@ -1,24 +1,29 @@
-<% @scaffold_heading = @scaffold_title = "Update #{sn = h(@scaffold_object.scaffold_name)}'s #{mpn = (so = @scaffold_options )[:aplch_name]}" %>
+<% @scaffold_title = "#{sn = h((so = @scaffold_options)[:singular_human_name])} - Update #{mpn = so[:aph_name]}" %>
+<h1>Update <%= mpn %> for <%= sn %>: <%=scaffold_raw @scaffold_object.scaffold_name %></h1>
 
 <%=scaffold_raw scaffold_form(scaffold_url("update#{@scaffold_suffix}", :id=>(soid=@scaffold_object.scaffold_id))) %>
 
 <% if @scaffold_class.scaffold_association_use_auto_complete(assoc = so[:association]) %>
-  <h4>Add this <%= so[:aslhc_name] %></h4>
+  <h4>Add This <%= so[:ash_name] %></h4>
   <%=scaffold_raw scaffold_text_field_tag_with_auto_complete('add', so[:singular_name], assoc) %>
 <% elsif @items_to_add.length > 0 %>
-  <h4>Add these <%= mpn %></h4>
+  <h4>Add These <%= mpn %></h4>
   <%=scaffold_raw scaffold_select_tag('add', @items_to_add, true) %>
 <% end %>
 
 <% if @items_to_remove.length > 0 %> 
-  <h4>Remove these <%= mpn %></h4>
+  <h4>Remove These <%= mpn %></h4>
   <%=scaffold_raw scaffold_select_tag('remove', @items_to_remove, true) %>
 <% end %>
 
 <br /><br />
-<input class="btn btn-primary" type='submit' value="Update <%= sn %>'s <%= mpn %>" />
+<input class="btn btn-primary" type='submit' value="Update" />
 </form>
 
-<% if '' != (edit_link = scaffold_check_link("Edit #{sn}", true, "edit_#{@scaffold_options[:singular_name]}", :id=>soid)) %>
-  <%=scaffold_raw edit_link %>
+<% if '' != (edit_link = scaffold_check_link("Edit #{sn}: #{@scaffold_object.scaffold_name}", true, "edit_#{@scaffold_options[:singular_name]}", :id=>soid)) %>
+  <ul class="edit">
+    <li><%=scaffold_raw edit_link %></li>
+  </ul>
 <% end %>
+
+<%=scaffold_raw scaffold_check_link('Manage Models', true, 'index') %>

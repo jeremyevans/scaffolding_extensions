@@ -1,12 +1,14 @@
 <% @scaffold_title = "#{plural_name = @scaffold_options[:plural_human_name]} - Search" %>
-<% @scaffold_heading = @scaffold_options[:singular_human_name] %>
 
 <%= scaffold_tabs %>
+<h1>Search <%= @scaffold_options[:plural_human_name] %></h1>
 
 <%= scaffold_raw(scaffold_model_form('results', @scaffold_class.scaffold_fields(:search)) do |form|
   form << "<table class='#{@scaffold_class.scaffold_table_class(:form)}'><tbody>"
   form << "<tr><td><label for='null'>Null Fields</label></td><td><select name='null#{scaffold_param_list_suffix}' id='null' multiple='multiple'>#{@scaffold_class.scaffold_search_null_options.collect{|name, i| "<option value='#{i}'>#{name}</option>"}.join("\n")}</select></td></tr>\n"
   form << "<tr><td><label for='notnull'>Not Null Fields</label></td><td><select name='notnull#{scaffold_param_list_suffix}' id='notnull' multiple='multiple'>#{@scaffold_class.scaffold_search_null_options.collect{|name, i| "<option value='#{i}'>#{name}</option>"}.join("\n")}</select></td></tr>\n"
   form << '</tbody></table>'
-  @scaffold_submit_value = @scaffold_title
+  @scaffold_submit_value = "Search #{@scaffold_options[:plural_name]}"
 end) %>
+
+<%=scaffold_raw scaffold_check_link('Manage Models', true, 'index') %>

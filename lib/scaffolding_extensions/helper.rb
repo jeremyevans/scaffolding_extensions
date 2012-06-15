@@ -14,7 +14,7 @@ module ScaffoldingExtensions
         default_action = @scaffold_options[:default_action]
         singular_name = @scaffold_options[:singular_name]
         content = '<h3 class="scaffold_associated_records_header">Associated Records</h3>'
-        content << "<ul id='scaffolded_associations_#{singular_name}_#{soid}' class='#{klass.scaffold_association_list_class}'>\n"
+        content << "<ul id='scaffolded_associations_#{singular_name}_#{soid}' class='association_links #{klass.scaffold_association_list_class}'>\n"
         klass.scaffold_associations.each do |association| 
           next unless klass.scaffold_show_association_links?(association)
           class_name = klass.scaffold_associated_name(association)
@@ -194,7 +194,7 @@ module ScaffoldingExtensions
         arid = associated_record.scaffold_id
         rid = record.scaffold_id
         content = "<li id='#{name}_#{rid}_#{association}_#{arid}'>\n"
-        content << scaffold_check_link(klass.scaffold_associated_human_name(association), false, "#{scaffold_default_action}_#{associated_suffix}")
+        content << scaffold_check_link(klass.scaffold_associated_human_name(association), false, "manage_#{associated_suffix}")
         content << " - \n"
         content << scaffold_check_link(associated_record.scaffold_name, false, "edit_#{associated_suffix}", :id=>arid)
         content << "\n"
@@ -307,6 +307,7 @@ module ScaffoldingExtensions
           content << ">#{scaffold_raw(link)}</li>"
         end
         content << '</ul>'
+        scaffold_raw(content)
       end
       
       # Text field with scaffold autocompleting.  The id is the html id, and the model name and association
