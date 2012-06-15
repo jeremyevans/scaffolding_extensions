@@ -106,40 +106,40 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
      if root =~ /sequel/
        if CUSTOM_LAYOUT_SCAFFOLD_VIEW.include?(port)
          p = page(port, root)    
-         assert_equal 'Custom Layout', p.at(:p).inner_html
+         assert_match /Custom Layout/, p.inner_html
        end
        if CUSTOM_LAYOUT_CUSTOM_VIEW.include?(port)
          p = page(port, "#{root}/manage_employee")    
-         assert_equal 'Custom Layout', p.at(:p).inner_html
-         assert_equal 'Custom View', (p/:p)[-1].inner_html
+         assert_match /Custom View.*Custom Layout/m, p.inner_html
        end
      elsif root =~ /active_record/
        if SCAFFOLD_LAYOUT_CUSTOM_VIEW.include?(port)
          p = page(port, "#{root}/manage_employee")    
-         assert_equal 'Custom View', (p/:p)[-1].inner_html
+         assert_match /Custom View/, p.inner_html
        end
      end
 
      p = page(port, root)    
-     assert_equal 'Scaffolding Extensions - Manage Models', p.at(:title).inner_html
-     assert_equal 'Manage Models', p.at(:h1).inner_html
-     assert_equal 1, (p/:ul).length
-     assert_equal 3, (p/:ul/:li).length
-     assert_equal %w'Employee Group Position', (p/:a).collect{|x| x.inner_html}
-     (p/:a).each do |el|
+     assert_equal 'Scaffolding Extensions - Dashboard', p.at(:title).inner_html
+     assert_equal 'Dashboard', p.at(:h1).inner_html
+     assert_equal 1, (p/"ul.models").length
+     assert_equal 3, (p/"ul.models li").length
+     assert_equal %w'Employee Group Position', (p/"ul.models a").collect{|x| x.inner_html}
+     (p/"ul.models a").each do |el|
        root1 = el[:href]
        p1 = page(port, root1)
        sn = el.inner_html.downcase
-       assert_equal "Scaffolding Extensions - Manage #{sn}s", p1.at(:title).inner_html
-       assert_equal "Manage #{sn}s", p1.at(:h1).inner_html
-       assert_equal 1, (p1/:ul).length
-       assert_equal 7, (p1/:ul/:li).length
-       assert_equal 8, (p1/:a).length
-       assert_equal 7, (p1/:ul/:a).length
+       csn = sn.capitalize
+       assert_equal "Scaffolding Extensions - #{csn}s - Browse", p1.at(:title).inner_html
+       uls = (p1/"ul.nav-tabs")
+       assert_equal 1, uls.length
+       nav_ul = uls.first
+       assert_equal 7, (nav_ul/:li).length
+       assert_equal 7, (nav_ul/:li/:a).length
        assert_equal 'Manage Models', (p1/:a).last.inner_html
        assert_match %r{\A#{root}(/index)?\z}, (p1/:a).last[:href]
-       (p1/:ul/:a).each do |el1|
-         manage_re = %r{\A(Browse|Create|Delete|Edit|Merge|Search|Show) #{sn}s?\z}
+       (nav_ul/:a).each do |el1|
+         manage_re = %r{\A(#{csn}s|New|Delete|Edit|Merge|Search|Show)\z}
          assert_match manage_re, el1.inner_html
          manage_re = %r{\A#{root}/(browse|new|delete|edit|merge|search|show)_#{sn}\z}
          assert_match manage_re, el1[:href]
@@ -147,15 +147,16 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
          p2 = page(port, el1[:href])
          case page_type
            when 'browse'
-             assert_equal "Scaffolding Extensions - Listing #{sn}s", p2.at(:title).inner_html
-             assert_equal "Listing #{sn}s", p2.at(:h1).inner_html
+             assert_equal "Scaffolding Extensions - #{csn}s - Browse", p2.at(:title).inner_html
              assert_equal FIELD_NAMES[sn]+%w'Show Edit Delete', (p2/:th).collect{|x| x.inner_html}
              assert_equal 0, (p2/:td).length
-             assert_equal 1, (p2/:a).length
-             assert_equal root1, p2.at(:a)[:href]
+             assert_equal 2, (p2/"div.pagination"/:li/:a).length
+             assert_equal %w'disabled disabled', (p2/"div.pagination"/:li).map{|t| t[:class]}
+             assert_equal %W"#{root}/browse_#{sn}?page=0 #{root}/browse_#{sn}?page=1", (p2/"div.pagination"/:li/:a).map{|t| t[:href]}
+             assert_match %r{\A#{root}(/index)?\z}, (p2/:a).last[:href]
            when 'new'
-             assert_equal "Scaffolding Extensions - Create new #{sn}", p2.at(:title).inner_html
-             assert_equal "Create new #{sn}", p2.at(:h1).inner_html
+             assert_equal "Scaffolding Extensions - #{csn}s - New", p2.at(:title).inner_html
+             assert_equal "Create New #{csn}", p2.at(:h1).inner_html
              assert_equal "#{root}/create_#{sn}", p2.at(:form)[:action]
              assert_equal "post", p2.at(:form)[:method]
              assert_equal "Create #{sn}", p2.at("form > input")[:value]
@@ -165,8 +166,8 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
              assert_equal Set.new(FIELDS[sn].collect{|x| "#{sn}_#{x}"}), Set.new((p2/('td input, td select, td textarea')).collect{|x| x[:id]})
              assert_equal Set.new(FIELDS[sn].collect{|x| "#{sn}[#{x}]"}), Set.new((p2/('td input, td select, td textarea')).collect{|x| x[:name]})
            when 'delete', 'show', 'edit'
-             assert_equal "Scaffolding Extensions - Choose #{sn} to #{ACTION_MAP[page_type]}", p2.at(:title).inner_html
-             assert_equal "Choose #{sn} to #{ACTION_MAP[page_type]}", p2.at(:h1).inner_html
+             assert_equal "Scaffolding Extensions - #{csn}s - #{ACTION_MAP[page_type].capitalize}", p2.at(:title).inner_html
+             assert_match /#{ACTION_MAP[page_type].capitalize} #{csn}:/, p2.at(:form).inner_html
              assert_equal "#{root}/#{ACTION_MAP[page_type]}_#{sn}", p2.at(:form)[:action]
              assert_equal (page_type == 'delete' ? "post" : 'get'), p2.at(:form)[:method]
              assert_equal "#{ACTION_MAP[page_type].capitalize} #{sn}", p2.at(:input)[:value]
@@ -176,8 +177,8 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
              assert_equal nil, p2.at(:option)[:value]
              assert_equal '', p2.at(:option).inner_html
            when 'merge'
-             assert_equal "Scaffolding Extensions - Merge two #{sn}s", p2.at(:title).inner_html
-             assert_equal "Merge two #{sn}s", p2.at(:h1).inner_html
+             assert_equal "Scaffolding Extensions - #{csn}s - Merge", p2.at(:title).inner_html
+             assert_match /Merge #{csn}:.*Into #{csn}/m, p2.at(:form).inner_html
              assert_equal "#{root}/merge_update_#{sn}", p2.at(:form)[:action]
              assert_equal "post", p2.at(:form)[:method]
              assert_equal 2, (p2/:select).length
@@ -191,8 +192,8 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
              assert_equal "Merge #{sn}s", p2.at(:input)[:value]
              assert_equal "submit", p2.at(:input)[:type]
            when 'search'
-             assert_equal "Scaffolding Extensions - Search #{sn}s", p2.at(:title).inner_html
-             assert_equal "Search #{sn}s", p2.at(:h1).inner_html
+             assert_equal "Scaffolding Extensions - #{csn}s - Search", p2.at(:title).inner_html
+             assert_equal "Search #{csn}s", p2.at(:h1).inner_html
              assert_equal "#{root}/results_#{sn}", p2.at(:form)[:action]
              assert_equal "post", p2.at(:form)[:method]
              assert_equal "Search #{sn}s", p2.at("form > input")[:value]
@@ -221,17 +222,15 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       %w'browse results'.each do |action|
         p = page(port, "#{root}/#{action}_#{model}")
         assert_equal 4, (p/:td).length
-        assert_equal 3, (p/:form).length
+        assert_equal 1, (p/:form).length
         assert_equal name, (p/:td).first.inner_html
-        assert_match %r|#{root}/show_#{model}/\d+|, (p/:form)[0][:action]
-        assert_match %r|#{root}/edit_#{model}/\d+|, (p/:form)[1][:action]
-        assert_match %r|#{root}/destroy_#{model}/\d+|, (p/:form)[2][:action]
-        assert_equal 'get', (p/:form)[0][:method]
-        assert_equal 'get', (p/:form)[1][:method]
-        assert_equal 'post', (p/:form)[2][:method]
-        assert_equal 'Show', (p/:input)[0][:value]
-        assert_equal 'Edit', (p/:input)[1][:value]
-        assert_equal 'Delete', (p/:input)[2][:value]
+        assert_match %r|#{root}/show_#{model}/\d+|, (p/:td/:a)[0][:href]
+        assert_match %r|#{root}/edit_#{model}/\d+|, (p/:td/:a)[1][:href]
+        assert_match %r|#{root}/destroy_#{model}/\d+|, p.at(:form)[:action]
+        assert_equal 'post', p.at(:form)[:method]
+        assert_equal 'Show', (p/:td/:a)[0].inner_html
+        assert_equal 'Edit', (p/:td/:a)[1].inner_html
+        assert_equal 'Delete', (p/:input)[0][:value]
       end
   
       %w'show edit delete'.each do |action|
@@ -250,18 +249,18 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_equal name, (p/:option)[3].inner_html
   
       p = page(port, "#{root}/show_#{model}/#{i}")
-      assert_equal "#{root}/edit_#{model}/#{i}", (p/:a)[0][:href]
-      assert_equal 'Edit', (p/:a)[0].inner_html
+      assert_equal "#{root}/edit_#{model}/#{i}", p.at('ul.edit a')[:href]
+      assert_equal "Edit #{model.capitalize}", p.at('ul.edit a').inner_html
       assert_equal 'Attribute', (p/:th)[0].inner_html
       assert_equal 'Value', (p/:th)[1].inner_html
       assert_equal 'Name', (p/:td)[0].inner_html
       assert_equal name, (p/:td)[1].inner_html
       assert_equal 'Associated Records', p.at(:h3).inner_html
       assert_equal 'scaffold_associated_records_header', p.at(:h3)[:class]
-      assert_equal "scaffolded_associations_#{model}_#{i}", p.at(:ul)[:id]
-      assert_equal 1, (p/:li).length
-      assert_equal "#{root}/manage_employee", (p/:a)[1][:href]
-      assert_equal "Employees", (p/:a)[1].inner_html
+      assert_equal "scaffolded_associations_#{model}_#{i}", p.at("ul.association_links")[:id]
+      assert_equal 1, (p/"ul.association_links li").length
+      assert_equal "#{root}/browse_employee", (p/"ul.association_links li a")[0][:href]
+      assert_equal "Employees", (p/"ul.association_links li a")[0].inner_html
   
       p = page(port, "#{root}/edit_#{model}/#{i}")
       assert_equal "#{root}/update_#{model}/#{i}", p.at(:form)[:action]
@@ -273,16 +272,16 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_equal 'submit', (p/:input)[1][:type]
       assert_equal 'Associated Records', p.at(:h3).inner_html
       assert_equal 'scaffold_associated_records_header', p.at(:h3)[:class]
-      assert_equal "scaffolded_associations_#{model}_#{i}", p.at(:ul)[:id]
-      assert_equal 1, (p/:li).length
-      assert_equal "#{root}/manage_employee", (p/:a)[0][:href]
-      assert_equal "Employees", (p/:a)[0].inner_html
+      assert_equal "scaffolded_associations_#{model}_#{i}", p.at("ul.association_links")[:id]
+      assert_equal 1, (p/"ul.association_links li").length
+      assert_equal "#{root}/browse_employee", (p/"ul.association_links li a")[0][:href]
+      assert_equal "Employees", (p/"ul.association_links li a")[0].inner_html
       if model == 'position' 
-        assert_equal "#{root}/new_employee?employee%5Bposition_id%5D=#{i}", (p/:a)[1][:href]
-        assert_equal '(create)', (p/:a)[1].inner_html
+        assert_equal "#{root}/new_employee?employee%5Bposition_id%5D=#{i}", (p/"ul.association_links a")[1][:href]
+        assert_equal '(create)', (p/"ul.association_links a")[1].inner_html
       else
-        assert_equal "#{root}/edit_#{model}_employees/#{i}", (p/:a)[1][:href]
-        assert_equal '(associate)', (p/:a)[1].inner_html
+        assert_equal "#{root}/edit_#{model}_employees/#{i}", (p/"ul.association_links a")[1][:href]
+        assert_equal '(associate)', (p/"ul.association_links a")[1].inner_html
       end
     end
     
@@ -290,9 +289,9 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     i = (p/:option).last[:value]
     p = page(port, "#{root}/show_position/#{i}")
     # Check edit link from show page works
-    p = page(port, (p/:a).first[:href])
+    p = page(port, (p/"ul.edit a").first[:href])
     # Check create employee link on edit position page sets position for employee
-    p = page(port, (p/:a)[1][:href])
+    p = page(port, (p/"ul.association_links a")[1][:href])
     assert_equal 3, (p/'select#employee_active option').length
     assert_equal [nil, 'f', 't'], (p/'select#employee_active option').collect{|x| x[:value]}
     assert_equal 'employee_comment', p.at(:textarea)[:id]
@@ -317,14 +316,14 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     # Show page
     p = page(port, "#{root}/show_employee/#{i}")
     assert_equal %w'Active false Comment Comment Name Testemployee Password password Position Testposition', (p/:td).collect{|x| x.inner_html}
-    assert_equal 2, (p/:li).length
-    assert_equal 5, (p/:a).length
-    assert_equal 'Groups', (p/:a)[1].inner_html
-    assert_equal 'Position', (p/:a)[2].inner_html
-    assert_equal 'Testposition', (p/:a)[3].inner_html
-    assert_equal "#{root}/manage_group", (p/:a)[1][:href]
-    assert_equal "#{root}/manage_position", (p/:a)[2][:href]
-    assert_equal "#{root}/show_position/#{position_id}", (p/:a)[3][:href]
+    assert_equal 2, (p/"ul.association_links li").length
+    assert_equal 3, (p/"ul.association_links a").length
+    assert_equal 'Groups', (p/"ul.association_links a")[0].inner_html
+    assert_equal 'Position', (p/"ul.association_links a")[1].inner_html
+    assert_equal 'Testposition', (p/"ul.association_links a")[2].inner_html
+    assert_equal "#{root}/browse_group", (p/"ul.association_links a")[0][:href]
+    assert_equal "#{root}/browse_position", (p/"ul.association_links a")[1][:href]
+    assert_equal "#{root}/show_position/#{position_id}", (p/"ul.association_links a")[2][:href]
 
     # Make sure all boolean values work
     res = post(port, "#{root}/update_employee/#{i}", 'employee[active]'=>'')
@@ -337,7 +336,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal %w'Active true Comment Comment Name Testemployee Password password Position Testposition', (p/:td).collect{|x| x.inner_html}
     
     # Edit page
-    p1 = p = page(port, (p/:a)[0][:href])
+    p1 = p = page(port, (p/"ul.edit a")[0][:href])
     assert_equal 3, (p/'select#employee_active option').length
     assert_equal [nil, 'f', 't'], (p/'select#employee_active option').collect{|x| x[:value]}
     assert_equal nil, (p/'select#employee_active option')[1][:selected]
@@ -350,21 +349,21 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal 'password', p.at('input#employee_password')[:value]
     assert_equal position_id, (p/'select#employee_position_id option').last[:value]
     assert_equal 'selected', (p/'select#employee_position_id option').last[:selected]
-    assert_equal 'Groups', (p/:a)[0].inner_html
-    assert_equal '(associate)', (p/:a)[1].inner_html
-    assert_equal 'Position', (p/:a)[2].inner_html
-    assert_equal 'Testposition', (p/:a)[3].inner_html
-    assert_equal "#{root}/manage_group", (p/:a)[0][:href]
-    assert_equal "#{root}/edit_employee_groups/#{i}", (p/:a)[1][:href]
-    assert_equal "#{root}/manage_position", (p/:a)[2][:href]
-    assert_equal "#{root}/edit_position/#{position_id}", (p/:a)[3][:href]
+    assert_equal 'Groups', (p/"ul.association_links a")[0].inner_html
+    assert_equal '(associate)', (p/"ul.association_links a")[1].inner_html
+    assert_equal 'Position', (p/"ul.association_links a")[2].inner_html
+    assert_equal 'Testposition', (p/"ul.association_links a")[3].inner_html
+    assert_equal "#{root}/browse_group", (p/"ul.association_links a")[0][:href]
+    assert_equal "#{root}/edit_employee_groups/#{i}", (p/"ul.association_links a")[1][:href]
+    assert_equal "#{root}/browse_position", (p/"ul.association_links a")[2][:href]
+    assert_equal "#{root}/edit_position/#{position_id}", (p/"ul.association_links a")[3][:href]
 
     # Edit employee's groups page
-    p = page(port, (p/:a)[1][:href])
-    assert_equal "Update Testemployee's groups", p.at(:h1).inner_html
+    p = page(port, (p/"ul.association_links a")[1][:href])
+    assert_equal "Update Groups for Employee: Testemployee", p.at(:h1).inner_html
     assert_equal "#{root}/update_employee_groups/#{i}", p.at(:form)[:action]
     assert_equal "post", p.at(:form)[:method]
-    assert_equal 'Add these groups', p.at(:h4).inner_html
+    assert_equal 'Add These Groups', p.at(:h4).inner_html
     assert_equal 'add', p.at(:select)[:id]
     assert_equal 'add', p.at(:select)[:name].sub('[]', '')
     assert_equal 'multiple', p.at(:select)[:multiple]
@@ -372,17 +371,17 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal "add_#{group_id}", p.at(:option)[:id]
     assert_equal 'Testgroup', p.at(:option).inner_html
     assert_equal 'submit', p.at(:input)[:type]
-    assert_equal "Update Testemployee's groups", p.at(:input)[:value]
-    assert_equal 'Edit Testemployee', p.at(:a).inner_html
-    assert_equal "#{root}/edit_employee/#{i}", p.at(:a)[:href]
+    assert_equal "Update", p.at(:input)[:value]
+    assert_equal 'Edit Employee: Testemployee', p.at('ul.edit a').inner_html
+    assert_equal "#{root}/edit_employee/#{i}", p.at('ul.edit a')[:href]
 
     # Update the groups
     res = post(port, p.at(:form)[:action], p.at(:select)[:name]=>p.at(:option)[:value])
     assert_se_path port, root, "/edit_employee_groups/#{i}", res['Location']
 
     # Recheck the habtm page
-    p = page(port, (p1/:a)[1][:href])
-    assert_equal 'Remove these groups', p.at(:h4).inner_html
+    p = page(port, (p1/"ul.association_links a")[1][:href])
+    assert_equal 'Remove These Groups', p.at(:h4).inner_html
     assert_equal 'remove', p.at(:select)[:id]
     assert_equal 'remove', p.at(:select)[:name].sub('[]', '')
     assert_equal 'multiple', p.at(:select)[:multiple]
@@ -390,36 +389,36 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal "remove_#{group_id}", p.at(:option)[:id]
     assert_equal 'Testgroup', p.at(:option).inner_html
     assert_equal 'submit', p.at(:input)[:type]
-    assert_equal "Update Testemployee's groups", p.at(:input)[:value]
+    assert_equal "Update", p.at(:input)[:value]
 
     # Recheck employee edit page
-    p = page(port, p.at(:a)[:href])
-    assert_equal 'Groups', (p/:a)[0].inner_html
-    assert_equal '(associate)', (p/:a)[1].inner_html
-    assert_equal 'Testgroup', (p/:a)[2].inner_html
-    assert_equal 'Position', (p/:a)[3].inner_html
-    assert_equal 'Testposition', (p/:a)[4].inner_html
-    assert_equal "#{root}/manage_group", (p/:a)[0][:href]
-    assert_equal "#{root}/edit_employee_groups/#{i}", (p/:a)[1][:href]
-    assert_equal "#{root}/edit_group/#{group_id}", (p/:a)[2][:href]
-    assert_equal "#{root}/manage_position", (p/:a)[3][:href]
-    assert_equal "#{root}/edit_position/#{position_id}", (p/:a)[4][:href]
+    p = page(port, p.at('ul.edit a')[:href])
+    assert_equal 'Groups', (p/"ul.association_links a")[0].inner_html
+    assert_equal '(associate)', (p/"ul.association_links a")[1].inner_html
+    assert_equal 'Testgroup', (p/"ul.association_links a")[2].inner_html
+    assert_equal 'Position', (p/"ul.association_links a")[3].inner_html
+    assert_equal 'Testposition', (p/"ul.association_links a")[4].inner_html
+    assert_equal "#{root}/browse_group", (p/"ul.association_links a")[0][:href]
+    assert_equal "#{root}/edit_employee_groups/#{i}", (p/"ul.association_links a")[1][:href]
+    assert_equal "#{root}/edit_group/#{group_id}", (p/"ul.association_links a")[2][:href]
+    assert_equal "#{root}/browse_position", (p/"ul.association_links a")[3][:href]
+    assert_equal "#{root}/edit_position/#{position_id}", (p/"ul.association_links a")[4][:href]
 
     # Check working link to group page
-    p = page(port, (p/:a)[2][:href])
-    assert_equal 'Employees', (p/:a)[0].inner_html
-    assert_equal '(associate)', (p/:a)[1].inner_html
-    assert_equal 'Testemployee', (p/:a)[2].inner_html
-    assert_equal "#{root}/manage_employee", (p/:a)[0][:href]
-    assert_equal "#{root}/edit_group_employees/#{group_id}", (p/:a)[1][:href]
-    assert_equal "#{root}/edit_employee/#{i}", (p/:a)[2][:href]
+    p = page(port, (p/"ul.association_links a")[2][:href])
+    assert_equal 'Employees', (p/"ul.association_links a")[0].inner_html
+    assert_equal '(associate)', (p/"ul.association_links a")[1].inner_html
+    assert_equal 'Testemployee', (p/"ul.association_links a")[2].inner_html
+    assert_equal "#{root}/browse_employee", (p/"ul.association_links a")[0][:href]
+    assert_equal "#{root}/edit_group_employees/#{group_id}", (p/"ul.association_links a")[1][:href]
+    assert_equal "#{root}/edit_employee/#{i}", (p/"ul.association_links a")[2][:href]
 
     # Edit group's employees page
-    p = page(port, (p/:a)[1][:href])
-    assert_equal "Update Testgroup's employees", p.at(:h1).inner_html
+    p = page(port, (p/"ul.association_links a")[1][:href])
+    assert_equal "Update Employees for Group: Testgroup", p.at(:h1).inner_html
     assert_equal "#{root}/update_group_employees/#{group_id}", p.at(:form)[:action]
     assert_equal "post", p.at(:form)[:method]
-    assert_equal 'Remove these employees', p.at(:h4).inner_html
+    assert_equal 'Remove These Employees', p.at(:h4).inner_html
     assert_equal 'remove', p.at(:select)[:id]
     assert_equal 'remove', p.at(:select)[:name].sub('[]', '')
     assert_equal 'multiple', p.at(:select)[:multiple]
@@ -427,19 +426,18 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal "remove_#{i}", p.at(:option)[:id]
     assert_equal 'Testemployee', p.at(:option).inner_html
     assert_equal 'submit', p.at(:input)[:type]
-    assert_equal "Update Testgroup's employees", p.at(:input)[:value]
+    assert_equal "Update", p.at(:input)[:value]
 
     # Update the employees
     res = post(port, p.at(:form)[:action], p.at(:select)[:name]=>p.at(:option)[:value])
     assert_se_path port, root, "/edit_group_employees/#{group_id}", res['Location']
 
     # Recheck the edit group page
-    p = page(port, p.at(:a)[:href])
-    assert_equal 'Employees', (p/:a)[0].inner_html
-    assert_equal '(associate)', (p/:a)[1].inner_html
-    assert_equal 'Manage groups', (p/:a)[2].inner_html
-    assert_equal "#{root}/manage_employee", (p/:a)[0][:href]
-    assert_equal "#{root}/edit_group_employees/#{group_id}", (p/:a)[1][:href]
+    p = page(port, p.at("ul.edit a")[:href])
+    assert_equal 'Employees', (p/"ul.association_links a")[0].inner_html
+    assert_equal '(associate)', (p/"ul.association_links a")[1].inner_html
+    assert_equal "#{root}/browse_employee", (p/"ul.association_links a")[0][:href]
+    assert_equal "#{root}/edit_group_employees/#{group_id}", (p/"ul.association_links a")[1][:href]
 
     # Make sure foreign key set to NULL works
     post(port, "#{root}/update_employee/#{i}", 'employee[position_id]'=>'')
@@ -466,27 +464,39 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
 
       # Check first object shows up on first browse page
       p = page(port, "#{root}/browse_#{model}")
-      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
-      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
-      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
-      assert_equal "#{root}/browse_#{model}?page=2", (p/:a)[0][:href]
-      assert_equal 'Next Page', (p/:a)[0].inner_html
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:td/:a)[0][:href]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:td/:a)[1][:href]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_equal "disabled", (p/'div.pagination li')[0][:class]
+      assert_equal nil, (p/'div.pagination li')[1][:class]
+      assert_equal "#{root}/browse_#{model}?page=0", (p/'div.pagination a')[0][:href]
+      assert_equal "#{root}/browse_#{model}?page=2", (p/'div.pagination a')[1][:href]
+      assert_equal "Previous", (p/'div.pagination a')[0].inner_html
+      assert_equal "Next", (p/'div.pagination a')[1].inner_html
 
       # Check second object shows up on second browse page
-      p = page(port, (p/:a)[0][:href])
-      assert_match %r|#{root}/show_#{model}/#{t}|, (p/:form)[0][:action]
-      assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
-      assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
-      assert_equal "#{root}/browse_#{model}?page=1", (p/:a)[0][:href]
-      assert_equal 'Previous Page', (p/:a)[0].inner_html
+      p = page(port, (p/'div.pagination a')[1][:href])
+      assert_match %r|#{root}/show_#{model}/#{t}|, (p/:td/:a)[0][:href]
+      assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:td/:a)[1][:href]
+      assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[0][:action]
+      assert_equal nil, (p/'div.pagination li')[0][:class]
+      assert_equal "disabled", (p/'div.pagination li')[1][:class]
+      assert_equal "#{root}/browse_#{model}?page=1", (p/'div.pagination a')[0][:href]
+      assert_equal "#{root}/browse_#{model}?page=2", (p/'div.pagination a')[1][:href]
+      assert_equal "Previous", (p/'div.pagination a')[0].inner_html
+      assert_equal "Next", (p/'div.pagination a')[1].inner_html
 
       # Check link goes back to first browse page
-      p = page(port, (p/:a)[0][:href])
-      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
-      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
-      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
-      assert_equal "#{root}/browse_#{model}?page=2", (p/:a)[0][:href]
-      assert_equal 'Next Page', (p/:a)[0].inner_html
+      p = page(port, (p/'div.pagination a')[0][:href])
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:td/:a)[0][:href]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:td/:a)[1][:href]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_equal "disabled", (p/'div.pagination li')[0][:class]
+      assert_equal nil, (p/'div.pagination li')[1][:class]
+      assert_equal "#{root}/browse_#{model}?page=0", (p/'div.pagination a')[0][:href]
+      assert_equal "#{root}/browse_#{model}?page=2", (p/'div.pagination a')[1][:href]
+      assert_equal "Previous", (p/'div.pagination a')[0].inner_html
+      assert_equal "Next", (p/'div.pagination a')[1].inner_html
 
       # Get param list suffix
       p = page(port, "#{root}/search_#{model}")
@@ -495,33 +505,33 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
 
       # Check searching for Best brings up one item
       p = page(port, "#{root}/results_#{model}?#{model}[name]=Best")
-      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
-      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
-      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
-      assert_equal 3, (p/:form).length
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:td/:a)[0][:href]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:td/:a)[1][:href]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_equal 1, (p/:form).length
 
       # Check searching for Test brings up one item
       p = page(port, "#{root}/results_#{model}?#{model}[name]=Test")
-      assert_match %r|#{root}/show_#{model}/#{t}|, (p/:form)[0][:action]
-      assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
-      assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
-      assert_equal 3, (p/:form).length
+      assert_match %r|#{root}/show_#{model}/#{t}|, (p/:td/:a)[0][:href]
+      assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:td/:a)[1][:href]
+      assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[0][:action]
+      assert_equal 1, (p/:form).length
 
       if model == 'position'
         position_id = t
       elsif model == 'employee'
         # Check searching for employee by position id
         p = page(port, "#{root}/results_#{model}?#{model}[position_id]=#{position_id}")
-        assert_match %r|#{root}/show_#{model}/#{t}|, (p/:form)[0][:action]
-        assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
-        assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
-        assert_equal 3, (p/:form).length
+        assert_match %r|#{root}/show_#{model}/#{t}|, (p/:td/:a)[0][:href]
+        assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:td/:a)[1][:href]
+        assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[0][:action]
+        assert_equal 1, (p/:form).length
         # Check searching for employee by boolean field
         p = page(port, "#{root}/results_#{model}?#{model}[active]=t")
-        assert_match %r|#{root}/show_#{model}/#{t}|, (p/:form)[0][:action]
-        assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
-        assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
-        assert_equal 3, (p/:form).length
+        assert_match %r|#{root}/show_#{model}/#{t}|, (p/:td/:a)[0][:href]
+        assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:td/:a)[1][:href]
+        assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[0][:action]
+        assert_equal 1, (p/:form).length
         p = page(port, "#{root}/results_#{model}?#{model}[active]=f")
         assert_equal 0, (p/:form).length
       end
@@ -532,105 +542,105 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
 
       # Check first object shows up on first search page
       p = page(port, "#{root}/results_#{model}?#{notnull}=name")
-      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
-      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
-      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
-      assert_equal "#{root}/results_#{model}", (p/:form)[3][:action]
-      assert_equal "post", (p/:form)[3][:method]
-      assert_equal "page", (p/:input)[3][:name]
-      assert_equal "1", (p/:input)[3][:value]
-      assert_equal "hidden", (p/:input)[3][:type]
-      assert_equal notnull, (p/:input)[4][:name]
-      assert_equal "name", (p/:input)[4][:value]
-      assert_equal "hidden", (p/:input)[4][:type]
-      assert_equal 'page_next', (p/:input)[5][:name]
-      assert_equal "Next Page", (p/:input)[5][:value]
-      assert_equal "submit", (p/:input)[5][:type]
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:td/:a)[0][:href]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:td/:a)[1][:href]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_equal "#{root}/results_#{model}", (p/:form)[1][:action]
+      assert_equal "post", (p/:form)[1][:method]
+      assert_equal "page", (p/:input)[1][:name]
+      assert_equal "1", (p/:input)[1][:value]
+      assert_equal "hidden", (p/:input)[1][:type]
+      assert_equal notnull, (p/:input)[2][:name]
+      assert_equal "name", (p/:input)[2][:value]
+      assert_equal "hidden", (p/:input)[2][:type]
+      assert_equal 'page_next', (p/:input)[3][:name]
+      assert_equal "Next Page", (p/:input)[3][:value]
+      assert_equal "submit", (p/:input)[3][:type]
 
       # Check second object shows up on second search page
       p = page(port, "#{root}/results_#{model}?#{notnull}=name&page_next=Next+Page&page=1")
-      assert_match %r|#{root}/show_#{model}/#{t}|, (p/:form)[0][:action]
-      assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
-      assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
-      assert_equal "#{root}/results_#{model}", (p/:form)[3][:action]
-      assert_equal "post", (p/:form)[3][:method]
-      assert_equal "page", (p/:input)[3][:name]
-      assert_equal "2", (p/:input)[3][:value]
-      assert_equal "hidden", (p/:input)[3][:type]
-      assert_equal notnull, (p/:input)[4][:name]
-      assert_equal "name", (p/:input)[4][:value]
-      assert_equal "hidden", (p/:input)[4][:type]
-      assert_equal 'page_previous', (p/:input)[5][:name]
-      assert_equal "Previous Page", (p/:input)[5][:value]
-      assert_equal "submit", (p/:input)[5][:type]
+      assert_match %r|#{root}/show_#{model}/#{t}|, (p/:td/:a)[0][:href]
+      assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:td/:a)[1][:href]
+      assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[0][:action]
+      assert_equal "#{root}/results_#{model}", (p/:form)[1][:action]
+      assert_equal "post", (p/:form)[1][:method]
+      assert_equal "page", (p/:input)[1][:name]
+      assert_equal "2", (p/:input)[1][:value]
+      assert_equal "hidden", (p/:input)[1][:type]
+      assert_equal notnull, (p/:input)[2][:name]
+      assert_equal "name", (p/:input)[2][:value]
+      assert_equal "hidden", (p/:input)[2][:type]
+      assert_equal 'page_previous', (p/:input)[3][:name]
+      assert_equal "Previous Page", (p/:input)[3][:value]
+      assert_equal "submit", (p/:input)[3][:type]
 
       # Check first object shows up on first search page
       p = page(port, "#{root}/results_#{model}?#{notnull}=name&page_previous=Previous+Page&page=2")
-      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
-      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
-      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
-      assert_equal "#{root}/results_#{model}", (p/:form)[3][:action]
-      assert_equal "post", (p/:form)[3][:method]
-      assert_equal "page", (p/:input)[3][:name]
-      assert_equal "1", (p/:input)[3][:value]
-      assert_equal "hidden", (p/:input)[3][:type]
-      assert_equal notnull, (p/:input)[4][:name]
-      assert_equal "name", (p/:input)[4][:value]
-      assert_equal "hidden", (p/:input)[4][:type]
-      assert_equal 'page_next', (p/:input)[5][:name]
-      assert_equal "Next Page", (p/:input)[5][:value]
-      assert_equal "submit", (p/:input)[5][:type]
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:td/:a)[0][:href]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:td/:a)[1][:href]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_equal "#{root}/results_#{model}", (p/:form)[1][:action]
+      assert_equal "post", (p/:form)[1][:method]
+      assert_equal "page", (p/:input)[1][:name]
+      assert_equal "1", (p/:input)[1][:value]
+      assert_equal "hidden", (p/:input)[1][:type]
+      assert_equal notnull, (p/:input)[2][:name]
+      assert_equal "name", (p/:input)[2][:value]
+      assert_equal "hidden", (p/:input)[2][:type]
+      assert_equal 'page_next', (p/:input)[3][:name]
+      assert_equal "Next Page", (p/:input)[3][:value]
+      assert_equal "submit", (p/:input)[3][:type]
 
       # Check pagination works when searching with model fields
       p = page(port, "#{root}/results_#{model}?#{model}[name]=est")
-      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
-      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
-      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
-      assert_equal "#{root}/results_#{model}", (p/:form)[3][:action]
-      assert_equal "post", (p/:form)[3][:method]
-      assert_equal "page", (p/:input)[3][:name]
-      assert_equal "1", (p/:input)[3][:value]
-      assert_equal "hidden", (p/:input)[3][:type]
-      assert_equal "#{model}[name]", (p/:input)[4][:name]
-      assert_equal "est", (p/:input)[4][:value]
-      assert_equal "hidden", (p/:input)[4][:type]
-      assert_equal 'page_next', (p/:input)[5][:name]
-      assert_equal "Next Page", (p/:input)[5][:value]
-      assert_equal "submit", (p/:input)[5][:type]
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:td/:a)[0][:href]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:td/:a)[1][:href]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_equal "#{root}/results_#{model}", (p/:form)[1][:action]
+      assert_equal "post", (p/:form)[1][:method]
+      assert_equal "page", (p/:input)[1][:name]
+      assert_equal "1", (p/:input)[1][:value]
+      assert_equal "hidden", (p/:input)[1][:type]
+      assert_equal "#{model}[name]", (p/:input)[2][:name]
+      assert_equal "est", (p/:input)[2][:value]
+      assert_equal "hidden", (p/:input)[2][:type]
+      assert_equal 'page_next', (p/:input)[3][:name]
+      assert_equal "Next Page", (p/:input)[3][:value]
+      assert_equal "submit", (p/:input)[3][:type]
 
       # Check second object shows up on second search page
       p = page(port, "#{root}/results_#{model}?#{model}[name]=est&page_next=Next+Page&page=1")
-      assert_match %r|#{root}/show_#{model}/#{t}|, (p/:form)[0][:action]
-      assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:form)[1][:action]
-      assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[2][:action]
-      assert_equal "#{root}/results_#{model}", (p/:form)[3][:action]
-      assert_equal "post", (p/:form)[3][:method]
-      assert_equal "page", (p/:input)[3][:name]
-      assert_equal "2", (p/:input)[3][:value]
-      assert_equal "hidden", (p/:input)[3][:type]
-      assert_equal "#{model}[name]", (p/:input)[4][:name]
-      assert_equal "est", (p/:input)[4][:value]
-      assert_equal "hidden", (p/:input)[4][:type]
-      assert_equal 'page_previous', (p/:input)[5][:name]
-      assert_equal "Previous Page", (p/:input)[5][:value]
-      assert_equal "submit", (p/:input)[5][:type]
+      assert_match %r|#{root}/show_#{model}/#{t}|, (p/:td/:a)[0][:href]
+      assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:td/:a)[1][:href]
+      assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[0][:action]
+      assert_equal "#{root}/results_#{model}", (p/:form)[1][:action]
+      assert_equal "post", (p/:form)[1][:method]
+      assert_equal "page", (p/:input)[1][:name]
+      assert_equal "2", (p/:input)[1][:value]
+      assert_equal "hidden", (p/:input)[1][:type]
+      assert_equal "#{model}[name]", (p/:input)[2][:name]
+      assert_equal "est", (p/:input)[2][:value]
+      assert_equal "hidden", (p/:input)[2][:type]
+      assert_equal 'page_previous', (p/:input)[3][:name]
+      assert_equal "Previous Page", (p/:input)[3][:value]
+      assert_equal "submit", (p/:input)[3][:type]
 
       # Check first object shows up on first search page
       p = page(port, "#{root}/results_#{model}?#{model}[name]=est&page_previous=Previous+Page&page=2")
-      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:form)[0][:action]
-      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:form)[1][:action]
-      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[2][:action]
-      assert_equal "#{root}/results_#{model}", (p/:form)[3][:action]
-      assert_equal "post", (p/:form)[3][:method]
-      assert_equal "page", (p/:input)[3][:name]
-      assert_equal "1", (p/:input)[3][:value]
-      assert_equal "hidden", (p/:input)[3][:type]
-      assert_equal "#{model}[name]", (p/:input)[4][:name]
-      assert_equal "est", (p/:input)[4][:value]
-      assert_equal "hidden", (p/:input)[4][:type]
-      assert_equal 'page_next', (p/:input)[5][:name]
-      assert_equal "Next Page", (p/:input)[5][:value]
-      assert_equal "submit", (p/:input)[5][:type]
+      assert_match %r|#{root}/show_#{model}/#{b}|, (p/:td/:a)[0][:href]
+      assert_match %r|#{root}/edit_#{model}/#{b}|, (p/:td/:a)[1][:href]
+      assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[0][:action]
+      assert_equal "#{root}/results_#{model}", (p/:form)[1][:action]
+      assert_equal "post", (p/:form)[1][:method]
+      assert_equal "page", (p/:input)[1][:name]
+      assert_equal "1", (p/:input)[1][:value]
+      assert_equal "hidden", (p/:input)[1][:type]
+      assert_equal "#{model}[name]", (p/:input)[2][:name]
+      assert_equal "est", (p/:input)[2][:value]
+      assert_equal "hidden", (p/:input)[2][:type]
+      assert_equal 'page_next', (p/:input)[3][:name]
+      assert_equal "Next Page", (p/:input)[3][:value]
+      assert_equal "submit", (p/:input)[3][:type]
     end
   end
 
@@ -657,10 +667,10 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
 
     # Edit employee's groups page
     p = page(port, "#{root}/edit_employee_groups/#{t}")
-    assert_equal "Update Testemployee's groups", p.at(:h1).inner_html
+    assert_equal "Update Groups for Employee: Testemployee", p.at(:h1).inner_html
     assert_equal "#{root}/update_employee_groups/#{t}", p.at(:form)[:action]
     assert_equal "post", p.at(:form)[:method]
-    assert_equal 'Add these groups', p.at(:h4).inner_html
+    assert_equal 'Add These Groups', p.at(:h4).inner_html
     assert_equal 'add', p.at(:select)[:id]
     assert_equal 'add', p.at(:select)[:name].sub('[]', '')
     assert_equal 'multiple', p.at(:select)[:multiple]
@@ -677,7 +687,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     res = post_multiple(port, p.at(:form)[:action], p.at('select#add')[:name], [tg, bg])
     assert_se_path port, root, "/edit_employee_groups/#{t}", res['Location']
     p = page(port, "#{root}/edit_employee_groups/#{t}")
-    assert_equal 'Remove these groups', p.at(:h4).inner_html
+    assert_equal 'Remove These Groups', p.at(:h4).inner_html
     assert_equal 'remove', p.at(:select)[:id]
     assert_equal 'remove', p.at(:select)[:name].sub('[]', '')
     assert_equal 'multiple', p.at(:select)[:multiple]
@@ -800,7 +810,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     res = post(port, "#{root}/create_officer", "officer[name]"=>'Zofficer')
     assert_se_path port, root, "/new_officer", res['Location']
     p = page(port, "#{root}/browse_officer")
-    i = (p/:form)[1][:action].split('/')[-1]
+    i = (p/:form)[0][:action].split('/')[-1]
     
     # Check to make sure that auto complete fields exist every place they are expected
     
@@ -876,7 +886,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     
     # Tset auto completing for belongs to associations
     p = page(port, "#{root}/browse_position")
-    ip = (p/:form)[1][:action].split('/')[-1]
+    ip = (p/:form)[0][:action].split('/')[-1]
     p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?#{param}=Z&association=position")
     assert_equal (prototype? ? "<ul><li>#{ip} - Zposition</li></ul>" : "#{ip} - Zposition"), p.inner_html
     p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?#{param}=X&association=position")
@@ -884,7 +894,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     
     # Test auto completing for habtm associations
     p = page(port, "#{root}/browse_group")
-    ig = (p/:form)[1][:action].split('/')[-1]
+    ig = (p/:form)[0][:action].split('/')[-1]
     p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?#{param}=Z&association=groups")
     assert_equal (prototype? ? "<ul><li>#{ig} - Zgroup</li></ul>" : "#{ig} - Zgroup"), p.inner_html
     p = page_xhr(port, "#{root}/scaffold_auto_complete_for_officer?#{param}=X&association=groups")
@@ -897,19 +907,19 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     p = page(port, "#{root}/edit_meeting")
     i = (p/:option).last[:value]
     p = page(port, "#{root}/browse_position")
-    pi = (p/:form)[1][:action].split('/')[-1]
+    pi = (p/:form)[0][:action].split('/')[-1]
     
     # Check for load associations link
     p = page(port, "#{root}/edit_meeting/#{i}")
-    assert_equal "scaffold_ajax_content_#{i}", p.at("div#scaffold_ajax_content_#{i}")[:id]
-    assert_equal 'Modify Associations', p.at(:a).inner_html
-    assert_equal "#{root}/edit_meeting/#{i}?associations=show", p.at(:a)[:href]
-    if "$('#scaffold_ajax_content_#{i}').load('#{root}/associations_meeting/#{i}'); return false;" == p.at(:a)[:onclick]
+    assert_equal "scaffold_ajax_content_#{i}", p.at("div.scaffold_ajax_content")[:id]
+    assert_equal 'Modify Associations', p.at("div.scaffold_ajax_content a").inner_html
+    assert_equal "#{root}/edit_meeting/#{i}?associations=show", p.at("div.scaffold_ajax_content a")[:href]
+    if "$('#scaffold_ajax_content_#{i}').load('#{root}/associations_meeting/#{i}'); return false;" == p.at("div.scaffold_ajax_content a")[:onclick]
       @js_lib = :jquery
-      assert_equal "$('#scaffold_ajax_content_#{i}').load('#{root}/associations_meeting/#{i}'); return false;", p.at(:a)[:onclick]
+      assert_equal "$('#scaffold_ajax_content_#{i}').load('#{root}/associations_meeting/#{i}'); return false;", p.at("div.scaffold_ajax_content a")[:onclick]
     else
       @js_lib = :prototype
-      assert_equal "new Ajax.Updater('scaffold_ajax_content_#{i}', '#{root}/associations_meeting/#{i}', {method:'get', asynchronous:true, evalScripts:true}); return false;", p.at(:a)[:onclick]
+      assert_equal "new Ajax.Updater('scaffold_ajax_content_#{i}', '#{root}/associations_meeting/#{i}', {method:'get', asynchronous:true, evalScripts:true}); return false;", p.at("div.scaffold_ajax_content a")[:onclick]
     end
     
     # Check that edit page with associations parameter has associations
@@ -917,7 +927,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     assert_equal 1, (p/"div#meeting_habtm_ajax_remove_associations ul").length
     
     # Check that associations link brings up the appropriate form widgets
-    p = page(port, "#{root}/associations_meeting/#{i}")
+    p = page_xhr(port, "#{root}/associations_meeting/#{i}")
     assert_equal 'habtm_ajax_add_associations', (p/:div).first[:class]
     assert_equal 'meeting_habtm_ajax_add_associations', (p/:div).first[:id]
     assert_equal 'habtm_ajax_remove_associations', (p/:div).last[:class]
@@ -978,7 +988,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     # Add Group and see if it appears in the association page
     res = post(port, "#{root}/add_groups_to_meeting/#{i}", 'meeting_groups_id'=>gi)
     assert_se_path port, root, "/edit_meeting/#{i}", res['Location']
-    p = page(port, "#{root}/associations_meeting/#{i}")
+    p = page_xhr(port, "#{root}/associations_meeting/#{i}")
     assert_equal 1, (p/:option).length
     assert_equal nil, (p/:option).first[:value]
     assert_equal '', (p/:option).first.inner_html
@@ -1004,19 +1014,19 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     # Remove Group and see if it disappears
     res = post(port, "#{root}/remove_groups_from_meeting/#{i}", 'meeting_groups_id'=>gi)
     assert_se_path port, root, "/edit_meeting/#{i}", res['Location']
-    p = page(port, "#{root}/associations_meeting/#{i}")
+    p = page_xhr(port, "#{root}/associations_meeting/#{i}")
     assert_equal 0, (p/:li).length
     
     # Less Extensive Tests for positions association
     res = post(port, "#{root}/add_positions_to_meeting/#{i}", 'meeting_positions_id'=>pi)
     assert_se_path port, root, "/edit_meeting/#{i}", res['Location']
-    p = page(port, "#{root}/associations_meeting/#{i}")
+    p = page_xhr(port, "#{root}/associations_meeting/#{i}")
     assert_equal 1, (p/:li).length
     assert_equal 'Positions', (p/"li a").first.inner_html
     assert_equal 'Zposition', (p/"li a").last.inner_html
     res = post(port, "#{root}/remove_positions_from_meeting/#{i}", 'meeting_positions_id'=>pi)
     assert_se_path port, root, "/edit_meeting/#{i}", res['Location']
-    p = page(port, "#{root}/associations_meeting/#{i}")
+    p = page_xhr(port, "#{root}/associations_meeting/#{i}")
     assert_equal 0, (p/:li).length
     
     # Test Ajax form submission via xhr yields correct javascript and performs action
@@ -1026,7 +1036,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     else
       assert_equal "$('#meeting_associated_records_list').prepend(\"\\u003Cli id='meeting_#{i}_groups_#{gi}'\\u003E\\n\\u003Ca href='#{root}/manage_group'\\u003EGroups\\u003C/a\\u003E - \\n\\u003Ca href='#{root}/edit_group/#{gi}'\\u003EZgroup\\u003C/a\\u003E\\n\\u003Cform method='post' action='#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}' onsubmit=\\\"$.post('#{root}/remove_groups_from_meeting/#{i}?meeting_groups_id=#{gi}', $(this).serialize(), function(data, textStatus){}); return false;\\\"\\u003E\\n\\n\\n\\u003Cinput class=\\\"btn btn-primary\\\" type='submit' value=Remove /\\u003E\\n\\u003C/form\\u003E\\n\\u003C/li\\u003E\\n\");\n$('#meeting_groups_id_#{gi}').remove();\n$('#meeting_groups_id').selectedIndex = 0;\n", res.body
     end
-    p = page(port, "#{root}/associations_meeting/#{i}")
+    p = page_xhr(port, "#{root}/associations_meeting/#{i}")
     assert_equal 1, (p/:li).length
     assert_equal 'Groups', (p/"li a").first.inner_html
     assert_equal 'Zgroup', (p/"li a").last.inner_html
@@ -1037,7 +1047,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     else
       assert_equal "$('#meeting_#{i}_groups_#{gi}').remove();\n$('#meeting_groups_id').append(\"\\u003Coption value='#{gi}' id='meeting_groups_id_#{gi}'\\u003EZgroup\\u003C/option\\u003E\");\n", res.body
     end
-    p = page(port, "#{root}/associations_meeting/#{i}")
+    p = page_xhr(port, "#{root}/associations_meeting/#{i}")
     assert_equal 0, (p/:li).length
     
     res = post_xhr(port, "#{root}/add_positions_to_meeting/#{i}", 'meeting_positions_id'=>pi)
@@ -1046,7 +1056,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     else
       assert_equal "$('#meeting_associated_records_list').prepend(\"\\u003Cli id='meeting_#{i}_positions_#{pi}'\\u003E\\n\\u003Ca href='#{root}/manage_position'\\u003EPositions\\u003C/a\\u003E - \\n\\u003Ca href='#{root}/edit_position/#{pi}'\\u003EZposition\\u003C/a\\u003E\\n\\u003Cform method='post' action='#{root}/remove_positions_from_meeting/#{i}?meeting_positions_id=#{pi}' onsubmit=\\\"$.post('#{root}/remove_positions_from_meeting/#{i}?meeting_positions_id=#{pi}', $(this).serialize(), function(data, textStatus){}); return false;\\\"\\u003E\\n\\n\\n\\u003Cinput class=\\\"btn btn-primary\\\" type='submit' value=Remove /\\u003E\\n\\u003C/form\\u003E\\n\\u003C/li\\u003E\\n\");\n$('#meeting_positions_id').val('');\n", res.body
     end
-    p = page(port, "#{root}/associations_meeting/#{i}")
+    p = page_xhr(port, "#{root}/associations_meeting/#{i}")
     assert_equal 1, (p/:li).length
     assert_equal 'Positions', (p/"li a").first.inner_html
     assert_equal 'Zposition', (p/"li a").last.inner_html
@@ -1057,7 +1067,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
     else
       assert_equal "$('#meeting_#{i}_positions_#{pi}').remove();\n", res.body
     end
-    p = page(port, "#{root}/associations_meeting/#{i}")
+    p = page_xhr(port, "#{root}/associations_meeting/#{i}")
     assert_equal 0, (p/:li).length
   end
 end

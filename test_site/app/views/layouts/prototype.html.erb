@@ -51,15 +51,12 @@
   </style>
 </head>
 <body>
-<% if @scaffold_title %>
-<h1><%= @scaffold_title %></h1>
-<% end %>
 <% if scaffold_get_flash %>
 <h4><%= scaffold_get_flash %></h4>
 <% end %>
-<p>Custom Layout</p>
 
 <%= yield %>
 
+<p>Custom Layout</p>
 </body>
 </html>
