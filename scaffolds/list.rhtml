@@ -1,4 +1,5 @@
 <% (haction = (action = @scaffold_action).to_s.humanize).downcase %>
+<% haction = 'Delete' if haction == 'Destroy' %>
 <% @scaffold_title = "#{plural_name = @scaffold_options[:plural_human_name]} - #{haction}" %>
 
 <%= scaffold_tabs %>
@@ -11,7 +12,7 @@
   <%=scaffold_raw scaffold_select_tag('id', @scaffold_objects) %>
 <% end %>
 <br /><br />
-<input class="btn btn-<%= scaffold_idempotent_action?(action) ? 'primary' : 'danger' %>" type="submit" value="<%= haction %> <%= @scaffold_options[:singular_lc_human_name] %>" />
+<input class="btn btn-<%= scaffold_idempotent_action?(action) ? 'primary' : 'danger' %>" type="submit" value="<%= haction %> <%= @scaffold_options[:singular_human_name] %>" />
 </form>
 
 <%=scaffold_raw scaffold_check_link('Manage Models', true, 'index') %>

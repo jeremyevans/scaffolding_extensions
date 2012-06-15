@@ -6,7 +6,7 @@
 
 <%=scaffold_raw scaffold_model_form('update', @scaffold_class.scaffold_fields(:edit)) %>
 <% if delete = scaffolded_method?(ds = "destroy#{@scaffold_suffix}") %>
-  <%=scaffold_raw scaffold_button_to("Delete #{@scaffold_options[:singular_name]}", scaffold_url(ds, :id=>@scaffold_object.id), :class=>'btn-danger') %>
+  <%=scaffold_raw scaffold_button_to("Delete #{@scaffold_options[:singular_human_name]}", scaffold_url(ds, :id=>@scaffold_object.id), :class=>'btn-danger') %>
 <% end %>
 
 <% if @scaffold_class.scaffold_load_associations_with_ajax && !@scaffold_show_associations %>

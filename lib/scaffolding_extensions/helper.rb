@@ -270,7 +270,7 @@ module ScaffoldingExtensions
         #{scaffold_form(scaffold_url("#{action}#{@scaffold_suffix}", options), :attributes=>scaffold_form_enctype(fields))}
         #{scaffold_model_field_tags(fields)}
         #{(yield content; content) if block_given?}
-        <input class='btn btn-primary' type='submit' value="#{@scaffold_submit_value || "#{action.capitalize} #{@scaffold_options[:singular_lc_human_name]}"}" />
+        <input class='btn btn-primary' type='submit' value="#{@scaffold_submit_value || "#{action.capitalize} #{@scaffold_options[:singular_human_name]}"}" />
         </form>
         END
       end

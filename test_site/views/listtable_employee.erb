@@ -9,13 +9,13 @@
     <th><%=h @scaffold_class.scaffold_column_name(column) %></th>
   <% end %>
   <% if show = scaffolded_method?(ss = "show#{@scaffold_suffix}") %>
-    <th><%= s = 'Show' %></th>
+    <th>Show</th>
   <% end %>
   <% if edit = scaffolded_method?(es = "edit#{@scaffold_suffix}") %>
-    <th><%= e = 'Edit' %></th>
+    <th>Edit</th>
   <% end %>
   <% if delete = scaffolded_method?(ds = "destroy#{@scaffold_suffix}") %>
-    <th><%= d = 'Delete' %></th>
+    <th>Delete</th>
   <% end %>
   </tr>
 </thead>
@@ -32,7 +32,7 @@
     <td><%=scaffold_raw scaffold_link('Edit', es, :id=>eid) %></td>
   <% end %>
   <% if delete %>
-    <td><%=scaffold_raw scaffold_button_to(d, scaffold_url(ds, :id=>eid), :class=>'btn-mini btn-danger') %></td>
+    <td><%=scaffold_raw scaffold_button_to('Delete', scaffold_url(ds, :id=>eid), :class=>'btn-mini btn-danger') %></td>
   <% end %>
   </tr>
 <% end %>
@@ -42,8 +42,17 @@
 <% if @scaffold_action == :browse %>
 <div class="pagination">
   <ul>
-    <li<%= ' class="disabled"' unless @page > 1 %>><a href="<%= scaffold_url("browse#{@scaffold_suffix}", :page=>(@page-1)) %>">Previous</a></li>
-    <li<%= ' class="disabled"' unless @next_page %>><a href="<%= scaffold_url("browse#{@scaffold_suffix}", :page=>(@next_page ? @page+1 : @page)) %>">Next</a></li>
+    <% if @page > 1 %>
+      <li><a href="<%= scaffold_url("browse#{@scaffold_suffix}", :page=>(@page-1)) %>">Previous</a></li>
+    <% else %>
+      <li class="disabled">Previous</li>
+    <% end %>
+
+    <% if @next_page %>
+      <li><a href="<%= scaffold_url("browse#{@scaffold_suffix}", :page=>(@next_page ? @page+1 : @page)) %>">Next</a></li>
+    <% else %>
+      <li class="disabled">Next</li>
+    <% end %>
   </ul>
 </div>
 <% end %>

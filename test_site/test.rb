@@ -27,7 +27,6 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
   HOST='localhost'
   FIELD_NAMES={'employee'=>%w'Active Comment Name Password Position', 'position'=>%w'Name', 'group'=>%w'Name'}
   FIELDS={'employee'=>%w'active comment name password position_id', 'position'=>%w'name', 'group'=>%w'name'}
-  ACTION_MAP={'delete'=>'destroy', 'edit'=>'edit', 'show'=>'show'}
 
   def test_all_frameworks_and_dbs
     meths = methods.sort.grep(/\A_test_\d\d/)
@@ -155,27 +154,26 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
              assert_equal "Scaffolding Extensions - #{csn}s - Browse", p2.at(:title).inner_html
              assert_equal FIELD_NAMES[sn]+%w'Show Edit Delete', (p2/:th).collect{|x| x.inner_html}
              assert_equal 0, (p2/:td).length
-             assert_equal 2, (p2/"div.pagination"/:li/:a).length
+             assert_equal 2, (p2/"div.pagination"/:li).length
+             assert_equal 0, (p2/"div.pagination"/:li/:a).length
              assert_equal %w'disabled disabled', (p2/"div.pagination"/:li).map{|t| t[:class]}
-             assert_equal %W"#{root}/browse_#{sn}?page=0 #{root}/browse_#{sn}?page=1", (p2/"div.pagination"/:li/:a).map{|t| t[:href]}
-             assert_match %r{\A#{root}(/index)?\z}, (p2/:a).last[:href]
            when 'new'
              assert_equal "Scaffolding Extensions - #{csn}s - New", p2.at(:title).inner_html
              assert_equal "Create New #{csn}", p2.at(:h1).inner_html
              assert_equal "#{root}/create_#{sn}", p2.at(:form)[:action]
              assert_equal "post", p2.at(:form)[:method]
-             assert_equal "Create #{sn}", p2.at("form > input")[:value]
+             assert_equal "Create #{csn}", p2.at("form > input")[:value]
              assert_equal "submit", p2.at("form > input")[:type]
              assert_equal FIELD_NAMES[sn], (p2/:label).collect{|x| x.inner_html}
              assert_equal FIELDS[sn].collect{|x| "#{sn}_#{x}"}, (p2/:label).collect{|x| x[:for]}
              assert_equal Set.new(FIELDS[sn].collect{|x| "#{sn}_#{x}"}), Set.new((p2/('td input, td select, td textarea')).collect{|x| x[:id]})
              assert_equal Set.new(FIELDS[sn].collect{|x| "#{sn}[#{x}]"}), Set.new((p2/('td input, td select, td textarea')).collect{|x| x[:name]})
            when 'delete', 'show', 'edit'
-             assert_equal "Scaffolding Extensions - #{csn}s - #{ACTION_MAP[page_type].capitalize}", p2.at(:title).inner_html
-             assert_match /#{ACTION_MAP[page_type].capitalize} #{csn}:/, p2.at(:form).inner_html
-             assert_equal "#{root}/#{ACTION_MAP[page_type]}_#{sn}", p2.at(:form)[:action]
+             assert_equal "Scaffolding Extensions - #{csn}s - #{page_type.capitalize}", p2.at(:title).inner_html
+             assert_match /#{page_type.capitalize} #{csn}:/, p2.at(:form).inner_html
+             assert_equal "#{root}/#{page_type == 'delete' ? 'destroy' : page_type}_#{sn}", p2.at(:form)[:action]
              assert_equal (page_type == 'delete' ? "post" : 'get'), p2.at(:form)[:method]
-             assert_equal "#{ACTION_MAP[page_type].capitalize} #{sn}", p2.at(:input)[:value]
+             assert_equal "#{page_type.capitalize} #{csn}", p2.at(:input)[:value]
              assert_equal "submit", p2.at(:input)[:type]
              assert_equal "id", p2.at(:select)[:name]
              assert_equal 1, (p2/:option).length
@@ -194,14 +192,14 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
              assert_equal nil, (p2/:option).last[:value]
              assert_equal '', (p2/:option).first.inner_html
              assert_equal '', (p2/:option).last.inner_html
-             assert_equal "Merge #{sn}s", p2.at(:input)[:value]
+             assert_equal "Merge #{csn}s", p2.at(:input)[:value]
              assert_equal "submit", p2.at(:input)[:type]
            when 'search'
              assert_equal "Scaffolding Extensions - #{csn}s - Search", p2.at(:title).inner_html
              assert_equal "Search #{csn}s", p2.at(:h1).inner_html
              assert_equal "#{root}/results_#{sn}", p2.at(:form)[:action]
              assert_equal "post", p2.at(:form)[:method]
-             assert_equal "Search #{sn}s", p2.at("form > input")[:value]
+             assert_equal "Search #{csn}s", p2.at("form > input")[:value]
              assert_equal "submit", p2.at("form > input")[:type]
              assert_equal FIELD_NAMES[sn] + ['Null Fields', 'Not Null Fields'], (p2/:label).collect{|x| x.inner_html}
              assert_equal FIELDS[sn].collect{|x| "#{sn}_#{x}"} + %w'null notnull', (p2/:label).collect{|x| x[:for]}
@@ -243,7 +241,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
         assert_equal "Edit #{model.capitalize}", p1.at('ul.edit a').inner_html
         p1 = page(port, (p/:td/:a)[1][:href])
         assert_match %r|#{root}/update_#{model}/\d+|, p1.at(:form)[:action]
-        assert_equal "Update #{model}", (p1/:input)[1][:value]
+        assert_equal "Update #{model.capitalize}", (p1/:input)[1][:value]
         res = post(port, p.at(:form)[:action], {})
         assert_se_path port, root, "/delete_#{model}", res['Location']
         p = page(port, "#{root}/edit_#{model}")
@@ -268,7 +266,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_equal "#{root}/destroy_#{model}/#{i}", f[:action]
       assert_equal "post", f[:method]
       d = f.at(:input)
-      assert_equal "Delete #{model}", d[:value]
+      assert_equal "Delete #{model.capitalize}", d[:value]
       assert_equal "submit", d[:type]
       res = post(port, f[:action], {})
       assert_se_path port, root, "/delete_#{model}", res['Location']
@@ -306,7 +304,7 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_equal "#{model}[name]", (p/:input)[0][:name]
       assert_equal name, (p/:input)[0][:value]
       assert_equal 'text', (p/:input)[0][:type]
-      assert_equal "Update #{model}", (p/:input)[1][:value]
+      assert_equal "Update #{model.capitalize}", (p/:input)[1][:value]
       assert_equal 'submit', (p/:input)[1][:type]
       assert_equal 'Associated Records', p.at(:h3).inner_html
       assert_equal 'scaffold_associated_records_header', p.at(:h3)[:class]
@@ -507,22 +505,22 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[0][:action]
       assert_equal "disabled", (p/'div.pagination li')[0][:class]
       assert_equal nil, (p/'div.pagination li')[1][:class]
-      assert_equal "#{root}/browse_#{model}?page=0", (p/'div.pagination a')[0][:href]
-      assert_equal "#{root}/browse_#{model}?page=2", (p/'div.pagination a')[1][:href]
-      assert_equal "Previous", (p/'div.pagination a')[0].inner_html
-      assert_equal "Next", (p/'div.pagination a')[1].inner_html
+      assert_equal nil, p.at('div.pagination li.disabled a')
+      assert_equal "#{root}/browse_#{model}?page=2", p.at('div.pagination li a')[:href]
+      assert_equal "Previous", (p/'div.pagination li.disabled').inner_html
+      assert_equal "Next", (p/'div.pagination a')[0].inner_html
 
       # Check second object shows up on second browse page
-      p = page(port, (p/'div.pagination a')[1][:href])
+      p = page(port, (p/'div.pagination a')[0][:href])
       assert_match %r|#{root}/show_#{model}/#{t}|, (p/:td/:a)[0][:href]
       assert_match %r|#{root}/edit_#{model}/#{t}|, (p/:td/:a)[1][:href]
       assert_match %r|#{root}/destroy_#{model}/#{t}|, (p/:form)[0][:action]
       assert_equal nil, (p/'div.pagination li')[0][:class]
       assert_equal "disabled", (p/'div.pagination li')[1][:class]
-      assert_equal "#{root}/browse_#{model}?page=1", (p/'div.pagination a')[0][:href]
-      assert_equal "#{root}/browse_#{model}?page=2", (p/'div.pagination a')[1][:href]
+      assert_equal "#{root}/browse_#{model}?page=1", p.at('div.pagination li a')[:href]
+      assert_equal nil, p.at('div.pagination li.disabled a')
       assert_equal "Previous", (p/'div.pagination a')[0].inner_html
-      assert_equal "Next", (p/'div.pagination a')[1].inner_html
+      assert_equal "Next", (p/'div.pagination li.disabled').inner_html
 
       # Check link goes back to first browse page
       p = page(port, (p/'div.pagination a')[0][:href])
@@ -531,10 +529,10 @@ class ScaffoldingExtensionsTest < Test::Unit::TestCase
       assert_match %r|#{root}/destroy_#{model}/#{b}|, (p/:form)[0][:action]
       assert_equal "disabled", (p/'div.pagination li')[0][:class]
       assert_equal nil, (p/'div.pagination li')[1][:class]
-      assert_equal "#{root}/browse_#{model}?page=0", (p/'div.pagination a')[0][:href]
-      assert_equal "#{root}/browse_#{model}?page=2", (p/'div.pagination a')[1][:href]
-      assert_equal "Previous", (p/'div.pagination a')[0].inner_html
-      assert_equal "Next", (p/'div.pagination a')[1].inner_html
+      assert_equal nil, p.at('div.pagination li.disabled a')
+      assert_equal "#{root}/browse_#{model}?page=2", p.at('div.pagination li a')[:href]
+      assert_equal "Previous", (p/'div.pagination li.disabled').inner_html
+      assert_equal "Next", (p/'div.pagination a')[0].inner_html
 
       # Get param list suffix
       p = page(port, "#{root}/search_#{model}")
