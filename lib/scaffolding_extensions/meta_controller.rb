@@ -92,10 +92,6 @@ module ScaffoldingExtensions
         
         if add_methods.include?(:delete)
           scaffold_define_method("delete#{suffix}") do
-            if scaffold_request_id
-              # TODO
-              # if id provided then preselect record, and flash a confirmation message
-            end
             @scaffold_action = :destroy
             send("list#{suffix}")
           end
