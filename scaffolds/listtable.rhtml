@@ -26,13 +26,13 @@
     <td><%=h entry.scaffold_value(column).to_s %></td>
   <% end %>
   <% if show %>
-    <td><%=scaffold_raw scaffold_link('Show', ss, :id=>eid) %></td>
+    <td><%=scaffold_raw scaffold_link('Show', ss, {:id=>eid}, :class=>'btn btn-info btn-mini') %></td>
   <% end %>
   <% if edit %>
-    <td><%=scaffold_raw scaffold_link('Edit', es, :id=>eid) %></td>
+    <td><%=scaffold_raw scaffold_link('Edit', es, {:id=>eid}, :class=>'btn btn-primary btn-mini') %></td>
   <% end %>
   <% if delete %>
-    <td><%=scaffold_raw scaffold_button_to('Delete', scaffold_url(ds, :id=>eid), :class=>'btn-mini btn-danger') %></td>
+    <td><%=scaffold_raw scaffold_button_to('Delete', scaffold_url(ds, :id=>eid), :class=>'btn btn-mini btn-danger') %></td>
   <% end %>
   </tr>
 <% end %>

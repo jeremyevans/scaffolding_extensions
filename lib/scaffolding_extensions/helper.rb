@@ -219,10 +219,10 @@ module ScaffoldingExtensions
         "<label for='#{id}'>#{h text}</label>"
       end
       
-      # 'a' tag with the content text.  action and options are passed to
+      # 'a' tag with the content text.  action and url_options are passed to
       # scaffold_url to get the href.
-      def scaffold_link(text, action, options={})
-        "<a href='#{scaffold_url(action, options)}'>#{h text}</a>"
+      def scaffold_link(text, action, url_options={}, tag_options={})
+        "<a #{"class=\"#{tag_options[:class]}\" " if tag_options[:class]}href='#{scaffold_url(action, url_options)}'>#{h text}</a>"
       end
       
       # Returns link to the scaffolded management page for the model if it was created by the scaffolding.
