@@ -55,6 +55,9 @@ Support for other web frameworks and ORMs can be added, see the
 controller_spec.txt and model_spec.txt files for the methods that need to be
 defined.
 
+The Scaffolding Extensions UI is now tab-based and requires Twitter Bootstrap
+to be fully functional (though the UI is still usable without it).
+
 You can get Scaffolding Extensions via git or as a gem:
 
 * git: git://github.com/jeremyevans/scaffolding_extensions.git
