@@ -1,6 +1,7 @@
 require File.expand_path('../boot', __FILE__)
 
 require 'rails/all'
+ActiveRecord::Base.disable_implicit_join_references = true if ActiveRecord::Base.respond_to?(:disable_implicit_join_references=) 
 
 # If you have a Gemfile, require the gems listed there, including any gems
 # you've limited to :test, :development, or :production.

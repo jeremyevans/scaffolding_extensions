@@ -1,4 +1,5 @@
 require 'active_record'
+ActiveRecord::Base.disable_implicit_join_references = true if ActiveRecord::Base.respond_to?(:disable_implicit_join_references=) 
 ActiveRecord::Base.establish_connection(:adapter=>'sqlite3', :database=>"db/#{SE_TEST_FRAMEWORK}.active_record.sqlite3")
 require 'model/ar_employee'
 require 'model/ar_group'
