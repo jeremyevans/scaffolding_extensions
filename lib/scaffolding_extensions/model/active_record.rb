@@ -96,8 +96,30 @@ module ScaffoldingExtensions::MetaActiveRecord
 
   # Retrieve multiple objects given a hash of options
   def scaffold_get_objects(options)
-    options[:conditions] = scaffold_merge_conditions(options[:conditions])
-    find(:all, options)
+    records = self
+    if options[:include]
+      records = records.includes(*options[:include])
+      records = records.references(*options[:include]) if scaffold_use_references
+    end
+    records = records.order(*options[:order]) if options[:order]
+    records = records.limit(options[:limit]) if options[:limit]
+    records = records.offset(options[:offset]) if options[:offset]
+    conditions = options[:conditions]
+    if conditions && Array === conditions && conditions.length > 0
+      if String === conditions[0]
+        records = records.where(*conditions)
+      else
+        conditions.each do |cond|
+          next if cond.nil?
+          records = case cond
+            when Hash, String then records.where(cond)
+            when Array then records.where(*cond)
+            when Proc then records.where(&cond)
+          end
+        end
+      end
+    end
+    records.to_a
   end
 
   # Return the class, left foreign key, right foreign key, and join table for this habtm association
@@ -139,33 +161,14 @@ module ScaffoldingExtensions::MetaActiveRecord
     table_name
   end
 
-  private
-    # Merge an array of conditions into a single condition array
-    def scaffold_merge_conditions(conditions)
-      new_conditions = [[]]
-      if Array === conditions
-        if conditions.length == 0 || (conditions.length == 1 && conditions[0].nil?)
-          nil
-        elsif Array === conditions[0]
-          conditions.each do |cond|
-            next unless cond
-            new_conditions[0] << cond.shift
-            cond.each{|c| new_conditions << c}
-          end
-          if new_conditions[0].length > 0
-            new_conditions[0] = "(#{new_conditions[0].join(") AND (")})"
-            new_conditions
-          else
-            nil
-          end
-        else
-          conditions
-        end
-      else
-        conditions
-      end
-    end
+  # Whether to use references in addition to includes for eager loading.  This is
+  # necessary if you need to reference associated tables when filtering.
+  # Can be set with an instance variable. 
+  def scaffold_use_references
+    @scaffold_use_references ||= false
+  end
 
+  private
     # Updates associated records for a given reflection and from record to point to the
     # to record
     def scaffold_reflection_merge(reflection, from, to)
