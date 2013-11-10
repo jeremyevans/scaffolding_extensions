@@ -64,7 +64,7 @@ You can get Scaffolding Extensions via git or as a gem:
 * gem: sudo gem install scaffolding_extensions
 * demo: http://se-demo.heroku.com
 * GitHub: http://github.com/jeremyevans/scaffolding_extensions
-* RDoc: http://scaffolding-ext.rubyforge.org
+* RDoc: http://scaf-ext.jeremyevans.net
 * Issues: http://github.com/jeremyevans/scaffolding_extensions/issues
 
 == Quick Start
