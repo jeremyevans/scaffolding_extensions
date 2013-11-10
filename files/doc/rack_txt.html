@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>rack.txt</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='file' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>rack.txt</h1>
+        <div class='paths'>
+          doc/rack.txt
+        </div>
+        <div class='last-update'>
+          Last Update:
+          <span class='datetime'>2010-04-14 12:52:42 -0700</span>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            
+            <p>Scaffolding Extensions includes a native rack adapter that can run directly
+            on top of rack with no framework in between.  However, this mode does not
+            support custom layouts or views.</p>
+            
+            <p>Here&#39;s an simple example of use:</p>
+            
+            <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;sequel&#39;</span>&#x000A;<span class="ruby-identifier">require</span> <span class="ruby-string">&#39;models/employee&#39;</span>&#x000A;<span class="ruby-identifier">require</span> <span class="ruby-string">&#39;scaffolding_extensions&#39;</span>&#x000A;<span class="ruby-identifier">require</span> <span class="ruby-string">&#39;scaffolding_extensions/controller/rack&#39;</span>&#x000A;&#x000A;<span class="ruby-keyword">class</span> <span class="ruby-constant">SequelRack</span> <span class="ruby-operator">&lt;</span> <span class="ruby-constant">ScaffoldingExtensions</span><span class="ruby-operator">::</span><span class="ruby-constant">RackController</span>&#x000A;  <span class="ruby-identifier">scaffold</span> <span class="ruby-constant">Employee</span>&#x000A;<span class="ruby-keyword">end</span>&#x000A;&#x000A;<span class="ruby-identifier">puts</span> <span class="ruby-string">&quot;ScaffoldingExtensions::Rack started on port 7974&quot;</span>&#x000A;<span class="ruby-constant">Rack</span><span class="ruby-operator">::</span><span class="ruby-constant">Handler</span>.<span class="ruby-identifier">get</span>(<span class="ruby-string">&#39;mongrel&#39;</span>).<span class="ruby-identifier">run</span>(<span class="ruby-identifier">app</span>, :<span class="ruby-constant">Host=</span><span class="ruby-operator">&gt;</span><span class="ruby-string">&#39;0.0.0.0&#39;</span>, :<span class="ruby-constant">Port=</span><span class="ruby-operator">&gt;</span><span class="ruby-value">7974</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">server</span><span class="ruby-operator">|</span>&#x000A;  <span class="ruby-identifier">trap</span>(:<span class="ruby-constant">INT</span>) <span class="ruby-keyword">do</span>&#x000A;    <span class="ruby-identifier">server</span>.<span class="ruby-identifier">stop</span>&#x000A;    <span class="ruby-identifier">puts</span> <span class="ruby-string">&quot;\nScaffoldingExtensions::Rack shutdown&quot;</span>&#x000A;  <span class="ruby-keyword">end</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+          </div>
+          <div id='context'>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

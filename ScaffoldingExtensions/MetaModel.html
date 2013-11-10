@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+
+<title>module ScaffoldingExtensions::MetaModel - Scaffolding Extensions: Administrative database front-end for multiple web-frameworks and ORMs</title>
+
+<link type="text/css" media="screen" href="../rdoc.css" rel="stylesheet">
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+</script>
+
+<script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/navigation.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/search_index.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/search.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/searcher.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/darkfish.js"></script>
+
+
+<body id="top" class="module">
+<nav id="metadata">
+  <nav id="home-section" class="section">
+  <h3 class="section-header">
+    <a href="../index.html">Home</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </h3>
+</nav>
+
+
+  <nav id="search-section" class="section project-section" class="initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <h3 class="section-header">
+      <input type="text" name="search" placeholder="Search" id="search-field"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </h3>
+  </form>
+
+  <ul id="search-results" class="initially-hidden"></ul>
+</nav>
+
+
+  
+
+  <div id="file-metadata">
+    <nav id="file-list-section" class="section">
+  <h3 class="section-header">Defined In</h3>
+  <ul>
+    <li>lib/scaffolding_extensions/meta_model.rb
+  </ul>
+</nav>
+
+    
+  </div>
+
+  <div id="class-metadata">
+    
+    
+    
+    
+    <!-- Method Quickref -->
+<nav id="method-list-section" class="section">
+  <h3 class="section-header">Methods</h3>
+
+  <ul class="link-list">
+    
+    <li ><a href="#method-i-scaffold_add_associated_objects">#scaffold_add_associated_objects</a>
+    
+    <li ><a href="#method-i-scaffold_associated_human_name">#scaffold_associated_human_name</a>
+    
+    <li ><a href="#method-i-scaffold_associated_name">#scaffold_associated_name</a>
+    
+    <li ><a href="#method-i-scaffold_associated_objects">#scaffold_associated_objects</a>
+    
+    <li ><a href="#method-i-scaffold_association_find_object">#scaffold_association_find_object</a>
+    
+    <li ><a href="#method-i-scaffold_association_find_objects">#scaffold_association_find_objects</a>
+    
+    <li ><a href="#method-i-scaffold_association_use_auto_complete">#scaffold_association_use_auto_complete</a>
+    
+    <li ><a href="#method-i-scaffold_auto_complete_associations">#scaffold_auto_complete_associations</a>
+    
+    <li ><a href="#method-i-scaffold_auto_complete_find">#scaffold_auto_complete_find</a>
+    
+    <li ><a href="#method-i-scaffold_browse_find_objects">#scaffold_browse_find_objects</a>
+    
+    <li ><a href="#method-i-scaffold_column_name">#scaffold_column_name</a>
+    
+    <li ><a href="#method-i-scaffold_column_options">#scaffold_column_options</a>
+    
+    <li ><a href="#method-i-scaffold_column_type">#scaffold_column_type</a>
+    
+    <li ><a href="#method-i-scaffold_column_type_options">#scaffold_column_type_options</a>
+    
+    <li ><a href="#method-i-scaffold_field_id">#scaffold_field_id</a>
+    
+    <li ><a href="#method-i-scaffold_find_object">#scaffold_find_object</a>
+    
+    <li ><a href="#method-i-scaffold_find_objects">#scaffold_find_objects</a>
+    
+    <li ><a href="#method-i-scaffold_habtm_associations">#scaffold_habtm_associations</a>
+    
+    <li ><a href="#method-i-scaffold_human_name">#scaffold_human_name</a>
+    
+    <li ><a href="#method-i-scaffold_include">#scaffold_include</a>
+    
+    <li ><a href="#method-i-scaffold_merge_records">#scaffold_merge_records</a>
+    
+    <li ><a href="#method-i-scaffold_name">#scaffold_name</a>
+    
+    <li ><a href="#method-i-scaffold_new_object">#scaffold_new_object</a>
+    
+    <li ><a href="#method-i-scaffold_remove_associated_objects">#scaffold_remove_associated_objects</a>
+    
+    <li ><a href="#method-i-scaffold_search">#scaffold_search</a>
+    
+    <li ><a href="#method-i-scaffold_search_null_options">#scaffold_search_null_options</a>
+    
+    <li ><a href="#method-i-scaffold_search_object">#scaffold_search_object</a>
+    
+    <li ><a href="#method-i-scaffold_select_order">#scaffold_select_order</a>
+    
+    <li ><a href="#method-i-scaffold_session_conditions">#scaffold_session_conditions</a>
+    
+    <li ><a href="#method-i-scaffold_session_value_matches-3F">#scaffold_session_value_matches?</a>
+    
+    <li ><a href="#method-i-scaffold_show_association_links-3F">#scaffold_show_association_links?</a>
+    
+    <li ><a href="#method-i-scaffold_table_class">#scaffold_table_class</a>
+    
+    <li ><a href="#method-i-scaffold_transaction">#scaffold_transaction</a>
+    
+    <li ><a href="#method-i-scaffold_unassociated_objects">#scaffold_unassociated_objects</a>
+    
+    <li ><a href="#method-i-scaffold_update_attributes">#scaffold_update_attributes</a>
+    
+    <li ><a href="#method-i-scaffold_use_auto_complete">#scaffold_use_auto_complete</a>
+    
+  </ul>
+</nav>
+
+  </div>
+
+  <div id="project-metadata">
+    <nav id="fileindex-section" class="section project-section">
+  <h3 class="section-header">Pages</h3>
+
+  <ul>
+  
+    <li class="file"><a href="../MIT-LICENSE.html">MIT-LICENSE</a>
+  
+    <li class="file"><a href="../README.html">README</a>
+  
+    <li class="file"><a href="../doc/advanced_txt.html">advanced</a>
+  
+    <li class="file"><a href="../doc/camping_txt.html">camping</a>
+  
+    <li class="file"><a href="../doc/controller_spec_txt.html">controller_spec</a>
+  
+    <li class="file"><a href="../doc/conversion_txt.html">conversion</a>
+  
+    <li class="file"><a href="../doc/datamapper_txt.html">datamapper</a>
+  
+    <li class="file"><a href="../doc/merb_txt.html">merb</a>
+  
+    <li class="file"><a href="../doc/model_spec_txt.html">model_spec</a>
+  
+    <li class="file"><a href="../doc/rack_txt.html">rack</a>
+  
+    <li class="file"><a href="../doc/rails_txt.html">rails</a>
+  
+    <li class="file"><a href="../doc/ramaze_txt.html">ramaze</a>
+  
+    <li class="file"><a href="../doc/sinatra_txt.html">sinatra</a>
+  
+    <li class="file"><a href="../doc/testing_txt.html">testing</a>
+  
+  </ul>
+</nav>
+
+    <nav id="classindex-section" class="section project-section">
+  <h3 class="section-header">Class and Module Index</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="../ActionController.html">ActionController</a>
+  
+    <li><a href="../ActionController/Base.html">ActionController::Base</a>
+  
+    <li><a href="../ActiveRecord.html">ActiveRecord</a>
+  
+    <li><a href="../ActiveRecord/Base.html">ActiveRecord::Base</a>
+  
+    <li><a href="../Camping.html">Camping</a>
+  
+    <li><a href="../DataMapper.html">DataMapper</a>
+  
+    <li><a href="../Object.html">Object</a>
+  
+    <li><a href="../Ramaze.html">Ramaze</a>
+  
+    <li><a href="../Ramaze/Controller.html">Ramaze::Controller</a>
+  
+    <li><a href="../ScaffoldingExtensions.html">ScaffoldingExtensions</a>
+  
+    <li><a href="../ScaffoldingExtensions/ActionController.html">ScaffoldingExtensions::ActionController</a>
+  
+    <li><a href="../ScaffoldingExtensions/ActionControllerHelper.html">ScaffoldingExtensions::ActionControllerHelper</a>
+  
+    <li><a href="../ScaffoldingExtensions/ActiveRecord.html">ScaffoldingExtensions::ActiveRecord</a>
+  
+    <li><a href="../ScaffoldingExtensions/CampingController.html">ScaffoldingExtensions::CampingController</a>
+  
+    <li><a href="../ScaffoldingExtensions/CampingHelper.html">ScaffoldingExtensions::CampingHelper</a>
+  
+    <li><a href="../ScaffoldingExtensions/Controller.html">ScaffoldingExtensions::Controller</a>
+  
+    <li><a href="../ScaffoldingExtensions/DataMapper.html">ScaffoldingExtensions::DataMapper</a>
+  
+    <li><a href="../ScaffoldingExtensions/Helper.html">ScaffoldingExtensions::Helper</a>
+  
+    <li><a href="../ScaffoldingExtensions/JQueryHelper.html">ScaffoldingExtensions::JQueryHelper</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaActionController.html">ScaffoldingExtensions::MetaActionController</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaActiveRecord.html">ScaffoldingExtensions::MetaActiveRecord</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaCampingController.html">ScaffoldingExtensions::MetaCampingController</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaController.html">ScaffoldingExtensions::MetaController</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaDataMapper.html">ScaffoldingExtensions::MetaDataMapper</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaModel.html">ScaffoldingExtensions::MetaModel</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaOverridable.html">ScaffoldingExtensions::MetaOverridable</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaRamazeController.html">ScaffoldingExtensions::MetaRamazeController</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaSequel.html">ScaffoldingExtensions::MetaSequel</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaSinatraController.html">ScaffoldingExtensions::MetaSinatraController</a>
+  
+    <li><a href="../ScaffoldingExtensions/Model.html">ScaffoldingExtensions::Model</a>
+  
+    <li><a href="../ScaffoldingExtensions/Overridable.html">ScaffoldingExtensions::Overridable</a>
+  
+    <li><a href="../ScaffoldingExtensions/PrototypeHelper.html">ScaffoldingExtensions::PrototypeHelper</a>
+  
+    <li><a href="../ScaffoldingExtensions/RackController.html">ScaffoldingExtensions::RackController</a>
+  
+    <li><a href="../ScaffoldingExtensions/RackController/Redirect.html">ScaffoldingExtensions::RackController::Redirect</a>
+  
+    <li><a href="../ScaffoldingExtensions/RamazeController.html">ScaffoldingExtensions::RamazeController</a>
+  
+    <li><a href="../ScaffoldingExtensions/Sequel.html">ScaffoldingExtensions::Sequel</a>
+  
+    <li><a href="../ScaffoldingExtensions/SinatraController.html">ScaffoldingExtensions::SinatraController</a>
+  
+    <li><a href="../ScaffoldingExtensions/SinatraHelper.html">ScaffoldingExtensions::SinatraHelper</a>
+  
+    <li><a href="../Sequel.html">Sequel</a>
+  
+    <li><a href="../Sequel/Model.html">Sequel::Model</a>
+  
+    <li><a href="../Sinatra.html">Sinatra</a>
+  
+    <li><a href="../Sinatra/Base.html">Sinatra::Base</a>
+  
+    <li><a href="../Test.html">Test</a>
+  
+    <li><a href="../Test/Unit.html">Test::Unit</a>
+  
+    <li><a href="../Test/Unit/TestCase.html">Test::Unit::TestCase</a>
+  
+  </ul>
+</nav>
+
+  </div>
+</nav>
+
+<div id="documentation">
+  <h1 class="module">module ScaffoldingExtensions::MetaModel</h1>
+
+  <div id="description" class="description">
+    
+<p>Class methods shared by all models</p>
+
+<p>Many class methods can be overridden for particular use cases by setting
+other methods or instance variables.  For example, scaffold_fields is a
+method that takes an action, such as :new.  scaffold_fields(:new) will
+first check if scaffold_new_fields is a method, and will call it if so.  If
+not, it will check if @scaffold_new_fields is defined, and use it if so. 
+If not, will take the default course of action.</p>
+
+<p>The first argument to the overridable method is used to search for the
+override method or instance variable.  If a override method is used, the
+remaining arguments to the overridable method will be passed to it. 
+Otherwise, the default method will be used.</p>
+
+<p>For example, <a
+href="MetaModel.html#method-i-scaffold_find_object">#scaffold_find_object</a>(action,
+id, options) is an overridable method. That means if :delete is the action,
+it will first look for scaffold_delete_find_object, and if it exists it
+will call scaffold_delete_find_object(id, options).</p>
+
+<p>If a method can be overridden by an instance variable, it should have only
+one argument.</p>
+
+<p>The methods that are overridable by other methods are (without the
+“scaffold_” prefix):  add_associated_objects, associated_objects,
+association_find_object, association_find_objects, find_object,
+find_objects, new_associated_object_values, remove_associated_objects,
+save, unassociated_objects, and filter_attributes.</p>
+
+<p>The methods that are overridable by other methods or instance variables are
+(again, without the “scaffold_” prefix): associated_human_name,
+association_use_auto_complete, fields, include, select_order, attributes,
+include_association, and select_order_association.</p>
+
+<p>Most methods that find objects check <a
+href="http://:session">options</a>[scaffold_session_value] as a security
+check if <a
+href="MetaModel.html#attribute-i-scaffold_session_value">#scaffold_session_value</a>
+is set.</p>
+
+<p>There are some methods that are so similar that they are dynamically
+defined using define_method.  They are:</p>
+<ul><li>
+<p>scaffold_association_list_class: The html class attribute of the
+association list</p>
+</li><li>
+<p>scaffold_habtm_with_ajax: Whether to use Ajax when scaffolding habtm
+associations for this model</p>
+</li><li>
+<p>scaffold_load_associations_with_ajax: Whether to use Ajax when loading
+associations on the edit page</p>
+</li><li>
+<p>scaffold_browse_records_per_page: The number of records to show on each
+page when using the browse scaffold</p>
+</li><li>
+<p>scaffold_convert_text_to_string: Whether to use input of type text instead
+of a text area for columns of type :text</p>
+</li><li>
+<p>scaffold_search_results_limit: The maximum number of results to show on the
+scaffolded search results page</p>
+</li></ul>
+
+<p>Each of these methods can be set with an instance variable.  If the
+instance variable is not set, it will use the default value from <a
+href="MetaModel.html#SCAFFOLD_OPTIONS">SCAFFOLD_OPTIONS</a>.</p>
+
+  </div><!-- description -->
+
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <!-- Constants -->
+    <section id="constants-list" class="section">
+      <h3 class="section-header">Constants</h3>
+      <dl>
+      
+        <dt id="SCAFFOLD_OPTIONS">SCAFFOLD_OPTIONS
+        
+        <dd class="description"><p>Sets the default options for all models, which can be overriden by class
+instance variables (iv):</p>
+<ul><li>
+<p>:text_to_string: If true, by default, use input type text instead of
+textarea  for fields of type text (iv: @scaffold_convert_text_to_string)</p>
+</li><li>
+<p>:table_classes: Set the default table classes for different scaffolded HTML
+tables (iv: @scaffold_table_classes)</p>
+</li><li>
+<p>:column_type_options: Override the default options for a given column type
+(iv: @scaffold_column_type_options)</p>
+</li><li>
+<p>:column_types: Override the default column type for a given attribute  (iv:
+@scaffold_column_types)</p>
+</li><li>
+<p>:column_options: Override the default column options for a given attribute
+(iv: @scaffold_column_options_hash)</p>
+</li><li>
+<p>:column_names: Override the visible names of columns for each attribute
+(iv: @scaffold_column_names)</p>
+</li><li>
+<p>:association_list_class: Override the html class for the association list
+in the edit view (iv: @scaffold_association_list_class)</p>
+</li><li>
+<p>:browse_limit: The default number of records per page to show in the browse
+scaffold. If nil, the search results will be displayed on one page instead
+of being paginated (iv: @scaffold_browse_records_per_page)</p>
+</li><li>
+<p>:search_limit: The default limit on scaffolded search results.  If nil, the
+search results will be displayed on one page instead of being paginated
+(iv: @scaffold_search_results_limit)</p>
+</li><li>
+<p>:habtm_ajax: Whether or not to use Ajax (instead of a separate page) for 
+modifying habtm associations (iv: @scaffold_habtm_with_ajax)</p>
+</li><li>
+<p>:load_associations_ajax - Whether or not to use Ajax to load the display of
+associations on the edit page, useful if the default display is too slow
+(iv: @scaffold_load_associations_with_ajax)</p>
+</li><li>
+<p>:auto_complete: Hash containing the default options to use for the scaffold
+autocompleter (iv: @scaffold_auto_complete_options)</p>
+</li></ul>
+        
+      
+      </dl>
+    </section>
+    
+
+    
+    <!-- Attributes -->
+    <section id="attribute-method-details" class="method-section section">
+      <h3 class="section-header">Attributes</h3>
+
+      
+      <div id="attribute-i-scaffold_field_wrapper" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">scaffold_field_wrapper</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>Override the typical table-based form display by overriding these wrappers.
+Should return a proc that takes an html label and widget and returns an
+html fragment.</p>
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-scaffold_form_wrapper" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">scaffold_form_wrapper</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>Override the typical table-based form display by overriding these wrappers.
+Should return a proc that takes rows returned by <a
+href="MetaModel.html#attribute-i-scaffold_field_wrapper">#scaffold_field_wrapper</a>
+and returns an html fragment.</p>
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-scaffold_session_value" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">scaffold_session_value</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        <p>Control access to objects of this model via a session value.  For example
+if set to :user_id, would only show objects with the same user_id as <a
+href="http://:user_id">session</a>, and would not allow access to any
+objects that didn&#39;t have a matching user_id.</p>
+        
+        </div>
+      </div>
+      
+    </section><!-- attribute-method-details -->
+    
+
+    <!-- Methods -->
+    
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section section">
+      <h3 class="section-header">Public Instance Methods</h3>
+
+    
+      <div id="method-i-scaffold_add_associated_objects" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_add_associated_objects</span><span
+            class="method-args">(association, object, options, *associated_object_ids)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Add the objects specified by associated_object_ids to the given object
+using the given association.  If the object to be associated with the given
+object is already associated with it, skip it (don&#39;t try to associate
+it multiple times). Returns the associated object (if only one id was
+given), or an array of objects (if multiple ids were given).</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_add_associated_objects-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 126</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_add_associated_objects</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">object</span>, <span class="ruby-identifier">options</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">associated_object_ids</span>)
+  <span class="ruby-keyword">unless</span> <span class="ruby-identifier">associated_object_ids</span>.<span class="ruby-identifier">empty?</span>
+    <span class="ruby-identifier">scaffold_transaction</span> <span class="ruby-keyword">do</span>
+      <span class="ruby-identifier">associated_objects</span> = <span class="ruby-identifier">associated_object_ids</span>.<span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">i</span><span class="ruby-operator">|</span> <span class="ruby-identifier">scaffold_association_find_object</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">i</span>.<span class="ruby-identifier">to_i</span>, <span class="ruby-value">:session=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">options</span>[<span class="ruby-value">:session</span>])}
+      <span class="ruby-identifier">associated_objects</span>.<span class="ruby-identifier">each</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">o</span><span class="ruby-operator">|</span> <span class="ruby-identifier">scaffold_add_associated_object</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">object</span>, <span class="ruby-identifier">o</span>)}
+      <span class="ruby-identifier">associated_object_ids</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span> <span class="ruby-operator">?</span> <span class="ruby-identifier">associated_objects</span>.<span class="ruby-identifier">first</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">associated_objects</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_add_associated_objects-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_add_associated_objects-method -->
+
+    
+      <div id="method-i-scaffold_associated_human_name" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_associated_human_name</span><span
+            class="method-args">(association)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Return the human name for the given association, defaulting to humanizing
+the association name</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_associated_human_name-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 138</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_associated_human_name</span>(<span class="ruby-identifier">association</span>)
+  <span class="ruby-identifier">association</span>.<span class="ruby-identifier">to_s</span>.<span class="ruby-identifier">humanize</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_associated_human_name-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_associated_human_name-method -->
+
+    
+      <div id="method-i-scaffold_associated_name" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_associated_name</span><span
+            class="method-args">(association)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The <a href="MetaModel.html#method-i-scaffold_name">#scaffold_name</a> of
+the associated class.  Not overridable, as that allows for the possibility
+of broken links.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_associated_name-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 144</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_associated_name</span>(<span class="ruby-identifier">association</span>)
+  <span class="ruby-identifier">scaffold_associated_class</span>(<span class="ruby-identifier">association</span>).<span class="ruby-identifier">scaffold_name</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_associated_name-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_associated_name-method -->
+
+    
+      <div id="method-i-scaffold_associated_objects" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_associated_objects</span><span
+            class="method-args">(association, object, options)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>All objects that are currently associated with the given object. This
+method does not check that the returned associated objects meet the
+associated class&#39;s <a
+href="MetaModel.html#attribute-i-scaffold_session_value">#scaffold_session_value</a>
+constraint, as it is assumed that all objects currently assocated with the
+given object have already met the criteria.  If that is not the case, you
+should override this method.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_associated_objects-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 152</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_associated_objects</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">object</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-identifier">object</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">association</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_associated_objects-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_associated_objects-method -->
+
+    
+      <div id="method-i-scaffold_association_find_object" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_association_find_object</span><span
+            class="method-args">(association, id, options)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Finds a given object in the associated class that has the matching id.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_association_find_object-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 157</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_association_find_object</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">id</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-identifier">scaffold_associated_class</span>(<span class="ruby-identifier">association</span>).<span class="ruby-identifier">scaffold_find_object</span>(<span class="ruby-value">:associated</span>, <span class="ruby-identifier">id</span>, <span class="ruby-identifier">options</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_association_find_object-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_association_find_object-method -->
+
+    
+      <div id="method-i-scaffold_association_find_objects" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_association_find_objects</span><span
+            class="method-args">(association, options)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Find all objects of the associated class. Does not use any conditions of
+the association (they are can&#39;t be used reliably, since they require an
+object to interpolate them), so if there are special conditions on the
+association, you&#39;ll want to override this method.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_association_find_objects-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 164</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_association_find_objects</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-identifier">klass</span> = <span class="ruby-identifier">scaffold_associated_class</span>(<span class="ruby-identifier">association</span>)
+  <span class="ruby-identifier">klass</span>.<span class="ruby-identifier">scaffold_get_objects</span>(<span class="ruby-value">:order=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">scaffold_select_order_association</span>(<span class="ruby-identifier">association</span>), <span class="ruby-value">:include=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">scaffold_include_association</span>(<span class="ruby-identifier">association</span>), <span class="ruby-value">:conditions=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">klass</span>.<span class="ruby-identifier">scaffold_session_conditions</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:session</span>]))
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_association_find_objects-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_association_find_objects-method -->
+
+    
+      <div id="method-i-scaffold_association_use_auto_complete" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_association_use_auto_complete</span><span
+            class="method-args">(association)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Whether to use autocompleting for linked associations. Defaults to whether
+the associated class uses auto completing.  Always false if <a
+href="MetaModel.html#method-i-scaffold_association_find_objects">#scaffold_association_find_objects</a>
+is overridden for the specific association.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_association_use_auto_complete-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 172</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_association_use_auto_complete</span>(<span class="ruby-identifier">association</span>)
+  <span class="ruby-identifier">scaffold_associated_class</span>(<span class="ruby-identifier">association</span>).<span class="ruby-identifier">scaffold_use_auto_complete</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-operator">!</span><span class="ruby-identifier">respond_to?</span>(<span class="ruby-node">&quot;scaffold_#{association}_association_find_objects&quot;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_association_use_auto_complete-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_association_use_auto_complete-method -->
+
+    
+      <div id="method-i-scaffold_auto_complete_associations" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_auto_complete_associations</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Defaults to associations specified by scaffold fields that are
+autocompleting. Can be set with an instance variable.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_auto_complete_associations-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 177</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_auto_complete_associations</span>
+  <span class="ruby-ivar">@scaffold_auto_complete_associations</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">scaffold_fields</span>(<span class="ruby-value">:edit</span>).<span class="ruby-identifier">reject</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">field</span><span class="ruby-operator">|</span> <span class="ruby-operator">!</span>(<span class="ruby-identifier">scaffold_association</span>(<span class="ruby-identifier">field</span>) <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">scaffold_association_use_auto_complete</span>(<span class="ruby-identifier">field</span>))}
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_auto_complete_associations-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_auto_complete_associations-method -->
+
+    
+      <div id="method-i-scaffold_auto_complete_find" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_auto_complete_find</span><span
+            class="method-args">(phrase, options = {})</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Return all records that match the given phrase (usually a substring of the
+most important column).  If <a href="http://:association">options</a> is
+present, delegate to the associated class&#39;s
+scaffold_auto_complete_find.</p>
+
+<p>Allows method override (options.delete(:association))</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_auto_complete_find-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 186</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_auto_complete_find</span>(<span class="ruby-identifier">phrase</span>, <span class="ruby-identifier">options</span> = {})
+  <span class="ruby-identifier">session</span> = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">delete</span>(<span class="ruby-value">:session</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">association</span> = <span class="ruby-identifier">options</span>.<span class="ruby-identifier">delete</span>(<span class="ruby-value">:association</span>)
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">meth</span> = <span class="ruby-identifier">scaffold_method_override</span>(<span class="ruby-value">:auto_complete_find</span>, <span class="ruby-identifier">association</span>, <span class="ruby-identifier">phrase</span>, <span class="ruby-identifier">options</span>)
+      <span class="ruby-identifier">meth</span>.<span class="ruby-identifier">call</span>
+    <span class="ruby-keyword">else</span>
+      <span class="ruby-identifier">scaffold_associated_class</span>(<span class="ruby-identifier">association</span>).<span class="ruby-identifier">scaffold_auto_complete_find</span>(<span class="ruby-identifier">phrase</span>, <span class="ruby-value">:session=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">session</span>)
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">find_options</span> = { <span class="ruby-value">:limit</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">scaffold_auto_complete_results_limit</span>,
+        <span class="ruby-value">:conditions</span> =<span class="ruby-operator">&gt;</span> [<span class="ruby-identifier">scaffold_auto_complete_conditions</span>(<span class="ruby-identifier">phrase</span>), <span class="ruby-identifier">scaffold_session_conditions</span>(<span class="ruby-identifier">session</span>)],
+        <span class="ruby-value">:order</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">scaffold_select_order</span>(<span class="ruby-value">:auto_complete</span>),
+        <span class="ruby-value">:include</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">scaffold_include</span>(<span class="ruby-value">:auto_complete</span>)}.<span class="ruby-identifier">merge</span>(<span class="ruby-identifier">options</span>)
+    <span class="ruby-identifier">scaffold_get_objects</span>(<span class="ruby-identifier">find_options</span>)
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_auto_complete_find-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_auto_complete_find-method -->
+
+    
+      <div id="method-i-scaffold_browse_find_objects" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_browse_find_objects</span><span
+            class="method-args">(options)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Separate method for browsing objects, as it also needs to return whether or
+not there is another page of objects.  Returns [another_page, objects],
+where another_page is true or false.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_browse_find_objects-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 205</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_browse_find_objects</span>(<span class="ruby-identifier">options</span>)
+  <span class="ruby-identifier">get_options</span> = {<span class="ruby-value">:order=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">scaffold_select_order</span>(<span class="ruby-value">:browse</span>), <span class="ruby-value">:include=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">scaffold_include</span>(<span class="ruby-value">:browse</span>), <span class="ruby-value">:conditions=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">scaffold_session_conditions</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:session</span>])}
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">limit</span> = <span class="ruby-identifier">scaffold_browse_records_per_page</span>
+    <span class="ruby-identifier">get_options</span>[<span class="ruby-value">:offset</span>] = (<span class="ruby-identifier">options</span>[<span class="ruby-value">:page</span>].<span class="ruby-identifier">to_i</span><span class="ruby-operator">-</span><span class="ruby-value">1</span>) <span class="ruby-operator">*</span> <span class="ruby-identifier">limit</span>
+    <span class="ruby-identifier">get_options</span>[<span class="ruby-value">:limit</span>] = <span class="ruby-identifier">limit</span> = <span class="ruby-identifier">limit</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-identifier">objects</span> = <span class="ruby-identifier">scaffold_get_objects</span>(<span class="ruby-identifier">get_options</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">limit</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">objects</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">limit</span>
+    <span class="ruby-identifier">objects</span>.<span class="ruby-identifier">pop</span>
+    [<span class="ruby-keyword">true</span>, <span class="ruby-identifier">objects</span>]
+  <span class="ruby-keyword">else</span>
+    [<span class="ruby-keyword">false</span>, <span class="ruby-identifier">objects</span>]
+  <span class="ruby-keyword">end</span> 
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_browse_find_objects-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_browse_find_objects-method -->
+
+    
+      <div id="method-i-scaffold_column_name" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_column_name</span><span
+            class="method-args">(column_name)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns the human name for a given attribute.  Can be set via the instance
+variable @scaffold_column_names, a hash with the column name as a symbol
+key and the human name string as the value.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_column_name-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 223</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_column_name</span>(<span class="ruby-identifier">column_name</span>)
+  <span class="ruby-ivar">@scaffold_column_names</span> <span class="ruby-operator">||=</span> {}
+  <span class="ruby-ivar">@scaffold_column_names</span>[<span class="ruby-identifier">column_name</span>] <span class="ruby-operator">||=</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">n</span> = <span class="ruby-constant">SCAFFOLD_OPTIONS</span>[<span class="ruby-value">:column_names</span>][<span class="ruby-identifier">column_name</span>]
+    <span class="ruby-identifier">n</span>
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">scaffold_association</span>(<span class="ruby-identifier">column_name</span>)
+    <span class="ruby-identifier">scaffold_associated_human_name</span>(<span class="ruby-identifier">column_name</span>)
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">column_name</span>.<span class="ruby-identifier">to_s</span>.<span class="ruby-identifier">humanize</span>
+  <span class="ruby-keyword">end</span> 
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_column_name-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_column_name-method -->
+
+    
+      <div id="method-i-scaffold_column_options" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_column_options</span><span
+            class="method-args">(column_name)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns any special options for a given attribute.  Can be set via the
+instance variable @scaffold_column_options_hash, a hash with the column
+name as a symbol key and the html options hash as the value.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_column_options-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 237</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_column_options</span>(<span class="ruby-identifier">column_name</span>)
+  <span class="ruby-ivar">@scaffold_column_options_hash</span> <span class="ruby-operator">||=</span> {}
+  <span class="ruby-ivar">@scaffold_column_options</span> <span class="ruby-operator">||=</span> {}
+  <span class="ruby-ivar">@scaffold_column_options</span>[<span class="ruby-identifier">column_name</span>] <span class="ruby-operator">||=</span> <span class="ruby-identifier">scaffold_merge_hashes</span>(<span class="ruby-ivar">@scaffold_column_options_hash</span>[<span class="ruby-identifier">column_name</span>], <span class="ruby-constant">SCAFFOLD_OPTIONS</span>[<span class="ruby-value">:column_options</span>][<span class="ruby-identifier">column_name</span>], <span class="ruby-identifier">scaffold_column_type_options</span>(<span class="ruby-identifier">scaffold_column_type</span>(<span class="ruby-identifier">column_name</span>)))
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_column_options-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_column_options-method -->
+
+    
+      <div id="method-i-scaffold_column_type" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_column_type</span><span
+            class="method-args">(column_name)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns the column type for the given scaffolded column name.  Can be set
+via the instance variable @scaffold_column_types, a hash with the column
+name as a symbol key and the html type symbol as a value.  Associations
+have the :association type, and other types are looked up via <a
+href="http://column_name">columns_hash</a>.type.  If no type is provided,
+:string is used by default.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_column_type-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 247</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_column_type</span>(<span class="ruby-identifier">column_name</span>)
+  <span class="ruby-ivar">@scaffold_column_types</span> <span class="ruby-operator">||=</span> {}
+  <span class="ruby-ivar">@scaffold_column_types</span>[<span class="ruby-identifier">column_name</span>] <span class="ruby-operator">||=</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">type</span> = <span class="ruby-constant">SCAFFOLD_OPTIONS</span>[<span class="ruby-value">:column_types</span>][<span class="ruby-identifier">column_name</span>]
+    <span class="ruby-identifier">type</span>
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">scaffold_association</span>(<span class="ruby-identifier">column_name</span>)
+    <span class="ruby-value">:association</span>
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">type</span> = <span class="ruby-identifier">scaffold_table_column_type</span>(<span class="ruby-identifier">column_name</span>)
+    (<span class="ruby-identifier">scaffold_convert_text_to_string</span> <span class="ruby-operator">&amp;&amp;</span> (<span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-value">:text</span>)) <span class="ruby-operator">?</span> <span class="ruby-value">:string</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">type</span>
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-value">:string</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_column_type-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_column_type-method -->
+
+    
+      <div id="method-i-scaffold_column_type_options" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_column_type_options</span><span
+            class="method-args">(type)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The HTML options for a given column type, affecting all columns of that
+type. Can be set with the @scaffold_column_type_options instance variable,
+which should be a hash with the column type as a symbol key and the html
+options hash as the value.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_column_type_options-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 264</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_column_type_options</span>(<span class="ruby-identifier">type</span>)
+  <span class="ruby-ivar">@scaffold_column_type_options</span> <span class="ruby-operator">||=</span> {}
+  <span class="ruby-ivar">@scaffold_column_type_options</span>[<span class="ruby-identifier">type</span>] <span class="ruby-operator">||=</span> <span class="ruby-constant">SCAFFOLD_OPTIONS</span>[<span class="ruby-value">:column_type_options</span>][<span class="ruby-identifier">type</span>] <span class="ruby-operator">||</span> {}
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_column_type_options-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_column_type_options-method -->
+
+    
+      <div id="method-i-scaffold_field_id" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_field_id</span><span
+            class="method-args">(field)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns the foreign key for the field if it is an association, or the field
+as a string if it is not.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_field_id-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 271</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_field_id</span>(<span class="ruby-identifier">field</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">reflection</span> = <span class="ruby-identifier">scaffold_association</span>(<span class="ruby-identifier">field</span>)
+    <span class="ruby-identifier">scaffold_foreign_key</span>(<span class="ruby-identifier">reflection</span>)
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">field</span>.<span class="ruby-identifier">to_s</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_field_id-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_field_id-method -->
+
+    
+      <div id="method-i-scaffold_find_object" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_find_object</span><span
+            class="method-args">(action, id, options)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Find the object of this model given by the id</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_find_object-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 280</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_find_object</span>(<span class="ruby-identifier">action</span>, <span class="ruby-identifier">id</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-identifier">object</span> = <span class="ruby-identifier">scaffold_get_object</span>(<span class="ruby-identifier">id</span>)
+  <span class="ruby-identifier">raise</span> <span class="ruby-identifier">scaffold_error_raised</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">scaffold_session_value_matches?</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">options</span>[<span class="ruby-value">:session</span>])
+  <span class="ruby-identifier">object</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_find_object-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_find_object-method -->
+
+    
+      <div id="method-i-scaffold_find_objects" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_find_objects</span><span
+            class="method-args">(action, options)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Find all objects of this model</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_find_objects-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 287</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_find_objects</span>(<span class="ruby-identifier">action</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-identifier">scaffold_get_objects</span>(<span class="ruby-value">:order=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">scaffold_select_order</span>(<span class="ruby-identifier">action</span>), <span class="ruby-value">:include=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">scaffold_include</span>(<span class="ruby-identifier">action</span>), <span class="ruby-value">:conditions=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">scaffold_session_conditions</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:session</span>]))
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_find_objects-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_find_objects-method -->
+
+    
+      <div id="method-i-scaffold_habtm_associations" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_habtm_associations</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Array of symbols for all habtm associations in this model&#39;s
+scaffold_associations. Can be set with an instance variable.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_habtm_associations-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 293</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_habtm_associations</span>
+  <span class="ruby-ivar">@scaffold_habtm_associations</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">scaffold_associations</span>.<span class="ruby-identifier">reject</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">association</span><span class="ruby-operator">|</span> <span class="ruby-identifier">scaffold_association_type</span>(<span class="ruby-identifier">association</span>) <span class="ruby-operator">!=</span> <span class="ruby-value">:edit</span>}
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_habtm_associations-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_habtm_associations-method -->
+
+    
+      <div id="method-i-scaffold_human_name" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_human_name</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The human name string for this model. Can be set with an instance variable.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_human_name-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 298</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_human_name</span>
+  <span class="ruby-ivar">@scaffold_human_name</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">scaffold_name</span>.<span class="ruby-identifier">humanize</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_human_name-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_human_name-method -->
+
+    
+      <div id="method-i-scaffold_include" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_include</span><span
+            class="method-args">(action = :default)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Which associations to include when querying for multiple objects. Can be
+set with an instance variable.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_include-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 304</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_include</span>(<span class="ruby-identifier">action</span> = <span class="ruby-value">:default</span>)
+  <span class="ruby-ivar">@scaffold_include</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_include-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_include-method -->
+
+    
+      <div id="method-i-scaffold_merge_records" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_merge_records</span><span
+            class="method-args">(from, to, options)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Merges the record with id from into the record with id to.  Updates all 
+associated records for the record with id from to be assocatiated with the
+record with id to instead, and then deletes the record with id from.</p>
+
+<p>Returns false if the ids given are the same or the <a
+href="MetaModel.html#attribute-i-scaffold_session_value">#scaffold_session_value</a>
+criteria is not met.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_merge_records-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 320</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_merge_records</span>(<span class="ruby-identifier">from</span>, <span class="ruby-identifier">to</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-identifier">from</span>, <span class="ruby-identifier">to</span> = <span class="ruby-identifier">from</span>.<span class="ruby-identifier">to_i</span>, <span class="ruby-identifier">to</span>.<span class="ruby-identifier">to_i</span>
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">from</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">to</span>
+  <span class="ruby-identifier">from_object</span> = <span class="ruby-identifier">scaffold_get_object</span>(<span class="ruby-identifier">from</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">scaffold_session_value_matches?</span>(<span class="ruby-identifier">from_object</span>, <span class="ruby-identifier">options</span>[<span class="ruby-value">:session</span>])
+  <span class="ruby-identifier">to_object</span> = <span class="ruby-identifier">scaffold_get_object</span>(<span class="ruby-identifier">to</span>)
+  <span class="ruby-keyword">return</span> <span class="ruby-keyword">false</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">scaffold_session_value_matches?</span>(<span class="ruby-identifier">to_object</span>, <span class="ruby-identifier">options</span>[<span class="ruby-value">:session</span>])
+  <span class="ruby-identifier">scaffold_transaction</span> <span class="ruby-keyword">do</span>
+    <span class="ruby-identifier">scaffold_all_associations</span>.<span class="ruby-identifier">each</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">reflection</span><span class="ruby-operator">|</span> <span class="ruby-identifier">scaffold_reflection_merge</span>(<span class="ruby-identifier">reflection</span>, <span class="ruby-identifier">from</span>, <span class="ruby-identifier">to</span>)}
+    <span class="ruby-identifier">scaffold_destroy</span>(<span class="ruby-identifier">from_object</span>)
+  <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">true</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_merge_records-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_merge_records-method -->
+
+    
+      <div id="method-i-scaffold_name" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_name</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The name string to use in urls, defaults to name.underscore.  Can be set
+with an  instance variable.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_name-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 310</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_name</span>
+  <span class="ruby-ivar">@scaffold_name</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">underscore</span>.<span class="ruby-identifier">gsub</span>(<span class="ruby-string">&#39;/&#39;</span>, <span class="ruby-string">&#39;__&#39;</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_name-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_name-method -->
+
+    
+      <div id="method-i-scaffold_new_object" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_new_object</span><span
+            class="method-args">(attributes, options)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Creates a new object, setting the attributes if given.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_new_object-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 335</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_new_object</span>(<span class="ruby-identifier">attributes</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-identifier">object</span> = <span class="ruby-identifier">new</span>
+  <span class="ruby-identifier">scaffold_set_attributes</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">scaffold_filter_attributes</span>(<span class="ruby-value">:new</span>, <span class="ruby-identifier">attributes</span> <span class="ruby-operator">||</span> {}))
+  <span class="ruby-identifier">object</span>.<span class="ruby-identifier">send</span>(<span class="ruby-node">&quot;#{scaffold_session_value}=&quot;</span>, <span class="ruby-identifier">options</span>[<span class="ruby-value">:session</span>][<span class="ruby-identifier">scaffold_session_value</span>]) <span class="ruby-keyword">if</span> <span class="ruby-identifier">scaffold_session_value</span>
+  <span class="ruby-identifier">object</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_new_object-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_new_object-method -->
+
+    
+      <div id="method-i-scaffold_remove_associated_objects" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_remove_associated_objects</span><span
+            class="method-args">(association, object, options, *associated_object_ids)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Removes associated objects with the given ids from the given object&#39;s
+association. Returns the associated object (if only one id was given), or
+an array of objects (if multiple ids were given).</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_remove_associated_objects-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 345</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_remove_associated_objects</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">object</span>, <span class="ruby-identifier">options</span>, <span class="ruby-operator">*</span><span class="ruby-identifier">associated_object_ids</span>)
+  <span class="ruby-keyword">unless</span> <span class="ruby-identifier">associated_object_ids</span>.<span class="ruby-identifier">empty?</span>
+    <span class="ruby-identifier">scaffold_transaction</span> <span class="ruby-keyword">do</span>
+      <span class="ruby-identifier">associated_objects</span> = <span class="ruby-identifier">associated_object_ids</span>.<span class="ruby-identifier">collect</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">associated_object_id</span><span class="ruby-operator">|</span>
+        <span class="ruby-identifier">associated_object</span> = <span class="ruby-identifier">scaffold_association_find_object</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">associated_object_id</span>.<span class="ruby-identifier">to_i</span>, <span class="ruby-value">:session=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">options</span>[<span class="ruby-value">:session</span>])
+        <span class="ruby-identifier">scaffold_remove_associated_object</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">object</span>, <span class="ruby-identifier">associated_object</span>)
+        <span class="ruby-identifier">associated_object</span>
+      <span class="ruby-keyword">end</span>
+      <span class="ruby-identifier">associated_object_ids</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-value">1</span> <span class="ruby-operator">?</span> <span class="ruby-identifier">associated_objects</span>.<span class="ruby-identifier">first</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">associated_objects</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_remove_associated_objects-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_remove_associated_objects-method -->
+
+    
+      <div id="method-i-scaffold_search" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_search</span><span
+            class="method-args">(options)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Searches for objects that meet the criteria specified by options:</p>
+<ul><li>
+<p>:null: fields that must be must be NULL</p>
+</li><li>
+<p>:notnull: matching fields must be NOT NULL</p>
+</li><li>
+<p>:model: hash with field name strings as keys and strings as values. uses
+the value for each field to search.  Strings are searched based on
+substring, other values have to be an exact match.</p>
+</li><li>
+<p>:page: To determine which offset to use</p>
+</li></ul>
+
+<p>Returns [form_params, objects], where form_params are a list of parameters
+for the results form (for going to the next/previous page), and objects are
+all of the objects that matched.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_search-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 369</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_search</span>(<span class="ruby-identifier">options</span>)
+  <span class="ruby-identifier">conditions</span> = []
+  <span class="ruby-identifier">search_model</span> = <span class="ruby-identifier">options</span>[<span class="ruby-value">:model</span>] <span class="ruby-operator">||</span> {}
+  <span class="ruby-identifier">object</span> = <span class="ruby-identifier">scaffold_search_object</span>(<span class="ruby-identifier">search_model</span>)
+  <span class="ruby-identifier">null</span> = <span class="ruby-identifier">options</span>[<span class="ruby-value">:null</span>]
+  <span class="ruby-identifier">notnull</span> = <span class="ruby-identifier">options</span>[<span class="ruby-value">:notnull</span>]
+  <span class="ruby-identifier">form_params</span>= {<span class="ruby-value">:model=</span><span class="ruby-operator">&gt;</span>{}, <span class="ruby-value">:null=</span><span class="ruby-operator">&gt;</span>[], <span class="ruby-value">:notnull=</span><span class="ruby-operator">&gt;</span>[], <span class="ruby-value">:page=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">options</span>[<span class="ruby-value">:page</span>]}
+  
+  <span class="ruby-identifier">limit</span>, <span class="ruby-identifier">offset</span> = <span class="ruby-keyword">nil</span>, <span class="ruby-keyword">nil</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">scaffold_search_pagination_enabled?</span>
+    <span class="ruby-identifier">limit</span> = <span class="ruby-identifier">scaffold_search_results_limit</span> <span class="ruby-operator">+</span> <span class="ruby-value">1</span>
+    <span class="ruby-identifier">offset</span> = <span class="ruby-identifier">options</span>[<span class="ruby-value">:page</span>] <span class="ruby-operator">&gt;</span> <span class="ruby-value">1</span> <span class="ruby-operator">?</span> (<span class="ruby-identifier">limit</span><span class="ruby-operator">-</span><span class="ruby-value">1</span>)<span class="ruby-operator">*</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:page</span>] <span class="ruby-operator">-</span> <span class="ruby-value">1</span>) <span class="ruby-operator">:</span> <span class="ruby-keyword">nil</span>
+  <span class="ruby-keyword">end</span>
+  
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">search_model</span>
+    <span class="ruby-identifier">scaffold_attributes</span>(<span class="ruby-value">:search</span>).<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">field</span><span class="ruby-operator">|</span>
+      <span class="ruby-identifier">fsym</span> = <span class="ruby-identifier">field</span>
+      <span class="ruby-identifier">field</span> = <span class="ruby-identifier">field</span>.<span class="ruby-identifier">to_s</span>
+      <span class="ruby-keyword">next</span> <span class="ruby-keyword">if</span> (<span class="ruby-identifier">null</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">null</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">field</span>)) <span class="ruby-operator">||</span>              (<span class="ruby-identifier">notnull</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">notnull</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">field</span>)) <span class="ruby-operator">||</span>              <span class="ruby-identifier">search_model</span>[<span class="ruby-identifier">field</span>].<span class="ruby-identifier">nil?</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">search_model</span>[<span class="ruby-identifier">field</span>].<span class="ruby-identifier">empty?</span>
+      <span class="ruby-keyword">case</span> <span class="ruby-identifier">scaffold_column_type</span>(<span class="ruby-identifier">fsym</span>)
+        <span class="ruby-keyword">when</span> <span class="ruby-value">:string</span>, <span class="ruby-value">:text</span>
+          <span class="ruby-identifier">conditions</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">scaffold_substring_condition</span>(<span class="ruby-identifier">field</span>, <span class="ruby-identifier">object</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">field</span>))
+        <span class="ruby-keyword">else</span>
+          <span class="ruby-identifier">conditions</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">scaffold_equal_condition</span>(<span class="ruby-identifier">field</span>, <span class="ruby-identifier">object</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">field</span>))
+        <span class="ruby-keyword">end</span>
+      <span class="ruby-identifier">form_params</span>[<span class="ruby-value">:model</span>][<span class="ruby-identifier">field</span>] = <span class="ruby-identifier">search_model</span>[<span class="ruby-identifier">field</span>] <span class="ruby-keyword">if</span> <span class="ruby-identifier">scaffold_search_pagination_enabled?</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+  
+  <span class="ruby-identifier">scaffold_attributes</span>(<span class="ruby-value">:search</span>).<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">field</span><span class="ruby-operator">|</span>
+    <span class="ruby-identifier">field</span> = <span class="ruby-identifier">field</span>.<span class="ruby-identifier">to_s</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">null</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">null</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">field</span>)
+      <span class="ruby-identifier">conditions</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">scaffold_null_condition</span>(<span class="ruby-identifier">field</span>)
+      <span class="ruby-identifier">form_params</span>[<span class="ruby-value">:null</span>] <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">field</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">scaffold_search_pagination_enabled?</span>
+    <span class="ruby-keyword">end</span>
+    <span class="ruby-keyword">if</span> <span class="ruby-identifier">notnull</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">notnull</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">field</span>)
+      <span class="ruby-identifier">conditions</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">scaffold_notnull_condition</span>(<span class="ruby-identifier">field</span>)
+      <span class="ruby-identifier">form_params</span>[<span class="ruby-value">:notnull</span>] <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">field</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">scaffold_search_pagination_enabled?</span>
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">end</span>
+  
+  <span class="ruby-identifier">conditions</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">scaffold_session_conditions</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:session</span>])
+
+  <span class="ruby-identifier">objects</span> = <span class="ruby-identifier">scaffold_get_objects</span>(<span class="ruby-value">:conditions=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">conditions</span>, <span class="ruby-value">:include=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">scaffold_include</span>(<span class="ruby-value">:search</span>), <span class="ruby-value">:order=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">scaffold_select_order</span>(<span class="ruby-value">:search</span>), <span class="ruby-value">:limit=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">limit</span>, <span class="ruby-value">:offset=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">offset</span>)
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">scaffold_search_pagination_enabled?</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">objects</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">==</span> <span class="ruby-identifier">scaffold_search_results_limit</span><span class="ruby-operator">+</span><span class="ruby-value">1</span>
+    <span class="ruby-identifier">form_params</span>[<span class="ruby-value">:next_page</span>] = <span class="ruby-keyword">true</span>
+    <span class="ruby-identifier">objects</span>.<span class="ruby-identifier">pop</span>
+  <span class="ruby-keyword">end</span>
+  [<span class="ruby-identifier">form_params</span>, <span class="ruby-identifier">objects</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_search-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_search-method -->
+
+    
+      <div id="method-i-scaffold_search_null_options" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_search_null_options</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>List of human visible names and field name symbols to use for NULL/NOT NULL
+fields on the scaffolded search page. Can be set with an instance variable.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_search_null_options-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 424</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_search_null_options</span>
+  <span class="ruby-ivar">@scaffold_search_null_options</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">scaffold_attributes</span>(<span class="ruby-value">:search</span>).<span class="ruby-identifier">reject</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">scaffold_table_column_type</span>(<span class="ruby-identifier">f</span>).<span class="ruby-identifier">nil?</span>}.<span class="ruby-identifier">collect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> [<span class="ruby-identifier">scaffold_column_name</span>(<span class="ruby-identifier">f</span>), <span class="ruby-identifier">f</span>]}
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_search_null_options-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_search_null_options-method -->
+
+    
+      <div id="method-i-scaffold_search_object" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_search_object</span><span
+            class="method-args">(attributes = {})</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns a completely blank object suitable for searching, updated with the
+given attributes.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_search_object-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 429</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_search_object</span>(<span class="ruby-identifier">attributes</span> = {})
+  <span class="ruby-identifier">object</span> = <span class="ruby-identifier">new</span>
+
+  <span class="ruby-comment"># Blank any fields set by default</span>
+  <span class="ruby-identifier">scaffold_attributes</span>(<span class="ruby-value">:search</span>).<span class="ruby-identifier">each</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">field</span><span class="ruby-operator">|</span> <span class="ruby-identifier">object</span>.<span class="ruby-identifier">send</span>(<span class="ruby-node">&quot;#{field}=&quot;</span>, <span class="ruby-keyword">nil</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">object</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">field</span>) <span class="ruby-operator">==</span> <span class="ruby-keyword">nil</span>}
+
+  <span class="ruby-comment"># Don&#39;t set any fields left blank by the user</span>
+  <span class="ruby-identifier">h</span> = {}
+  <span class="ruby-identifier">attributes</span>.<span class="ruby-identifier">each</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">k</span>,<span class="ruby-identifier">v</span><span class="ruby-operator">|</span> <span class="ruby-identifier">h</span>[<span class="ruby-identifier">k</span>] = <span class="ruby-identifier">v</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">v</span>.<span class="ruby-identifier">to_s</span>.<span class="ruby-identifier">strip</span>.<span class="ruby-identifier">empty?</span>}
+
+  <span class="ruby-identifier">scaffold_set_attributes</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">h</span>)
+  <span class="ruby-identifier">object</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_search_object-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_search_object-method -->
+
+    
+      <div id="method-i-scaffold_select_order" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_select_order</span><span
+            class="method-args">(action = :default)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The SQL ORDER BY fragment string.  Can be set with an instance variable.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_select_order-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 444</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_select_order</span>(<span class="ruby-identifier">action</span> = <span class="ruby-value">:default</span>)
+  <span class="ruby-ivar">@scaffold_select_order</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_select_order-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_select_order-method -->
+
+    
+      <div id="method-i-scaffold_session_conditions" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_session_conditions</span><span
+            class="method-args">(session)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The conditions array to use if <a
+href="MetaModel.html#attribute-i-scaffold_session_value">#scaffold_session_value</a>
+is set, nil otherwise</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_session_conditions-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 449</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_session_conditions</span>(<span class="ruby-identifier">session</span>)
+  [<span class="ruby-node">&quot;#{scaffold_table_name}.#{scaffold_session_value} = ?&quot;</span>, <span class="ruby-identifier">session</span>[<span class="ruby-identifier">scaffold_session_value</span>]] <span class="ruby-keyword">if</span> <span class="ruby-identifier">scaffold_session_value</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_session_conditions-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_session_conditions-method -->
+
+    
+      <div id="method-i-scaffold_session_value_matches-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_session_value_matches?</span><span
+            class="method-args">(object, session)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>True if the given object meets the <a
+href="MetaModel.html#attribute-i-scaffold_session_value">#scaffold_session_value</a>
+criteria</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_session_value_matches-3F-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 454</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_session_value_matches?</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">session</span>)
+  <span class="ruby-operator">!</span><span class="ruby-identifier">scaffold_session_value</span> <span class="ruby-operator">||</span> <span class="ruby-identifier">object</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">scaffold_session_value</span>) <span class="ruby-operator">==</span> <span class="ruby-identifier">session</span>[<span class="ruby-identifier">scaffold_session_value</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_session_value_matches-3F-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_session_value_matches-3F-method -->
+
+    
+      <div id="method-i-scaffold_show_association_links-3F" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_show_association_links?</span><span
+            class="method-args">(association)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Whether to show associations links for the given association.  Generally
+true unless  it is an :has_and_belongs_to_many association and
+scaffold_habtm_with_ajax is true.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_show_association_links-3F-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 460</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_show_association_links?</span>(<span class="ruby-identifier">association</span>)
+  <span class="ruby-operator">!</span>(<span class="ruby-identifier">scaffold_habtm_with_ajax</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">scaffold_association_type</span>(<span class="ruby-identifier">association</span>) <span class="ruby-operator">==</span> <span class="ruby-value">:edit</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_show_association_links-3F-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_show_association_links-3F-method -->
+
+    
+      <div id="method-i-scaffold_table_class" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_table_class</span><span
+            class="method-args">(type)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns the scaffolded table class for a given scaffold type. Can be set
+with the instance variable @scaffold_table_classes, a hash with the type as
+the symbol key and the value as the html class string.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_table_class-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 467</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_table_class</span>(<span class="ruby-identifier">type</span>)
+  <span class="ruby-ivar">@scaffold_table_classes</span> <span class="ruby-operator">||=</span> {}
+  <span class="ruby-ivar">@scaffold_table_classes</span>[<span class="ruby-identifier">type</span>] <span class="ruby-operator">||=</span> <span class="ruby-constant">SCAFFOLD_OPTIONS</span>[<span class="ruby-value">:table_classes</span>][<span class="ruby-identifier">type</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_table_class-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_table_class-method -->
+
+    
+      <div id="method-i-scaffold_transaction" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_transaction</span><span
+            class="method-args">(&block)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Run the block inside a database transaction</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_transaction-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 473</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_transaction</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+  <span class="ruby-identifier">transaction</span>(<span class="ruby-operator">&amp;</span><span class="ruby-identifier">block</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_transaction-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_transaction-method -->
+
+    
+      <div id="method-i-scaffold_unassociated_objects" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_unassociated_objects</span><span
+            class="method-args">(association, object, options)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Returns all objects of the associated class not currently associated with
+this object.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_unassociated_objects-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 478</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_unassociated_objects</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">object</span>, <span class="ruby-identifier">options</span>)
+  <span class="ruby-identifier">scaffold_associated_class</span>(<span class="ruby-identifier">association</span>).<span class="ruby-identifier">scaffold_get_objects</span>(<span class="ruby-value">:conditions=</span><span class="ruby-operator">&gt;</span>[<span class="ruby-identifier">scaffold_unassociated_condition</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">object</span>), <span class="ruby-identifier">scaffold_associated_class</span>(<span class="ruby-identifier">association</span>).<span class="ruby-identifier">scaffold_session_conditions</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:session</span>])], <span class="ruby-value">:order=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">scaffold_select_order_association</span>(<span class="ruby-identifier">association</span>), <span class="ruby-value">:include=</span><span class="ruby-operator">&gt;</span><span class="ruby-identifier">scaffold_include_association</span>(<span class="ruby-identifier">association</span>))
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_unassociated_objects-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_unassociated_objects-method -->
+
+    
+      <div id="method-i-scaffold_update_attributes" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_update_attributes</span><span
+            class="method-args">(object, attributes)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Updates attributes for the given action, but does not save the record.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_update_attributes-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 483</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_update_attributes</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">attributes</span>)
+  <span class="ruby-identifier">scaffold_set_attributes</span>(<span class="ruby-identifier">object</span>, <span class="ruby-identifier">scaffold_filter_attributes</span>(<span class="ruby-value">:edit</span>, <span class="ruby-identifier">attributes</span>))
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_update_attributes-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_update_attributes-method -->
+
+    
+      <div id="method-i-scaffold_use_auto_complete" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_use_auto_complete</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Whether this class should use an autocompleting text box instead of a
+select box for choosing items.  Can be set with an instance variable.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_use_auto_complete-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/meta_model.rb, line 489</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_use_auto_complete</span>
+  <span class="ruby-ivar">@scaffold_use_auto_complete</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">scaffold_auto_complete_options</span>[<span class="ruby-value">:enable</span>]
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_use_auto_complete-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_use_auto_complete-method -->
+
+    
+    </section><!-- public-instance-method-details -->
+  
+  </section><!-- 5Buntitled-5D -->
+
+</div><!-- documentation -->
+
+
+<footer id="validator-badges">
+  <p><a href="http://validator.w3.org/check/referer">[Validate]</a>
+  <p>Generated by <a href="https://github.com/rdoc/rdoc">RDoc</a> 4.0.0.
+  <p>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish Rdoc Generator</a> 3.
+</footer>
+

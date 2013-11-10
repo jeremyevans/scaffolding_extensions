@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>sinatra.txt</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='file' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>sinatra.txt</h1>
+        <div class='paths'>
+          doc/sinatra.txt
+        </div>
+        <div class='last-update'>
+          Last Update:
+          <span class='datetime'>2009-01-29 13:40:53 -0800</span>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            
+            <p><a href="../../classes/Sinatra.html">Sinatra</a> doesn&#39;t have a defined
+            folder structure for models, so scaffold_all_models shouldn&#39;t be used
+            unless you pass the :only option, which gives a list of models to scaffold.</p>
+            
+            <p><a href="../../classes/Sinatra.html">Sinatra</a> has a defined structure
+            for plugins.  To use it, put the plugin in the vendor directory of your
+            application and it should be picked up automatically. Note that if you
+            doing something <a href="../../classes/Sinatra.html">Sinatra</a>
+            doesn&#39;t like (such as using ruby-style to deploy the <a
+            href="../../classes/Sinatra.html">Sinatra</a> application, or just changing
+            $0), this probably won&#39;t work, so you need to require it manually.</p>
+            
+            <p>To use the plugin if installing the gem:</p>
+            
+            <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;scaffolding_extensions&#39;</span></pre>
+            
+            <p>To use the plugin, call one of the scaffold methods inside a <a
+            href="../../classes/Sinatra/Base.html">Sinatra::Base</a> subclass:</p>
+            
+            <pre class="ruby"><span class="ruby-keyword">class</span> <span class="ruby-constant">Scaf</span> <span class="ruby-operator">&lt;</span> <span class="ruby-constant">Sinatra</span><span class="ruby-operator">::</span><span class="ruby-constant">Base</span>&#x000A;  <span class="ruby-identifier">scaffold</span> <span class="ruby-constant">Model1</span>&#x000A;  <span class="ruby-identifier">scaffold_habtm</span> <span class="ruby-constant">Model1</span>, :<span class="ruby-identifier">things</span>&#x000A;  <span class="ruby-identifier">scaffold_all_models</span> :<span class="ruby-identifier">only=</span><span class="ruby-operator">&gt;</span>[<span class="ruby-constant">Model1</span>, <span class="ruby-constant">Model2</span>, <span class="ruby-constant">Model3</span>]&#x000A;<span class="ruby-keyword">end</span></pre>
+            
+            <p>As this is going to add paths directly to where Scaf is mounted, you
+            generally are going to want to mount Scaf at a subpath and build and run
+            you own Rack app:</p>
+            
+            <pre class="ruby"><span class="ruby-identifier">app</span> = <span class="ruby-constant">Rack</span><span class="ruby-operator">::</span><span class="ruby-constant">Builder</span>.<span class="ruby-identifier">app</span> <span class="ruby-keyword">do</span>&#x000A;  <span class="ruby-identifier">map</span>(<span class="ruby-string">&quot;/&quot;</span>){<span class="ruby-identifier">run</span> <span class="ruby-constant">MainApp</span>}&#x000A;  <span class="ruby-identifier">map</span>(<span class="ruby-string">&quot;/admin&quot;</span>){<span class="ruby-identifier">run</span> <span class="ruby-constant">Scaf</span>}&#x000A;<span class="ruby-keyword">end</span>&#x000A;<span class="ruby-constant">Rack</span><span class="ruby-operator">::</span><span class="ruby-constant">Handler</span>.<span class="ruby-identifier">get</span>(<span class="ruby-string">&#39;mongrel&#39;</span>).<span class="ruby-identifier">run</span>(<span class="ruby-identifier">app</span>, :<span class="ruby-constant">Host=</span><span class="ruby-operator">&gt;</span><span class="ruby-string">&#39;0.0.0.0&#39;</span>, :<span class="ruby-constant">Port=</span><span class="ruby-operator">&gt;</span><span class="ruby-value">7976</span>) <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">server</span><span class="ruby-operator">|</span>&#x000A;  <span class="ruby-identifier">trap</span>(:<span class="ruby-constant">INT</span>){<span class="ruby-identifier">server</span>.<span class="ruby-identifier">stop</span>}&#x000A;<span class="ruby-keyword">end</span></pre>
+          </div>
+          <div id='context'>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

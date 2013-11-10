@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>testing.txt</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='file' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>testing.txt</h1>
+        <div class='paths'>
+          doc/testing.txt
+        </div>
+        <div class='last-update'>
+          Last Update:
+          <span class='datetime'>2010-08-24 17:10:33 -0700</span>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            
+            <p>If you are using Rails and want some basic generic tests, you can run the
+            following code inside test_helper.rb:</p>
+            
+            <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;scaffolding_extensions/rails_test_help&#39;</span></pre>
+            
+            <p>This gives you the following test class methods:</p>
+            
+            <pre>test_scaffold_all_models&#x000A;test_scaffold</pre>
+            
+            <p>And the following test instance methods:</p>
+            
+            <pre>scaffold_test&#x000A;scaffold_habtm_test</pre>
+            
+            <p>There is an automated test suite that tests the plugin against all
+            supported web frameworks and ORMs. It is now available in the same github
+            repository as the plugin itself.</p>
+            
+            <p>It requires the unicorn and hpricot gems (in addition to gems for all of
+            the frameworks and ORMs), and does black box testing of the plugin by
+            running a web crawler against a running application that uses the plugin.</p>
+          </div>
+          <div id='context'>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

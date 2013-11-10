@@ -1,0 +1,92 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>ScaffoldingExtensions::MetaSinatraController</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='class' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>
+          <span class='type'>module</span>
+          ScaffoldingExtensions::MetaSinatraController
+        </h1>
+        <ol class='paths'>
+          <li>
+            <a target="docwin" href="../../files/lib/scaffolding_extensions/controller/sinatra_rb.html">lib/scaffolding_extensions/controller/sinatra.rb</a>
+          </li>
+        </ol>
+        <div class='parent'>
+          Parent:
+          <strong><a target="docwin" href="../ScaffoldingExtensions.html">ScaffoldingExtensions</a></strong>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'></div>
+          <div id='method-list'>
+            <h2>Methods</h2>
+            <h3>Public Instance</h3>
+            <ol>
+              <li><a target="docwin" href="#method-i-scaffold_setup_helper">scaffold_setup_helper</a></li>
+            </ol>
+          </div>
+          <div id='context'>
+            <div id='includes'>
+              <h2>Included modules</h2>
+              <ol>
+                <li><a target="docwin" href="Controller.html">ScaffoldingExtensions::Controller</a></li>
+                <li><a target="docwin" href="SinatraController.html">ScaffoldingExtensions::SinatraController</a></li>
+                <li><a target="docwin" href="Helper.html">ScaffoldingExtensions::Helper</a></li>
+                <li><a target="docwin" href="SinatraHelper.html">ScaffoldingExtensions::SinatraHelper</a></li>
+              </ol>
+            </div>
+          </div>
+          <div id='section'>
+            <div id='methods'>
+              <h2>Public Instance methods</h2>
+              <div class='method public-instance' id='method-method-i-scaffold_setup_helper'>
+                <a name='method-i-scaffold_setup_helper'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_setup_helper</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='description'>
+                  
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_setup_helper-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_setup_helper-source'><span class="ruby-comment"># File lib/scaffolding_extensions/controller/sinatra.rb, line 110</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_setup_helper</span>&#x000A;  <span class="ruby-identifier">include</span> <span class="ruby-constant">ScaffoldingExtensions</span><span class="ruby-operator">::</span><span class="ruby-constant">Controller</span>&#x000A;  <span class="ruby-identifier">include</span> <span class="ruby-constant">ScaffoldingExtensions</span><span class="ruby-operator">::</span><span class="ruby-constant">SinatraController</span>&#x000A;  <span class="ruby-identifier">include</span> <span class="ruby-constant">ScaffoldingExtensions</span><span class="ruby-operator">::</span><span class="ruby-constant">Helper</span>&#x000A;  <span class="ruby-identifier">include</span> <span class="ruby-constant">ScaffoldingExtensions</span><span class="ruby-operator">::</span><span class="ruby-constant">SinatraHelper</span>&#x000A;  <span class="ruby-identifier">p</span> = <span class="ruby-string">&#39;POST&#39;</span>&#x000A;  <span class="ruby-identifier">block</span> = <span class="ruby-identifier">lambda</span> <span class="ruby-keyword">do</span>&#x000A;    <span class="ruby-identifier">captures</span> = <span class="ruby-identifier">params</span>[<span class="ruby-value">:captures</span>] <span class="ruby-operator">||</span> []&#x000A;    <span class="ruby-ivar">@scaffold_path</span> = <span class="ruby-identifier">request</span>.<span class="ruby-identifier">env</span>[<span class="ruby-string">&#39;SCRIPT_NAME&#39;</span>]&#x000A;    <span class="ruby-ivar">@scaffold_method</span> = <span class="ruby-identifier">meth</span> = <span class="ruby-identifier">captures</span>[<span class="ruby-value">0</span>] <span class="ruby-operator">||</span> <span class="ruby-string">&#39;index&#39;</span>&#x000A;    <span class="ruby-identifier">params</span>[<span class="ruby-value">:id</span>] <span class="ruby-operator">||=</span> <span class="ruby-identifier">captures</span>[<span class="ruby-value">1</span>]&#x000A;    <span class="ruby-identifier">raise</span>(<span class="ruby-constant">ArgumentError</span>, <span class="ruby-string">&#39;Method Not Allowed&#39;</span>) <span class="ruby-keyword">if</span> <span class="ruby-identifier">scaffold_request_method</span> <span class="ruby-operator">!=</span> <span class="ruby-identifier">p</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">scaffolded_nonidempotent_method?</span>(<span class="ruby-identifier">meth</span>)&#x000A;    <span class="ruby-identifier">scaffolded_method?</span>(<span class="ruby-identifier">meth</span>) <span class="ruby-operator">?</span> <span class="ruby-identifier">send</span>(<span class="ruby-identifier">meth</span>) <span class="ruby-operator">:</span> <span class="ruby-identifier">pass</span>&#x000A;  <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-identifier">get</span>(<span class="ruby-string">&#39;/?&#39;</span>, &amp;<span class="ruby-identifier">block</span>)&#x000A;  [<span class="ruby-value">:get</span>, <span class="ruby-value">:post</span>].<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">req_meth</span><span class="ruby-operator">|</span>&#x000A;    <span class="ruby-identifier">send</span>(<span class="ruby-identifier">req_meth</span>, <span class="ruby-regexp">%r{\A/(\w+)(?:/(\w+))?\z}</span>, &amp;<span class="ruby-identifier">block</span>)&#x000A;  <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-keyword">self</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

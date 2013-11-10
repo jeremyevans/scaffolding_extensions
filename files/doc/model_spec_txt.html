@@ -1,0 +1,90 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>model_spec.txt</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='file' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>model_spec.txt</h1>
+        <div class='paths'>
+          doc/model_spec.txt
+        </div>
+        <div class='last-update'>
+          Last Update:
+          <span class='datetime'>2008-10-18 19:13:56 -0700</span>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            
+            <p>To work with Scaffolding Extensions, the model class needs to define the
+            following methods:</p>
+            
+            <p>Instance Methods</p>
+            <hr style="height: 10px">
+            
+            <p>scaffold_error_messages scaffold_id scaffold_name scaffold_name_with_id
+            scaffold_value(field)</p>
+            
+            <p>Class Methods</p>
+            <hr style="height: 10px">
+            
+            <p>scaffold_add_associated_objects(association, object, options,
+            *associated_object_ids) scaffold_associated_human_name(association)
+            scaffold_associated_name(association)
+            scaffold_associated_objects(association, object, options)
+            scaffold_association_find_object(association, id, options)
+            scaffold_association_find_objects(association, options)
+            scaffold_association_list_class scaffold_association_type(association)
+            scaffold_association_use_auto_complete(association) scaffold_associations
+            scaffold_auto_complete_associations scaffold_auto_complete_find(phrase,
+            options = {}) scaffold_browse_find_objects(options)
+            scaffold_column_name(column_name) scaffold_column_options(column_name)
+            scaffold_column_type(column_name) scaffold_destroy(object)
+            scaffold_field_id(field) scaffold_field_wrapper scaffold_fields(action)
+            scaffold_find_object(action, id, options) scaffold_find_objects(action,
+            options) scaffold_form_wrapper scaffold_habtm_associations
+            scaffold_habtm_with_ajax scaffold_human_name
+            scaffold_load_associations_with_ajax scaffold_merge_records(from, to,
+            options) scaffold_name scaffold_new_associated_object_values(association,
+            record) scaffold_new_object(attributes, options)
+            scaffold_remove_associated_objects(association, object, options,
+            *associated_object_ids) scaffold_save(action, object)
+            scaffold_search(options) scaffold_search_null_options
+            scaffold_search_object(attributes = {})
+            scaffold_show_association_links?(association) scaffold_table_class(type)
+            scaffold_unassociated_objects(association, object, options)
+            scaffold_update_attributes(attributes, object) scaffold_use_auto_complete</p>
+          </div>
+          <div id='context'>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

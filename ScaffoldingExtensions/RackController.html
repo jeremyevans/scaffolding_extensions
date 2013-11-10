@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+
+<title>class ScaffoldingExtensions::RackController - Scaffolding Extensions: Administrative database front-end for multiple web-frameworks and ORMs</title>
+
+<link type="text/css" media="screen" href="../rdoc.css" rel="stylesheet">
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+</script>
+
+<script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/navigation.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/search_index.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/search.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/searcher.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/darkfish.js"></script>
+
+
+<body id="top" class="class">
+<nav id="metadata">
+  <nav id="home-section" class="section">
+  <h3 class="section-header">
+    <a href="../index.html">Home</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </h3>
+</nav>
+
+
+  <nav id="search-section" class="section project-section" class="initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <h3 class="section-header">
+      <input type="text" name="search" placeholder="Search" id="search-field"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </h3>
+  </form>
+
+  <ul id="search-results" class="initially-hidden"></ul>
+</nav>
+
+
+  
+
+  <div id="file-metadata">
+    <nav id="file-list-section" class="section">
+  <h3 class="section-header">Defined In</h3>
+  <ul>
+    <li>lib/scaffolding_extensions/controller/rack.rb
+  </ul>
+</nav>
+
+    
+  </div>
+
+  <div id="class-metadata">
+    
+    <nav id="parent-class-section" class="section">
+  <h3 class="section-header">Parent</h3>
+  
+  <p class="link"><a href="../Object.html">Object</a>
+  
+</nav>
+
+    <!-- Included Modules -->
+<nav id="includes-section" class="section">
+  <h3 class="section-header">Included Modules</h3>
+
+  <ul class="link-list">
+  
+  
+    <li><a class="include" href="Controller.html">ScaffoldingExtensions::Controller</a>
+  
+  
+  
+    <li><a class="include" href="Helper.html">ScaffoldingExtensions::Helper</a>
+  
+  
+  
+    <li><span class="include">Rack::Utils</span>
+  
+  
+  </ul>
+</nav>
+
+    <!-- Extension Modules -->
+<nav id="extends-section" class="section">
+  <h3 class="section-header">Extended With Modules</h3>
+
+  <ul class="link-list">
+    
+  
+    <li><a class="extend" href="MetaController.html">ScaffoldingExtensions::MetaController</a>
+  
+  
+  </ul>
+</nav>
+
+    <!-- Method Quickref -->
+<nav id="method-list-section" class="section">
+  <h3 class="section-header">Methods</h3>
+
+  <ul class="link-list">
+    
+    <li ><a href="#method-c-call">::call</a>
+    
+    <li ><a href="#method-c-scaffold_setup_helper">::scaffold_setup_helper</a>
+    
+    <li ><a href="#method-i-call">#call</a>
+    
+  </ul>
+</nav>
+
+  </div>
+
+  <div id="project-metadata">
+    <nav id="fileindex-section" class="section project-section">
+  <h3 class="section-header">Pages</h3>
+
+  <ul>
+  
+    <li class="file"><a href="../MIT-LICENSE.html">MIT-LICENSE</a>
+  
+    <li class="file"><a href="../README.html">README</a>
+  
+    <li class="file"><a href="../doc/advanced_txt.html">advanced</a>
+  
+    <li class="file"><a href="../doc/camping_txt.html">camping</a>
+  
+    <li class="file"><a href="../doc/controller_spec_txt.html">controller_spec</a>
+  
+    <li class="file"><a href="../doc/conversion_txt.html">conversion</a>
+  
+    <li class="file"><a href="../doc/datamapper_txt.html">datamapper</a>
+  
+    <li class="file"><a href="../doc/merb_txt.html">merb</a>
+  
+    <li class="file"><a href="../doc/model_spec_txt.html">model_spec</a>
+  
+    <li class="file"><a href="../doc/rack_txt.html">rack</a>
+  
+    <li class="file"><a href="../doc/rails_txt.html">rails</a>
+  
+    <li class="file"><a href="../doc/ramaze_txt.html">ramaze</a>
+  
+    <li class="file"><a href="../doc/sinatra_txt.html">sinatra</a>
+  
+    <li class="file"><a href="../doc/testing_txt.html">testing</a>
+  
+  </ul>
+</nav>
+
+    <nav id="classindex-section" class="section project-section">
+  <h3 class="section-header">Class and Module Index</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="../ActionController.html">ActionController</a>
+  
+    <li><a href="../ActionController/Base.html">ActionController::Base</a>
+  
+    <li><a href="../ActiveRecord.html">ActiveRecord</a>
+  
+    <li><a href="../ActiveRecord/Base.html">ActiveRecord::Base</a>
+  
+    <li><a href="../Camping.html">Camping</a>
+  
+    <li><a href="../DataMapper.html">DataMapper</a>
+  
+    <li><a href="../Object.html">Object</a>
+  
+    <li><a href="../Ramaze.html">Ramaze</a>
+  
+    <li><a href="../Ramaze/Controller.html">Ramaze::Controller</a>
+  
+    <li><a href="../ScaffoldingExtensions.html">ScaffoldingExtensions</a>
+  
+    <li><a href="../ScaffoldingExtensions/ActionController.html">ScaffoldingExtensions::ActionController</a>
+  
+    <li><a href="../ScaffoldingExtensions/ActionControllerHelper.html">ScaffoldingExtensions::ActionControllerHelper</a>
+  
+    <li><a href="../ScaffoldingExtensions/ActiveRecord.html">ScaffoldingExtensions::ActiveRecord</a>
+  
+    <li><a href="../ScaffoldingExtensions/CampingController.html">ScaffoldingExtensions::CampingController</a>
+  
+    <li><a href="../ScaffoldingExtensions/CampingHelper.html">ScaffoldingExtensions::CampingHelper</a>
+  
+    <li><a href="../ScaffoldingExtensions/Controller.html">ScaffoldingExtensions::Controller</a>
+  
+    <li><a href="../ScaffoldingExtensions/DataMapper.html">ScaffoldingExtensions::DataMapper</a>
+  
+    <li><a href="../ScaffoldingExtensions/Helper.html">ScaffoldingExtensions::Helper</a>
+  
+    <li><a href="../ScaffoldingExtensions/JQueryHelper.html">ScaffoldingExtensions::JQueryHelper</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaActionController.html">ScaffoldingExtensions::MetaActionController</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaActiveRecord.html">ScaffoldingExtensions::MetaActiveRecord</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaCampingController.html">ScaffoldingExtensions::MetaCampingController</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaController.html">ScaffoldingExtensions::MetaController</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaDataMapper.html">ScaffoldingExtensions::MetaDataMapper</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaModel.html">ScaffoldingExtensions::MetaModel</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaOverridable.html">ScaffoldingExtensions::MetaOverridable</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaRamazeController.html">ScaffoldingExtensions::MetaRamazeController</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaSequel.html">ScaffoldingExtensions::MetaSequel</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaSinatraController.html">ScaffoldingExtensions::MetaSinatraController</a>
+  
+    <li><a href="../ScaffoldingExtensions/Model.html">ScaffoldingExtensions::Model</a>
+  
+    <li><a href="../ScaffoldingExtensions/Overridable.html">ScaffoldingExtensions::Overridable</a>
+  
+    <li><a href="../ScaffoldingExtensions/PrototypeHelper.html">ScaffoldingExtensions::PrototypeHelper</a>
+  
+    <li><a href="../ScaffoldingExtensions/RackController.html">ScaffoldingExtensions::RackController</a>
+  
+    <li><a href="../ScaffoldingExtensions/RackController/Redirect.html">ScaffoldingExtensions::RackController::Redirect</a>
+  
+    <li><a href="../ScaffoldingExtensions/RamazeController.html">ScaffoldingExtensions::RamazeController</a>
+  
+    <li><a href="../ScaffoldingExtensions/Sequel.html">ScaffoldingExtensions::Sequel</a>
+  
+    <li><a href="../ScaffoldingExtensions/SinatraController.html">ScaffoldingExtensions::SinatraController</a>
+  
+    <li><a href="../ScaffoldingExtensions/SinatraHelper.html">ScaffoldingExtensions::SinatraHelper</a>
+  
+    <li><a href="../Sequel.html">Sequel</a>
+  
+    <li><a href="../Sequel/Model.html">Sequel::Model</a>
+  
+    <li><a href="../Sinatra.html">Sinatra</a>
+  
+    <li><a href="../Sinatra/Base.html">Sinatra::Base</a>
+  
+    <li><a href="../Test.html">Test</a>
+  
+    <li><a href="../Test/Unit.html">Test::Unit</a>
+  
+    <li><a href="../Test/Unit/TestCase.html">Test::Unit::TestCase</a>
+  
+  </ul>
+</nav>
+
+  </div>
+</nav>
+
+<div id="documentation">
+  <h1 class="class">class ScaffoldingExtensions::RackController</h1>
+
+  <div id="description" class="description">
+    
+  </div><!-- description -->
+
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+
+    
+    <!-- Attributes -->
+    <section id="attribute-method-details" class="method-section section">
+      <h3 class="section-header">Attributes</h3>
+
+      
+      <div id="attribute-i-params" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">params</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-request" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">request</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+      <div id="attribute-i-response" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">response</span><span
+            class="attribute-access-type">[R]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+    </section><!-- attribute-method-details -->
+    
+
+    <!-- Methods -->
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section section">
+      <h3 class="section-header">Public Class Methods</h3>
+
+    
+      <div id="method-c-call" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">call</span><span
+            class="method-args">(env)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="call-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/controller/rack.rb, line 29</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">env</span>)
+  <span class="ruby-identifier">new</span>.<span class="ruby-identifier">call</span>(<span class="ruby-identifier">env</span>)
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- call-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- call-method -->
+
+    
+      <div id="method-c-scaffold_setup_helper" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">scaffold_setup_helper</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="scaffold_setup_helper-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/controller/rack.rb, line 26</span>
+<span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">scaffold_setup_helper</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- scaffold_setup_helper-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- scaffold_setup_helper-method -->
+
+    
+    </section><!-- public-class-method-details -->
+  
+     <section id="public-instance-5Buntitled-5D-method-details" class="method-section section">
+      <h3 class="section-header">Public Instance Methods</h3>
+
+    
+      <div id="method-i-call" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">call</span><span
+            class="method-args">(env)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          
+          
+          
+
+          
+          <div class="method-source-code" id="call-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions/controller/rack.rb, line 37</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">call</span>(<span class="ruby-identifier">env</span>)
+  <span class="ruby-identifier">s</span> = <span class="ruby-value">200</span>
+  <span class="ruby-identifier">h</span> = {<span class="ruby-string">&#39;Content-Type&#39;</span>=<span class="ruby-operator">&gt;</span><span class="ruby-string">&#39;text/html&#39;</span>}
+  <span class="ruby-identifier">b</span> = <span class="ruby-string">&#39;&#39;</span>
+  <span class="ruby-ivar">@params</span> = <span class="ruby-constant">Hash</span>.<span class="ruby-identifier">new</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">hash</span>, <span class="ruby-identifier">k</span><span class="ruby-operator">|</span> <span class="ruby-identifier">hash</span>[<span class="ruby-identifier">k</span>.<span class="ruby-identifier">to_s</span>] <span class="ruby-keyword">if</span> <span class="ruby-identifier">k</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Symbol</span>)}
+  <span class="ruby-identifier">params</span>.<span class="ruby-identifier">merge!</span>(<span class="ruby-identifier">parse_nested_query</span>(<span class="ruby-identifier">env</span>[<span class="ruby-string">&quot;QUERY_STRING&quot;</span>]))
+  <span class="ruby-identifier">params</span>.<span class="ruby-identifier">merge!</span>(<span class="ruby-identifier">parse_nested_query</span>(<span class="ruby-identifier">env</span>[<span class="ruby-string">&quot;rack.input&quot;</span>].<span class="ruby-identifier">read</span>)) <span class="ruby-keyword">if</span> <span class="ruby-identifier">env</span>[<span class="ruby-string">&quot;REQUEST_METHOD&quot;</span>] <span class="ruby-operator">==</span> <span class="ruby-string">&#39;POST&#39;</span>
+
+  <span class="ruby-ivar">@scaffold_method</span> = <span class="ruby-identifier">meth</span> = <span class="ruby-keyword">if</span> [<span class="ruby-string">&#39;&#39;</span>, <span class="ruby-string">&#39;/&#39;</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">env</span>[<span class="ruby-string">&quot;PATH_INFO&quot;</span>])
+    <span class="ruby-string">&#39;index&#39;</span>
+  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">captures</span> = <span class="ruby-regexp">%r{\A/(\w+)(?:/(\w+))?\z}</span>.<span class="ruby-identifier">match</span>(<span class="ruby-identifier">env</span>[<span class="ruby-string">&quot;PATH_INFO&quot;</span>])
+    <span class="ruby-identifier">params</span>[<span class="ruby-string">&#39;id&#39;</span>] <span class="ruby-operator">||=</span> <span class="ruby-identifier">captures</span>[<span class="ruby-value">2</span>]
+    <span class="ruby-identifier">captures</span>[<span class="ruby-value">1</span>]
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">if</span> <span class="ruby-operator">!</span>[<span class="ruby-string">&#39;GET&#39;</span>, <span class="ruby-string">&#39;POST&#39;</span>].<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">env</span>[<span class="ruby-string">&quot;REQUEST_METHOD&quot;</span>]) <span class="ruby-operator">||</span> (<span class="ruby-identifier">env</span>[<span class="ruby-string">&quot;REQUEST_METHOD&quot;</span>] <span class="ruby-operator">==</span> <span class="ruby-string">&quot;GET&quot;</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">scaffolded_nonidempotent_method?</span>(<span class="ruby-identifier">meth</span>)) 
+    <span class="ruby-keyword">return</span> [<span class="ruby-value">403</span>, <span class="ruby-identifier">h</span>, <span class="ruby-string">&#39;Method Not Allowed&#39;</span>]
+  <span class="ruby-keyword">end</span>
+
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">scaffolded_method?</span>(<span class="ruby-identifier">meth</span>)
+    <span class="ruby-ivar">@scaffold_path</span> = <span class="ruby-identifier">env</span>[<span class="ruby-string">&#39;SCRIPT_NAME&#39;</span>]
+    <span class="ruby-ivar">@request</span> = <span class="ruby-identifier">env</span>
+    <span class="ruby-ivar">@response</span> = <span class="ruby-identifier">h</span>
+    <span class="ruby-keyword">begin</span>
+      <span class="ruby-identifier">b</span> = <span class="ruby-identifier">send</span>(<span class="ruby-identifier">meth</span>)
+    <span class="ruby-keyword">rescue</span> <span class="ruby-constant">Redirect</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">e</span>
+      <span class="ruby-identifier">s</span> = <span class="ruby-value">302</span>
+      <span class="ruby-identifier">h</span>[<span class="ruby-string">&#39;Location&#39;</span>] = <span class="ruby-identifier">e</span>.<span class="ruby-identifier">message</span> 
+    <span class="ruby-keyword">end</span>
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">s</span> = <span class="ruby-value">404</span>
+    <span class="ruby-identifier">b</span> = <span class="ruby-string">&#39;Not Found&#39;</span>
+  <span class="ruby-keyword">end</span>
+
+  [<span class="ruby-identifier">s</span>, <span class="ruby-identifier">h</span>, [<span class="ruby-identifier">b</span>]]
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- call-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- call-method -->
+
+    
+    </section><!-- public-instance-method-details -->
+  
+  </section><!-- 5Buntitled-5D -->
+
+</div><!-- documentation -->
+
+
+<footer id="validator-badges">
+  <p><a href="http://validator.w3.org/check/referer">[Validate]</a>
+  <p>Generated by <a href="https://github.com/rdoc/rdoc">RDoc</a> 4.0.0.
+  <p>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish Rdoc Generator</a> 3.
+</footer>
+

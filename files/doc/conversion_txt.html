@@ -1,0 +1,206 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>conversion.txt</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='file' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>conversion.txt</h1>
+        <div class='paths'>
+          doc/conversion.txt
+        </div>
+        <div class='last-update'>
+          Last Update:
+          <span class='datetime'>2008-10-18 19:13:56 -0700</span>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            
+            <p>Conversion from an svn revision prior to 90 to the current version of
+            Scaffolding Extensions can be very easy or fairly tedious, depending on how
+            much you relied on the implementation of the older version.</p>
+            
+            <p>Here&#39;s a list of things to check and fix, in the order of expected use:</p>
+            <ul><li>
+            <p>@scaffold_fields is now a list of symbols and not a list of strings.  Other</p>
+            </li></ul>
+            
+            <p>variables that let you choose from fields or associations also take symbols
+            instead of strings, such as @scaffold_associations, @scaffold_column_types,
+            and @scaffold_column_options_hash. Variables that are used directly in the
+            SQL string, such as @scaffold_select_order, are still strings.</p>
+            <ul><li>
+            <p>The scaffold templates no longer set the title of the page in an h1 tag.</p>
+            </li></ul>
+            
+            <p>Now, that is done by the layout.  The title of the page is stored in
+            @scaffold_title, and if you use a custom layout, you should incorporate
+            that.</p>
+            <ul><li>
+            <p>The scaffold method has fewer options and now takes the model class.  The</p>
+            </li></ul>
+            
+            <p>only options available are :except and :only.  So instead of "scaffold
+            :album", you use "scaffold Album".  It automatically scaffolds all habtm
+            associations for the model (though you can override that with the
+            model&#39;s @scaffold_habtm_associations). You can no longer scaffold
+            without a suffix, and the suffix used is set by the class&#39;s
+            @scaffold_name (defaulting to name.underscore).</p>
+            <ul><li>
+            <p>The scaffold_habtm method no longer has options and now takes the model</p>
+            </li></ul>
+            
+            <p>class and the association as a symbol.  So instead of  "scaffold_habtm
+            :album, :artist" you use "scaffold_habtm Album, :artists". scaffold_habtm
+            no longer scaffolds both ways, so you&#39;ll need two separate calls if you
+            want it scaffolded in both directions.</p>
+            <ul><li>
+            <p>The scaffold_all_models method only accepts a hash and not a list of models</p>
+            </li></ul>
+            
+            <p>to scaffold.  Keys of the hash (other than :except and :only) should be
+            model classes, defining options for each model.  :except and :only take
+            lists of models instead of symbols.  options for each model can only be
+            :except and :only.</p>
+            <ul><li>
+            <p>The scaffolded pages no longer set variables such as @artist and @artists
+            or</p>
+            </li></ul>
+            
+            <p>variables like @scaffold_action. Now, they use the generic @scaffold_object
+            and @scaffold_objects for holding model objects.  Variables that will
+            definitely be defined are @scaffold_suffix, @scaffold_class, and
+            @scaffold_options.</p>
+            <ul><li>
+            <p>Overriding defaults for <a
+            href="../../classes/ActiveRecord.html">ActiveRecord</a> classes is now done
+            through</p>
+            </li></ul>
+            
+            <p>"::<a target="_top" href="http://option_name">ActiveRecord::Base::SCAFFOLD_OPTIONS</a>",
+            and the option names have changed.  Names for instance variables inside the
+            class should still work. See the RDoc for details.</p>
+            <ul><li>
+            <p>Setting auto_complete_skip_style is now a singleton option and not a</p>
+            </li></ul>
+            
+            <p>per-model options.  It is set with "<a
+            href="../../classes/ScaffoldingExtensions.html#attribute-c-auto_complete_skip_style">ScaffoldingExtensions.auto_complete_skip_style</a>
+            = true".</p>
+            <ul><li>
+            <p>Scaffolded methods are no longer prefixed with _ and then aliased.  If you</p>
+            </li></ul>
+            
+            <p>want to override a method but still call it later, alias it manually and 
+            overwrite it to call the aliased version.</p>
+            <ul><li>
+            <p>There is no ability to generate code, as eval is no longer used.  All
+            dynamic</p>
+            </li></ul>
+            
+            <p>methods are created with define_method.  This makes debugging much easier,
+            and should make things quite a bit faster.</p>
+            <ul><li>
+            <p>If you set the scaffold_fields by using a method instead of an instance</p>
+            </li></ul>
+            
+            <p>variable, you&#39;ll have problems.  Switch to using instance variables for
+            @scaffold_fields, @scaffold_select_order, etc..  If you want to override
+            them for specific cases (scaffold_new_fields), it is ok to use a function
+            for that, though I would still recommend using a variable
+            (@scaffold_new_fields).</p>
+            <ul><li>
+            <p>If you called methods such as scaffold_new_fields or</p>
+            </li></ul>
+            
+            <p>scaffold_browse_select_order, you&#39;ll need to change those to
+            scaffold_fields(:new) and scaffold_select_order(:browse).</p>
+            <ul><li>
+            <p>scaffold_fields, scaffold_select_order, and scaffold_include methods all</p>
+            </li></ul>
+            
+            <p>take an argument now, specifying the action being used, though to make
+            things easier the argument has a default (:default).</p>
+            <ul><li>
+            <p>all_models is now a method of ScaffoldExtensions, not of <a
+            href="../../classes/ActiveRecord/Base.html">ActiveRecord::Base</a>,</p>
+            </li></ul>
+            
+            <p>and it returns model classes, not model name strings.</p>
+            <ul><li>
+            <p>render_#{suffix}_scaffold is no longer called, now just</p>
+            </li></ul>
+            
+            <p>scaffold_render_template is used.</p>
+            <ul><li>
+            <p>All methods adding by Scaffolding Extensions start with scaffold.  If you</p>
+            </li></ul>
+            
+            <p>used a method added by Scaffolding Extensions that didn&#39;t start with
+            scaffold, it has definitely been renamed.</p>
+            <ul><li>
+            <p>It is no longer possible to use scaffold_associations_path or</p>
+            </li></ul>
+            
+            <p>scaffold_habtm_ajax_path for the model as those are now inline templates.</p>
+            <ul><li>
+            <p>Rails&#39; form tag helpers are no longer used, so setting some options
+            (such as</p>
+            </li></ul>
+            
+            <p>:size for a text area) no longer works.  You must specify html options
+            (such as :cols and :rows) instead.</p>
+            <ul><li>
+            <p>Fields named "password" are no longer set to be of input type password by</p>
+            </li></ul>
+            
+            <p>default (that can be changed via @scaffold_column_types).</p>
+            
+            <p>I recommend searching for "scaffold" inside all of your application&#39;s
+            files, and making sure every usage conforms to the current version&#39;s
+            API.</p>
+            
+            <p>If you can&#39;t upgrade to the new version of the plugin and you want to
+            use the old version, use the following svn revision depending on the
+            version of Rails you are using:</p>
+            <ul><li>
+            <p>Rails 2.0: svn revision 89</p>
+            </li><li>
+            <p>Rails 1.2: svn revision 81</p>
+            </li><li>
+            <p>Rails 1.1: svn revision 61</p>
+            </li></ul>
+          </div>
+          <div id='context'>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>merb.txt</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='file' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>merb.txt</h1>
+        <div class='paths'>
+          doc/merb.txt
+        </div>
+        <div class='last-update'>
+          Last Update:
+          <span class='datetime'>2008-12-17 10:19:23 -0800</span>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            
+            <p>To use this plugin after installing the gem, somewhere in your Merb config,
+            add:</p>
+            
+            <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;scaffolding_extensions&#39;</span></pre>
+            
+            <p>Then you can use scaffold, scaffold_habtm, or scaffold_all_models in your
+            controllers:</p>
+            
+            <pre class="ruby"><span class="ruby-keyword">class</span> <span class="ruby-constant">Admin</span> <span class="ruby-operator">&lt;</span> <span class="ruby-constant">Merb</span><span class="ruby-operator">::</span><span class="ruby-constant">Controller</span>&#x000A;  <span class="ruby-identifier">scaffold</span> <span class="ruby-constant">Model1</span>&#x000A;  <span class="ruby-identifier">scaffold_habtm</span> <span class="ruby-constant">Model1</span>, :<span class="ruby-identifier">things</span>&#x000A;  <span class="ruby-identifier">scaffold_all_models</span> :<span class="ruby-identifier">only=</span><span class="ruby-operator">&gt;</span>[<span class="ruby-constant">Model1</span>, <span class="ruby-constant">Model2</span>, <span class="ruby-constant">Model3</span>]&#x000A;<span class="ruby-keyword">end</span></pre>
+            
+            <p>Merb isn&#39;t fully supported in that if you override a scaffolded form
+            but don&#39;t add your own layout, it won&#39;t use the scaffolded layout.
+            Also, using your own layout and overriding the scaffolded forms is
+            untested, though it should work.</p>
+          </div>
+          <div id='context'>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

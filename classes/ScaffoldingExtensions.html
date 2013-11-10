@@ -1,0 +1,321 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>ScaffoldingExtensions</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='class' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>
+          <span class='type'>module</span>
+          ScaffoldingExtensions
+        </h1>
+        <ol class='paths'>
+          <li>
+            <a target="docwin" href="../files/lib/scaffolding_extensions_rb.html">lib/scaffolding_extensions.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/controller_rb.html">lib/scaffolding_extensions/controller.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/controller/action_controller_rb.html">lib/scaffolding_extensions/controller/action_controller.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/controller/camping_rb.html">lib/scaffolding_extensions/controller/camping.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/controller/rack_rb.html">lib/scaffolding_extensions/controller/rack.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/controller/ramaze_rb.html">lib/scaffolding_extensions/controller/ramaze.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/controller/sinatra_rb.html">lib/scaffolding_extensions/controller/sinatra.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/helper_rb.html">lib/scaffolding_extensions/helper.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/jquery_helper_rb.html">lib/scaffolding_extensions/jquery_helper.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/meta_controller_rb.html">lib/scaffolding_extensions/meta_controller.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/overridable_rb.html">lib/scaffolding_extensions/overridable.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/prototype_helper_rb.html">lib/scaffolding_extensions/prototype_helper.rb</a>
+          </li>
+          <li>
+            <a class='show' href='#' onclick='this.parentNode.parentNode.className += " expanded"; this.parentNode.removeChild(this); return false'>show all</a>
+          </li>
+        </ol>
+        <div class='parent'>
+          Parent:
+          <strong><a target="docwin" href="../files/lib/scaffolding_extensions/prototype_helper_rb.html">prototype_helper.rb</a></strong>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            
+            <p>This is the base module for the plugin.  It has some constants that can be
+            changed:</p>
+            <ul><li>
+            <p><a href="ScaffoldingExtensions.html#TEMPLATE_DIR">TEMPLATE_DIR</a> - the
+            directory with the scaffold templates</p>
+            </li><li>
+            <p><a href="ScaffoldingExtensions.html#DEFAULT_METHODS">DEFAULT_METHODS</a> -
+            the default methods added by the scaffolding</p>
+            </li></ul>
+            
+            <p>If you include the contents of auto_complete.css in your stylesheet, set
+            "<a
+            href="ScaffoldingExtensions.html#attribute-c-auto_complete_skip_style">::auto_complete_skip_style</a>
+            = true", so the stylesheet isn&#39;t added for every autocompleting text
+            box.</p>
+            
+            <p>Scaffolding Extensions attempts to determine which framework/ORM you are
+            using and load the support for it (if it is supported).</p>
+          </div>
+          <div id='method-list'>
+            <h2>Methods</h2>
+            <h3>Public Class</h3>
+            <ol>
+              <li><a target="docwin" href="#method-c-all_models">all_models</a></li>
+              <li><a target="docwin" href="#attribute-c-all_models">all_models</a></li>
+              <li><a target="docwin" href="#method-c-auto_complete_css">auto_complete_css</a></li>
+              <li><a target="docwin" href="#attribute-c-auto_complete_skip_style">auto_complete_skip_style</a></li>
+              <li><a target="docwin" href="#method-c-javascript_library-3D">javascript_library=</a></li>
+              <li><a target="docwin" href="#attribute-c-model_files">model_files</a></li>
+            </ol>
+          </div>
+          <div id='context'>
+          </div>
+          <div id='class-list'>
+            <h2>Classes and Modules</h2>
+            <ol>
+              <li><a target="docwin" href="ScaffoldingExtensions/ActionController.html">ScaffoldingExtensions::ActionController</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/ActionControllerHelper.html">ScaffoldingExtensions::ActionControllerHelper</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/ActiveRecord.html">ScaffoldingExtensions::ActiveRecord</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/CampingController.html">ScaffoldingExtensions::CampingController</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/CampingHelper.html">ScaffoldingExtensions::CampingHelper</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/Controller.html">ScaffoldingExtensions::Controller</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/DataMapper.html">ScaffoldingExtensions::DataMapper</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/Helper.html">ScaffoldingExtensions::Helper</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/JQueryHelper.html">ScaffoldingExtensions::JQueryHelper</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/MetaActionController.html">ScaffoldingExtensions::MetaActionController</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/MetaActiveRecord.html">ScaffoldingExtensions::MetaActiveRecord</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/MetaCampingController.html">ScaffoldingExtensions::MetaCampingController</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/MetaController.html">ScaffoldingExtensions::MetaController</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/MetaDataMapper.html">ScaffoldingExtensions::MetaDataMapper</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/MetaModel.html">ScaffoldingExtensions::MetaModel</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/MetaOverridable.html">ScaffoldingExtensions::MetaOverridable</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/MetaRamazeController.html">ScaffoldingExtensions::MetaRamazeController</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/MetaSequel.html">ScaffoldingExtensions::MetaSequel</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/MetaSinatraController.html">ScaffoldingExtensions::MetaSinatraController</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/Model.html">ScaffoldingExtensions::Model</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/Overridable.html">ScaffoldingExtensions::Overridable</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/PrototypeHelper.html">ScaffoldingExtensions::PrototypeHelper</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/RamazeController.html">ScaffoldingExtensions::RamazeController</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/Sequel.html">ScaffoldingExtensions::Sequel</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/SinatraController.html">ScaffoldingExtensions::SinatraController</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/SinatraHelper.html">ScaffoldingExtensions::SinatraHelper</a></li>
+              <li><a target="docwin" href="ScaffoldingExtensions/RackController.html">ScaffoldingExtensions::RackController</a></li>
+            </ol>
+          </div>
+          <div id='section'>
+            <div id='constants-list'>
+              <h2>Constants</h2>
+              <div class='name-list'>
+                <table summary='Constants'>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>AUTO_COMPLETE_CSS</td>
+                    <td>=</td>
+                    <td class='context-item-value'>
+                      <<-END
+                      <style type='text/css'>
+                      div.auto_complete {
+                      width: 350px;
+                      background: #fff;
+                      }
+                      div.auto_complete ul {
+                      border:1px solid #888;
+                      margin:0;
+                      padding:0;
+                      width:100%;
+                      list-style-type:none;
+                      }
+                      div.auto_complete ul li {
+                      margin:0;
+                      padding:3px;
+                      }
+                      div.auto_complete ul li.selected { 
+                      background-color: #ffb; 
+                      }
+                      div.auto_complete ul strong.highlight { 
+                      color: #800; 
+                      margin:0;
+                      padding:0;
+                      }
+                      </style>
+                      END
+                    </td>
+                    <td>&nbsp;</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>DEFAULT_ACTION</td>
+                    <td>=</td>
+                    <td class='context-item-value'>:browse</td>
+                    <td>&nbsp;</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>DEFAULT_METHODS</td>
+                    <td>=</td>
+                    <td class='context-item-value'>[:manage, :show, :delete, :edit, :new, :search, :merge, :browse]</td>
+                    <td>&nbsp;</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>MODEL_SUPERCLASSES</td>
+                    <td>=</td>
+                    <td class='context-item-value'>[]</td>
+                    <td>&nbsp;</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>ROOT</td>
+                    <td>=</td>
+                    <td class='context-item-value'>File.dirname(File.dirname(__FILE__))</td>
+                    <td>&nbsp;</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>TEMPLATE_DIR</td>
+                    <td>=</td>
+                    <td class='context-item-value'>File.join(ROOT, "scaffolds")</td>
+                    <td>&nbsp;</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div id='attribute-list'>
+              <h2 class='section-bar'>Attributes</h2>
+              <div class='name-list'>
+                <table>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>
+                      <a name='attribute-c-all_models'>all_models</a>
+                    </td>
+                    <td class='context-item-value'>[W]</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>
+                      <a name='attribute-c-auto_complete_skip_style'>auto_complete_skip_style</a>
+                    </td>
+                    <td class='context-item-value'>[RW]</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>
+                      <a name='attribute-c-model_files'>model_files</a>
+                    </td>
+                    <td class='context-item-value'>[W]</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div id='methods'>
+              <h2>Public Class methods</h2>
+              <div class='method public-class' id='method-method-c-all_models'>
+                <a name='method-c-all_models'></a>
+                <div class='synopsis'>
+                  <span class='name'>all_models</span>
+                  <span class='arguments'>(options={})</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>Takes two options, :only and :except.  If :only is given, :except is
+                  ignored.  Either can contain model classes or underscored model name
+                  strings.</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-c-all_models-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-c-all_models-source'><span class="ruby-comment"># File lib/scaffolding_extensions.rb, line 57</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">all_models</span>(<span class="ruby-identifier">options</span>={})&#x000A;  <span class="ruby-keyword">return</span> <span class="ruby-ivar">@all_models</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@all_models</span>&#x000A;  <span class="ruby-keyword">if</span> <span class="ruby-identifier">options</span>[<span class="ruby-value">:only</span>]&#x000A;    <span class="ruby-constant">Array</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:only</span>]).<span class="ruby-identifier">collect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>) <span class="ruby-operator">?</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">camelize</span>.<span class="ruby-identifier">constantize</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">f</span>}&#x000A;  <span class="ruby-keyword">else</span>&#x000A;    <span class="ruby-identifier">string_except</span>, <span class="ruby-identifier">except</span> = <span class="ruby-constant">Array</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:except</span>]).<span class="ruby-identifier">partition</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>)}&#x000A;    <span class="ruby-identifier">model_files</span>.<span class="ruby-identifier">collect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">file</span><span class="ruby-operator">|</span><span class="ruby-constant">File</span>.<span class="ruby-identifier">basename</span>(<span class="ruby-identifier">file</span>).<span class="ruby-identifier">sub</span>(<span class="ruby-regexp">/\.rb\z/</span>, <span class="ruby-string">&#39;&#39;</span>)}.&#x000A;     <span class="ruby-identifier">reject</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">string_except</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">f</span>)}.&#x000A;     <span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">camelize</span>.<span class="ruby-identifier">constantize</span>}.&#x000A;     <span class="ruby-identifier">reject</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">m</span><span class="ruby-operator">|</span> <span class="ruby-identifier">except</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-operator">||</span> <span class="ruby-operator">!</span><span class="ruby-constant">MODEL_SUPERCLASSES</span>.<span class="ruby-identifier">any?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span> <span class="ruby-identifier">m</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">klass</span>)}}&#x000A;  <span class="ruby-keyword">end</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-class' id='method-method-c-auto_complete_css'>
+                <a name='method-c-auto_complete_css'></a>
+                <div class='synopsis'>
+                  <span class='name'>auto_complete_css</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>The stylesheet for the autocompleting text box, or the empty string if <a
+                  href="ScaffoldingExtensions.html#attribute-c-auto_complete_skip_style">::auto_complete_skip_style</a>
+                  is true.</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-c-auto_complete_css-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-c-auto_complete_css-source'><span class="ruby-comment"># File lib/scaffolding_extensions.rb, line 72</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">auto_complete_css</span>&#x000A;  <span class="ruby-identifier">auto_complete_skip_style</span> <span class="ruby-operator">?</span> <span class="ruby-string">&#39;&#39;</span> <span class="ruby-operator">:</span> <span class="ruby-constant">AUTO_COMPLETE_CSS</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-class' id='method-method-c-javascript_library-3D'>
+                <a name='method-c-javascript_library-3D'></a>
+                <div class='synopsis'>
+                  <span class='name'>javascript_library=</span>
+                  <span class='arguments'>(jslib)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>The javascript library to use (defaults to JQuery, can be set to
+                  &#39;Prototype&#39;)</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-c-javascript_library-3D-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-c-javascript_library-3D-source'><span class="ruby-comment"># File lib/scaffolding_extensions.rb, line 77</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">javascript_library=</span>(<span class="ruby-identifier">jslib</span>)&#x000A;  <span class="ruby-identifier">require</span> <span class="ruby-node">&quot;scaffolding_extensions/#{jslib.downcase}_helper&quot;</span>&#x000A;  <span class="ruby-constant">ScaffoldingExtensions</span><span class="ruby-operator">::</span><span class="ruby-constant">Helper</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:include</span>, <span class="ruby-identifier">const_get</span>(<span class="ruby-node">&quot;#{jslib}Helper&quot;</span>))&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

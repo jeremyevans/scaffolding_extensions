@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>Object</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='class' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>
+          <span class='type'>class</span>
+          Object
+        </h1>
+        <ol class='paths'>
+          <li>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/controller/camping_rb.html">lib/scaffolding_extensions/controller/camping.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/model/datamapper_rb.html">lib/scaffolding_extensions/model/datamapper.rb</a>
+          </li>
+          <li>
+            <a class='show' href='#' onclick='this.parentNode.parentNode.className += " expanded"; this.parentNode.removeChild(this); return false'>show all</a>
+          </li>
+        </ol>
+        <div class='parent'>
+          Parent:
+          <strong><a target="docwin" href="../files/lib/scaffolding_extensions/controller/camping_rb.html">camping.rb</a></strong>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'></div>
+          <div id='method-list'>
+            <h2>Methods</h2>
+            <h3>Public Instance</h3>
+            <ol>
+              <li><a target="docwin" href="#method-i-add_scaffolding_methods">add_scaffolding_methods</a></li>
+              <li><a target="docwin" href="#method-i-get_key_array_safe">get_key_array_safe</a></li>
+              <li><a target="docwin" href="#method-i-get_ordering_options">get_ordering_options</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_R">scaffold_R</a></li>
+            </ol>
+          </div>
+          <div id='context'>
+          </div>
+          <div id='section'>
+            <div id='constants-list'>
+              <h2>Constants</h2>
+              <div class='name-list'>
+                <table summary='Constants'>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>ERB</td>
+                    <td>=</td>
+                    <td class='context-item-value'>Erubis::Eruby</td>
+                    <td>&nbsp;</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div id='methods'>
+              <h2>Public Instance methods</h2>
+              <div class='method public-instance' id='method-method-i-add_scaffolding_methods'>
+                <a name='method-i-add_scaffolding_methods'></a>
+                <div class='synopsis'>
+                  <span class='name'>add_scaffolding_methods</span>
+                  <span class='arguments'>(classes)</span>
+                </div>
+                <div class='description'>
+                  
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-add_scaffolding_methods-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-add_scaffolding_methods-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 279</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">add_scaffolding_methods</span>(<span class="ruby-identifier">classes</span>)&#x000A;  <span class="ruby-keyword">unless</span> <span class="ruby-identifier">classes</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)&#x000A;    <span class="ruby-identifier">classes</span> = [<span class="ruby-identifier">classes</span>]&#x000A;  <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-identifier">classes</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">cl</span><span class="ruby-operator">|</span>&#x000A;    <span class="ruby-identifier">cl</span>.<span class="ruby-identifier">class_eval</span> <span class="ruby-value">&lt;&lt;-ECLASS&#x000A;      SCAFFOLD_OPTIONS = ::ScaffoldingExtensions::MetaModel::SCAFFOLD_OPTIONS&#x000A;      include ScaffoldingExtensions::Model&#x000A;      include ScaffoldingExtensions::DataMapper&#x000A;      extend ScaffoldingExtensions::MetaModel&#x000A;      extend ScaffoldingExtensions::MetaDataMapper&#x000A;      extend ScaffoldingExtensions::Overridable&#x000A;    ECLASS</span>&#x000A;  <span class="ruby-keyword">end</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-get_key_array_safe'>
+                <a name='method-i-get_key_array_safe'></a>
+                <div class='synopsis'>
+                  <span class='name'>get_key_array_safe</span>
+                  <span class='arguments'>(key)</span>
+                </div>
+                <div class='description'>
+                  
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-get_key_array_safe-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-get_key_array_safe-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 3</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">get_key_array_safe</span>(<span class="ruby-identifier">key</span>)&#x000A;  <span class="ruby-keyword">if</span> <span class="ruby-identifier">key</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>) <span class="ruby-keyword">then</span>&#x000A;    <span class="ruby-keyword">if</span> <span class="ruby-identifier">key</span>.<span class="ruby-identifier">length</span><span class="ruby-operator">==</span><span class="ruby-value">1</span>&#x000A;      <span class="ruby-identifier">key</span>.<span class="ruby-identifier">first</span>&#x000A;    <span class="ruby-keyword">else</span>&#x000A;      <span class="ruby-identifier">key</span>&#x000A;    <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-keyword">else</span>&#x000A;    <span class="ruby-identifier">key</span>&#x000A;  <span class="ruby-keyword">end</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-get_ordering_options'>
+                <a name='method-i-get_ordering_options'></a>
+                <div class='synopsis'>
+                  <span class='name'>get_ordering_options</span>
+                  <span class='arguments'>(ordopts)</span>
+                </div>
+                <div class='description'>
+                  
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-get_ordering_options-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-get_ordering_options-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 15</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">get_ordering_options</span>(<span class="ruby-identifier">ordopts</span>)&#x000A;  <span class="ruby-identifier">result</span> = []&#x000A;  <span class="ruby-keyword">if</span> <span class="ruby-identifier">ordopts</span> <span class="ruby-keyword">then</span>&#x000A;    <span class="ruby-identifier">ordering</span> = <span class="ruby-identifier">ordopts</span>.<span class="ruby-identifier">dup</span>&#x000A;  <span class="ruby-keyword">else</span>&#x000A;    <span class="ruby-keyword">return</span> <span class="ruby-keyword">nil</span>&#x000A;  <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-identifier">ordering</span> = <span class="ruby-identifier">ordering</span>.<span class="ruby-identifier">split</span>(<span class="ruby-string">&#39;,&#39;</span>) <span class="ruby-keyword">unless</span> <span class="ruby-identifier">ordering</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">Array</span>)&#x000A;  <span class="ruby-identifier">ordering</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">ord</span><span class="ruby-operator">|</span>&#x000A;    <span class="ruby-identifier">asc</span> = <span class="ruby-value">:asc</span>&#x000A;    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ord</span>.<span class="ruby-identifier">upcase</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp">/DESC/</span>&#x000A;      <span class="ruby-identifier">asc</span> = <span class="ruby-value">:desc</span>&#x000A;    <span class="ruby-keyword">end</span>&#x000A;    <span class="ruby-identifier">ord</span>.<span class="ruby-identifier">gsub!</span>(<span class="ruby-regexp">/[Dd][Ee][Ss][Cc]|[Aa][Ss][Cc]/</span>,<span class="ruby-string">&quot;&quot;</span>)&#x000A;    <span class="ruby-identifier">ord</span>.<span class="ruby-identifier">strip!</span>&#x000A;    <span class="ruby-keyword">if</span> <span class="ruby-identifier">ord</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp">/(\w+)\.(\w+)/</span>&#x000A;      <span class="ruby-identifier">tablename</span> = <span class="ruby-node">$1</span>&#x000A;      <span class="ruby-identifier">propertyname</span> = <span class="ruby-node">$2</span>&#x000A;      <span class="ruby-comment">#TODO handling of associated orderings</span>&#x000A;      <span class="ruby-comment">#optionshash[:order] &lt;&lt; DataMapper::Query::Direction.new(eval(&quot;#{tablename.downcase.gsub(/\b[a-z]/) { |a| a.upcase }.gsub(/\s/, &quot;&quot;)</span>&#x000A;      <span class="ruby-comment">#}.properties[:#{propertyname.downcase}]&quot;),asc)</span>&#x000A;      <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">eval</span>(<span class="ruby-node">&quot;:#{propertyname}.#{asc.to_s}&quot;</span>)&#x000A;    <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">ord</span> <span class="ruby-operator">=~</span> <span class="ruby-regexp">/(\w+)/</span>&#x000A;      <span class="ruby-identifier">propertyname</span> = <span class="ruby-node">$1</span>&#x000A;      <span class="ruby-identifier">result</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">eval</span>(<span class="ruby-node">&quot;:#{propertyname}.#{asc.to_s}&quot;</span>)&#x000A;    <span class="ruby-keyword">else</span>&#x000A;      <span class="ruby-comment"># TODO Warning message</span>&#x000A;    <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-identifier">result</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_R'>
+                <a name='method-i-scaffold_R'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_R</span>
+                  <span class='arguments'>(root)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>Create a route class, and automatically extend it with
+                  MetaCampingController so scaffold methods can be used directly inside of
+                  it.</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_R-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_R-source'><span class="ruby-comment"># File lib/scaffolding_extensions/controller/camping.rb, line 145</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_R</span>(<span class="ruby-identifier">root</span>)&#x000A;  <span class="ruby-identifier">r</span> = <span class="ruby-constant">Camping</span><span class="ruby-operator">::</span><span class="ruby-constant">Controllers</span><span class="ruby-operator">::</span><span class="ruby-constant">R</span>(<span class="ruby-node">&quot;(#{root})/?([^/]*)/?([^/]*)&quot;</span>)&#x000A;  <span class="ruby-identifier">r</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:extend</span>, <span class="ruby-constant">ScaffoldingExtensions</span><span class="ruby-operator">::</span><span class="ruby-constant">MetaCampingController</span>)&#x000A;  <span class="ruby-identifier">r</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

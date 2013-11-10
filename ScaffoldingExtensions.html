@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+
+<title>module ScaffoldingExtensions - Scaffolding Extensions: Administrative database front-end for multiple web-frameworks and ORMs</title>
+
+<link type="text/css" media="screen" href="./rdoc.css" rel="stylesheet">
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "./";
+</script>
+
+<script type="text/javascript" charset="utf-8" src="./js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/navigation.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/search_index.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/search.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/searcher.js"></script>
+<script type="text/javascript" charset="utf-8" src="./js/darkfish.js"></script>
+
+
+<body id="top" class="module">
+<nav id="metadata">
+  <nav id="home-section" class="section">
+  <h3 class="section-header">
+    <a href="./index.html">Home</a>
+    <a href="./table_of_contents.html#classes">Classes</a>
+    <a href="./table_of_contents.html#methods">Methods</a>
+  </h3>
+</nav>
+
+
+  <nav id="search-section" class="section project-section" class="initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <h3 class="section-header">
+      <input type="text" name="search" placeholder="Search" id="search-field"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </h3>
+  </form>
+
+  <ul id="search-results" class="initially-hidden"></ul>
+</nav>
+
+
+  
+
+  <div id="file-metadata">
+    <nav id="file-list-section" class="section">
+  <h3 class="section-header">Defined In</h3>
+  <ul>
+    <li>lib/scaffolding_extensions.rb
+    <li>lib/scaffolding_extensions/controller.rb
+    <li>lib/scaffolding_extensions/controller/action_controller.rb
+    <li>lib/scaffolding_extensions/controller/camping.rb
+    <li>lib/scaffolding_extensions/controller/rack.rb
+    <li>lib/scaffolding_extensions/controller/ramaze.rb
+    <li>lib/scaffolding_extensions/controller/sinatra.rb
+    <li>lib/scaffolding_extensions/helper.rb
+    <li>lib/scaffolding_extensions/jquery_helper.rb
+    <li>lib/scaffolding_extensions/meta_controller.rb
+    <li>lib/scaffolding_extensions/meta_model.rb
+    <li>lib/scaffolding_extensions/model.rb
+    <li>lib/scaffolding_extensions/model/active_record.rb
+    <li>lib/scaffolding_extensions/model/datamapper.rb
+    <li>lib/scaffolding_extensions/model/sequel.rb
+    <li>lib/scaffolding_extensions/overridable.rb
+    <li>lib/scaffolding_extensions/prototype_helper.rb
+    <li>lib/scaffolding_extensions/rails_test_help.rb
+  </ul>
+</nav>
+
+    
+  </div>
+
+  <div id="class-metadata">
+    
+    
+    
+    
+    <!-- Method Quickref -->
+<nav id="method-list-section" class="section">
+  <h3 class="section-header">Methods</h3>
+
+  <ul class="link-list">
+    
+    <li ><a href="#method-c-all_models">::all_models</a>
+    
+    <li ><a href="#method-c-auto_complete_css">::auto_complete_css</a>
+    
+    <li ><a href="#method-c-javascript_library-3D">::javascript_library=</a>
+    
+  </ul>
+</nav>
+
+  </div>
+
+  <div id="project-metadata">
+    <nav id="fileindex-section" class="section project-section">
+  <h3 class="section-header">Pages</h3>
+
+  <ul>
+  
+    <li class="file"><a href="./MIT-LICENSE.html">MIT-LICENSE</a>
+  
+    <li class="file"><a href="./README.html">README</a>
+  
+    <li class="file"><a href="./doc/advanced_txt.html">advanced</a>
+  
+    <li class="file"><a href="./doc/camping_txt.html">camping</a>
+  
+    <li class="file"><a href="./doc/controller_spec_txt.html">controller_spec</a>
+  
+    <li class="file"><a href="./doc/conversion_txt.html">conversion</a>
+  
+    <li class="file"><a href="./doc/datamapper_txt.html">datamapper</a>
+  
+    <li class="file"><a href="./doc/merb_txt.html">merb</a>
+  
+    <li class="file"><a href="./doc/model_spec_txt.html">model_spec</a>
+  
+    <li class="file"><a href="./doc/rack_txt.html">rack</a>
+  
+    <li class="file"><a href="./doc/rails_txt.html">rails</a>
+  
+    <li class="file"><a href="./doc/ramaze_txt.html">ramaze</a>
+  
+    <li class="file"><a href="./doc/sinatra_txt.html">sinatra</a>
+  
+    <li class="file"><a href="./doc/testing_txt.html">testing</a>
+  
+  </ul>
+</nav>
+
+    <nav id="classindex-section" class="section project-section">
+  <h3 class="section-header">Class and Module Index</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="./ActionController.html">ActionController</a>
+  
+    <li><a href="./ActionController/Base.html">ActionController::Base</a>
+  
+    <li><a href="./ActiveRecord.html">ActiveRecord</a>
+  
+    <li><a href="./ActiveRecord/Base.html">ActiveRecord::Base</a>
+  
+    <li><a href="./Camping.html">Camping</a>
+  
+    <li><a href="./DataMapper.html">DataMapper</a>
+  
+    <li><a href="./Object.html">Object</a>
+  
+    <li><a href="./Ramaze.html">Ramaze</a>
+  
+    <li><a href="./Ramaze/Controller.html">Ramaze::Controller</a>
+  
+    <li><a href="./ScaffoldingExtensions.html">ScaffoldingExtensions</a>
+  
+    <li><a href="./ScaffoldingExtensions/ActionController.html">ScaffoldingExtensions::ActionController</a>
+  
+    <li><a href="./ScaffoldingExtensions/ActionControllerHelper.html">ScaffoldingExtensions::ActionControllerHelper</a>
+  
+    <li><a href="./ScaffoldingExtensions/ActiveRecord.html">ScaffoldingExtensions::ActiveRecord</a>
+  
+    <li><a href="./ScaffoldingExtensions/CampingController.html">ScaffoldingExtensions::CampingController</a>
+  
+    <li><a href="./ScaffoldingExtensions/CampingHelper.html">ScaffoldingExtensions::CampingHelper</a>
+  
+    <li><a href="./ScaffoldingExtensions/Controller.html">ScaffoldingExtensions::Controller</a>
+  
+    <li><a href="./ScaffoldingExtensions/DataMapper.html">ScaffoldingExtensions::DataMapper</a>
+  
+    <li><a href="./ScaffoldingExtensions/Helper.html">ScaffoldingExtensions::Helper</a>
+  
+    <li><a href="./ScaffoldingExtensions/JQueryHelper.html">ScaffoldingExtensions::JQueryHelper</a>
+  
+    <li><a href="./ScaffoldingExtensions/MetaActionController.html">ScaffoldingExtensions::MetaActionController</a>
+  
+    <li><a href="./ScaffoldingExtensions/MetaActiveRecord.html">ScaffoldingExtensions::MetaActiveRecord</a>
+  
+    <li><a href="./ScaffoldingExtensions/MetaCampingController.html">ScaffoldingExtensions::MetaCampingController</a>
+  
+    <li><a href="./ScaffoldingExtensions/MetaController.html">ScaffoldingExtensions::MetaController</a>
+  
+    <li><a href="./ScaffoldingExtensions/MetaDataMapper.html">ScaffoldingExtensions::MetaDataMapper</a>
+  
+    <li><a href="./ScaffoldingExtensions/MetaModel.html">ScaffoldingExtensions::MetaModel</a>
+  
+    <li><a href="./ScaffoldingExtensions/MetaOverridable.html">ScaffoldingExtensions::MetaOverridable</a>
+  
+    <li><a href="./ScaffoldingExtensions/MetaRamazeController.html">ScaffoldingExtensions::MetaRamazeController</a>
+  
+    <li><a href="./ScaffoldingExtensions/MetaSequel.html">ScaffoldingExtensions::MetaSequel</a>
+  
+    <li><a href="./ScaffoldingExtensions/MetaSinatraController.html">ScaffoldingExtensions::MetaSinatraController</a>
+  
+    <li><a href="./ScaffoldingExtensions/Model.html">ScaffoldingExtensions::Model</a>
+  
+    <li><a href="./ScaffoldingExtensions/Overridable.html">ScaffoldingExtensions::Overridable</a>
+  
+    <li><a href="./ScaffoldingExtensions/PrototypeHelper.html">ScaffoldingExtensions::PrototypeHelper</a>
+  
+    <li><a href="./ScaffoldingExtensions/RackController.html">ScaffoldingExtensions::RackController</a>
+  
+    <li><a href="./ScaffoldingExtensions/RackController/Redirect.html">ScaffoldingExtensions::RackController::Redirect</a>
+  
+    <li><a href="./ScaffoldingExtensions/RamazeController.html">ScaffoldingExtensions::RamazeController</a>
+  
+    <li><a href="./ScaffoldingExtensions/Sequel.html">ScaffoldingExtensions::Sequel</a>
+  
+    <li><a href="./ScaffoldingExtensions/SinatraController.html">ScaffoldingExtensions::SinatraController</a>
+  
+    <li><a href="./ScaffoldingExtensions/SinatraHelper.html">ScaffoldingExtensions::SinatraHelper</a>
+  
+    <li><a href="./Sequel.html">Sequel</a>
+  
+    <li><a href="./Sequel/Model.html">Sequel::Model</a>
+  
+    <li><a href="./Sinatra.html">Sinatra</a>
+  
+    <li><a href="./Sinatra/Base.html">Sinatra::Base</a>
+  
+    <li><a href="./Test.html">Test</a>
+  
+    <li><a href="./Test/Unit.html">Test::Unit</a>
+  
+    <li><a href="./Test/Unit/TestCase.html">Test::Unit::TestCase</a>
+  
+  </ul>
+</nav>
+
+  </div>
+</nav>
+
+<div id="documentation">
+  <h1 class="module">module ScaffoldingExtensions</h1>
+
+  <div id="description" class="description">
+    
+<p>This is the base module for the plugin.  It has some constants that can be
+changed:</p>
+<ul><li>
+<p><a href="ScaffoldingExtensions.html#TEMPLATE_DIR">TEMPLATE_DIR</a> - the
+directory with the scaffold templates</p>
+</li><li>
+<p><a href="ScaffoldingExtensions.html#DEFAULT_METHODS">DEFAULT_METHODS</a> -
+the default methods added by the scaffolding</p>
+</li></ul>
+
+<p>If you include the contents of auto_complete.css in your stylesheet, set
+“auto_complete_skip_style = true”, so the stylesheet isn&#39;t added for
+every autocompleting text box.</p>
+
+<p>Scaffolding Extensions attempts to determine which framework/ORM you are
+using and load the support for it (if it is supported).</p>
+
+  </div><!-- description -->
+
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <!-- Constants -->
+    <section id="constants-list" class="section">
+      <h3 class="section-header">Constants</h3>
+      <dl>
+      
+        <dt id="AUTO_COMPLETE_CSS">AUTO_COMPLETE_CSS
+        
+        <dd class="description">
+        
+      
+        <dt id="DEFAULT_ACTION">DEFAULT_ACTION
+        
+        <dd class="description">
+        
+      
+        <dt id="DEFAULT_METHODS">DEFAULT_METHODS
+        
+        <dd class="description">
+        
+      
+        <dt id="MODEL_SUPERCLASSES">MODEL_SUPERCLASSES
+        
+        <dd class="description">
+        
+      
+        <dt id="ROOT">ROOT
+        
+        <dd class="description">
+        
+      
+        <dt id="TEMPLATE_DIR">TEMPLATE_DIR
+        
+        <dd class="description">
+        
+      
+      </dl>
+    </section>
+    
+
+    
+    <!-- Attributes -->
+    <section id="attribute-method-details" class="method-section section">
+      <h3 class="section-header">Attributes</h3>
+
+      
+      <div id="attribute-c-all_models" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">all_models</span><span
+            class="attribute-access-type">[W]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+      <div id="attribute-c-auto_complete_skip_style" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">auto_complete_skip_style</span><span
+            class="attribute-access-type">[RW]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+      <div id="attribute-c-model_files" class="method-detail">
+        <div class="method-heading attribute-method-heading">
+          <span class="method-name">model_files</span><span
+            class="attribute-access-type">[W]</span>
+        </div>
+
+        <div class="method-description">
+        
+        
+        
+        </div>
+      </div>
+      
+    </section><!-- attribute-method-details -->
+    
+
+    <!-- Methods -->
+    
+     <section id="public-class-5Buntitled-5D-method-details" class="method-section section">
+      <h3 class="section-header">Public Class Methods</h3>
+
+    
+      <div id="method-c-all_models" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">all_models</span><span
+            class="method-args">(options={})</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>Takes two options, :only and :except.  If :only is given, :except is
+ignored.  Either can contain model classes or underscored model name
+strings.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="all_models-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions.rb, line 57</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">all_models</span>(<span class="ruby-identifier">options</span>={})
+  <span class="ruby-keyword">return</span> <span class="ruby-ivar">@all_models</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@all_models</span>
+  <span class="ruby-keyword">if</span> <span class="ruby-identifier">options</span>[<span class="ruby-value">:only</span>]
+    <span class="ruby-constant">Array</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:only</span>]).<span class="ruby-identifier">collect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>) <span class="ruby-operator">?</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">camelize</span>.<span class="ruby-identifier">constantize</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">f</span>}
+  <span class="ruby-keyword">else</span>
+    <span class="ruby-identifier">string_except</span>, <span class="ruby-identifier">except</span> = <span class="ruby-constant">Array</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:except</span>]).<span class="ruby-identifier">partition</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>)}
+    <span class="ruby-identifier">model_files</span>.<span class="ruby-identifier">collect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">file</span><span class="ruby-operator">|</span><span class="ruby-constant">File</span>.<span class="ruby-identifier">basename</span>(<span class="ruby-identifier">file</span>).<span class="ruby-identifier">sub</span>(<span class="ruby-regexp">/\.rb\z/</span>, <span class="ruby-string">&#39;&#39;</span>)}.
+     <span class="ruby-identifier">reject</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">string_except</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">f</span>)}.
+     <span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">camelize</span>.<span class="ruby-identifier">constantize</span>}.
+     <span class="ruby-identifier">reject</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">m</span><span class="ruby-operator">|</span> <span class="ruby-identifier">except</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-operator">||</span> <span class="ruby-operator">!</span><span class="ruby-constant">MODEL_SUPERCLASSES</span>.<span class="ruby-identifier">any?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span> <span class="ruby-identifier">m</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">klass</span>)}}
+  <span class="ruby-keyword">end</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- all_models-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- all_models-method -->
+
+    
+      <div id="method-c-auto_complete_css" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">auto_complete_css</span><span
+            class="method-args">()</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The stylesheet for the autocompleting text box, or the empty string if <a
+href="ScaffoldingExtensions.html#attribute-c-auto_complete_skip_style">::auto_complete_skip_style</a>
+is true.</p>
+          
+          
+
+          
+          <div class="method-source-code" id="auto_complete_css-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions.rb, line 72</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">auto_complete_css</span>
+  <span class="ruby-identifier">auto_complete_skip_style</span> <span class="ruby-operator">?</span> <span class="ruby-string">&#39;&#39;</span> <span class="ruby-operator">:</span> <span class="ruby-constant">AUTO_COMPLETE_CSS</span>
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- auto_complete_css-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- auto_complete_css-method -->
+
+    
+      <div id="method-c-javascript_library-3D" class="method-detail ">
+        
+        <div class="method-heading">
+          <span class="method-name">javascript_library=</span><span
+            class="method-args">(jslib)</span>
+          
+          <span class="method-click-advice">click to toggle source</span>
+          
+        </div>
+        
+
+        <div class="method-description">
+          
+          <p>The javascript library to use (defaults to JQuery, can be set to
+&#39;Prototype&#39;)</p>
+          
+          
+
+          
+          <div class="method-source-code" id="javascript_library-3D-source">
+            <pre><span class="ruby-comment"># File lib/scaffolding_extensions.rb, line 77</span>
+<span class="ruby-keyword">def</span> <span class="ruby-identifier">javascript_library=</span>(<span class="ruby-identifier">jslib</span>)
+  <span class="ruby-identifier">require</span> <span class="ruby-node">&quot;scaffolding_extensions/#{jslib.downcase}_helper&quot;</span>
+  <span class="ruby-constant">ScaffoldingExtensions</span><span class="ruby-operator">::</span><span class="ruby-constant">Helper</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:include</span>, <span class="ruby-identifier">const_get</span>(<span class="ruby-node">&quot;#{jslib}Helper&quot;</span>))
+<span class="ruby-keyword">end</span></pre>
+          </div><!-- javascript_library-3D-source -->
+          
+        </div>
+
+        
+
+        
+      </div><!-- javascript_library-3D-method -->
+
+    
+    </section><!-- public-class-method-details -->
+  
+  </section><!-- 5Buntitled-5D -->
+
+</div><!-- documentation -->
+
+
+<footer id="validator-badges">
+  <p><a href="http://validator.w3.org/check/referer">[Validate]</a>
+  <p>Generated by <a href="https://github.com/rdoc/rdoc">RDoc</a> 4.0.0.
+  <p>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish Rdoc Generator</a> 3.
+</footer>
+

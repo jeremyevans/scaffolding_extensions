@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+
+<title>module ScaffoldingExtensions::PrototypeHelper - Scaffolding Extensions: Administrative database front-end for multiple web-frameworks and ORMs</title>
+
+<link type="text/css" media="screen" href="../rdoc.css" rel="stylesheet">
+
+<script type="text/javascript">
+  var rdoc_rel_prefix = "../";
+</script>
+
+<script type="text/javascript" charset="utf-8" src="../js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/navigation.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/search_index.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/search.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/searcher.js"></script>
+<script type="text/javascript" charset="utf-8" src="../js/darkfish.js"></script>
+
+
+<body id="top" class="module">
+<nav id="metadata">
+  <nav id="home-section" class="section">
+  <h3 class="section-header">
+    <a href="../index.html">Home</a>
+    <a href="../table_of_contents.html#classes">Classes</a>
+    <a href="../table_of_contents.html#methods">Methods</a>
+  </h3>
+</nav>
+
+
+  <nav id="search-section" class="section project-section" class="initially-hidden">
+  <form action="#" method="get" accept-charset="utf-8">
+    <h3 class="section-header">
+      <input type="text" name="search" placeholder="Search" id="search-field"
+             title="Type to search, Up and Down to navigate, Enter to load">
+    </h3>
+  </form>
+
+  <ul id="search-results" class="initially-hidden"></ul>
+</nav>
+
+
+  
+
+  <div id="file-metadata">
+    <nav id="file-list-section" class="section">
+  <h3 class="section-header">Defined In</h3>
+  <ul>
+    <li>lib/scaffolding_extensions/prototype_helper.rb
+  </ul>
+</nav>
+
+    
+  </div>
+
+  <div id="class-metadata">
+    
+    
+    
+    
+    
+  </div>
+
+  <div id="project-metadata">
+    <nav id="fileindex-section" class="section project-section">
+  <h3 class="section-header">Pages</h3>
+
+  <ul>
+  
+    <li class="file"><a href="../MIT-LICENSE.html">MIT-LICENSE</a>
+  
+    <li class="file"><a href="../README.html">README</a>
+  
+    <li class="file"><a href="../doc/advanced_txt.html">advanced</a>
+  
+    <li class="file"><a href="../doc/camping_txt.html">camping</a>
+  
+    <li class="file"><a href="../doc/controller_spec_txt.html">controller_spec</a>
+  
+    <li class="file"><a href="../doc/conversion_txt.html">conversion</a>
+  
+    <li class="file"><a href="../doc/datamapper_txt.html">datamapper</a>
+  
+    <li class="file"><a href="../doc/merb_txt.html">merb</a>
+  
+    <li class="file"><a href="../doc/model_spec_txt.html">model_spec</a>
+  
+    <li class="file"><a href="../doc/rack_txt.html">rack</a>
+  
+    <li class="file"><a href="../doc/rails_txt.html">rails</a>
+  
+    <li class="file"><a href="../doc/ramaze_txt.html">ramaze</a>
+  
+    <li class="file"><a href="../doc/sinatra_txt.html">sinatra</a>
+  
+    <li class="file"><a href="../doc/testing_txt.html">testing</a>
+  
+  </ul>
+</nav>
+
+    <nav id="classindex-section" class="section project-section">
+  <h3 class="section-header">Class and Module Index</h3>
+
+  <ul class="link-list">
+  
+    <li><a href="../ActionController.html">ActionController</a>
+  
+    <li><a href="../ActionController/Base.html">ActionController::Base</a>
+  
+    <li><a href="../ActiveRecord.html">ActiveRecord</a>
+  
+    <li><a href="../ActiveRecord/Base.html">ActiveRecord::Base</a>
+  
+    <li><a href="../Camping.html">Camping</a>
+  
+    <li><a href="../DataMapper.html">DataMapper</a>
+  
+    <li><a href="../Object.html">Object</a>
+  
+    <li><a href="../Ramaze.html">Ramaze</a>
+  
+    <li><a href="../Ramaze/Controller.html">Ramaze::Controller</a>
+  
+    <li><a href="../ScaffoldingExtensions.html">ScaffoldingExtensions</a>
+  
+    <li><a href="../ScaffoldingExtensions/ActionController.html">ScaffoldingExtensions::ActionController</a>
+  
+    <li><a href="../ScaffoldingExtensions/ActionControllerHelper.html">ScaffoldingExtensions::ActionControllerHelper</a>
+  
+    <li><a href="../ScaffoldingExtensions/ActiveRecord.html">ScaffoldingExtensions::ActiveRecord</a>
+  
+    <li><a href="../ScaffoldingExtensions/CampingController.html">ScaffoldingExtensions::CampingController</a>
+  
+    <li><a href="../ScaffoldingExtensions/CampingHelper.html">ScaffoldingExtensions::CampingHelper</a>
+  
+    <li><a href="../ScaffoldingExtensions/Controller.html">ScaffoldingExtensions::Controller</a>
+  
+    <li><a href="../ScaffoldingExtensions/DataMapper.html">ScaffoldingExtensions::DataMapper</a>
+  
+    <li><a href="../ScaffoldingExtensions/Helper.html">ScaffoldingExtensions::Helper</a>
+  
+    <li><a href="../ScaffoldingExtensions/JQueryHelper.html">ScaffoldingExtensions::JQueryHelper</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaActionController.html">ScaffoldingExtensions::MetaActionController</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaActiveRecord.html">ScaffoldingExtensions::MetaActiveRecord</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaCampingController.html">ScaffoldingExtensions::MetaCampingController</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaController.html">ScaffoldingExtensions::MetaController</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaDataMapper.html">ScaffoldingExtensions::MetaDataMapper</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaModel.html">ScaffoldingExtensions::MetaModel</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaOverridable.html">ScaffoldingExtensions::MetaOverridable</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaRamazeController.html">ScaffoldingExtensions::MetaRamazeController</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaSequel.html">ScaffoldingExtensions::MetaSequel</a>
+  
+    <li><a href="../ScaffoldingExtensions/MetaSinatraController.html">ScaffoldingExtensions::MetaSinatraController</a>
+  
+    <li><a href="../ScaffoldingExtensions/Model.html">ScaffoldingExtensions::Model</a>
+  
+    <li><a href="../ScaffoldingExtensions/Overridable.html">ScaffoldingExtensions::Overridable</a>
+  
+    <li><a href="../ScaffoldingExtensions/PrototypeHelper.html">ScaffoldingExtensions::PrototypeHelper</a>
+  
+    <li><a href="../ScaffoldingExtensions/RackController.html">ScaffoldingExtensions::RackController</a>
+  
+    <li><a href="../ScaffoldingExtensions/RackController/Redirect.html">ScaffoldingExtensions::RackController::Redirect</a>
+  
+    <li><a href="../ScaffoldingExtensions/RamazeController.html">ScaffoldingExtensions::RamazeController</a>
+  
+    <li><a href="../ScaffoldingExtensions/Sequel.html">ScaffoldingExtensions::Sequel</a>
+  
+    <li><a href="../ScaffoldingExtensions/SinatraController.html">ScaffoldingExtensions::SinatraController</a>
+  
+    <li><a href="../ScaffoldingExtensions/SinatraHelper.html">ScaffoldingExtensions::SinatraHelper</a>
+  
+    <li><a href="../Sequel.html">Sequel</a>
+  
+    <li><a href="../Sequel/Model.html">Sequel::Model</a>
+  
+    <li><a href="../Sinatra.html">Sinatra</a>
+  
+    <li><a href="../Sinatra/Base.html">Sinatra::Base</a>
+  
+    <li><a href="../Test.html">Test</a>
+  
+    <li><a href="../Test/Unit.html">Test::Unit</a>
+  
+    <li><a href="../Test/Unit/TestCase.html">Test::Unit::TestCase</a>
+  
+  </ul>
+</nav>
+
+  </div>
+</nav>
+
+<div id="documentation">
+  <h1 class="module">module ScaffoldingExtensions::PrototypeHelper</h1>
+
+  <div id="description" class="description">
+    
+<p><a href="Helper.html">Helper</a> methods that require the Prototype
+Javascript library to work</p>
+
+  </div><!-- description -->
+
+  
+  
+  
+  <section id="5Buntitled-5D" class="documentation-section">
+    
+
+    
+
+    
+    <!-- Constants -->
+    <section id="constants-list" class="section">
+      <h3 class="section-header">Constants</h3>
+      <dl>
+      
+        <dt id="JS_CHAR_FILTER">JS_CHAR_FILTER
+        
+        <dd class="description">
+        
+      
+      </dl>
+    </section>
+    
+
+    
+
+    <!-- Methods -->
+    
+  </section><!-- 5Buntitled-5D -->
+
+</div><!-- documentation -->
+
+
+<footer id="validator-badges">
+  <p><a href="http://validator.w3.org/check/referer">[Validate]</a>
+  <p>Generated by <a href="https://github.com/rdoc/rdoc">RDoc</a> 4.0.0.
+  <p>Generated with the <a href="http://deveiate.org/projects/Darkfish-Rdoc/">Darkfish Rdoc Generator</a> 3.
+</footer>
+

@@ -1,0 +1,76 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>ramaze.txt</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='file' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>ramaze.txt</h1>
+        <div class='paths'>
+          doc/ramaze.txt
+        </div>
+        <div class='last-update'>
+          Last Update:
+          <span class='datetime'>2010-08-26 08:06:02 -0700</span>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            
+            <p>To use this plugin after installing the gem:</p>
+            
+            <pre class="ruby"><span class="ruby-identifier">require</span> <span class="ruby-string">&#39;scaffolding_extensions&#39;</span></pre>
+            
+            <p>If you want to use it without installing the gem, add this before requiring
+            it:</p>
+            
+            <pre>$:.unshift(&#39;scaffolding_extensions/lib&#39;)</pre>
+            
+            <p>If your models are not located in model/, it is easiest to let Scaffolding
+            Extensions know about them manually (this is only necessary if you are
+            using scaffold_all_models without :only):</p>
+            
+            <pre>ScaffoldingExtensions.all_models = [Model1, Model2, Model3]</pre>
+            
+            <p>You should add this code after your models have been loaded but before your
+            controllers have been loaded.</p>
+            
+            <p>Also, note that Scaffolding Extensions uses the :Erubis engine in <a
+            href="../../classes/Ramaze.html">Ramaze</a>, so you must have Erubis
+            installed to use it.</p>
+            
+            <p>Finally, note that should not call map after calling a scaffolding method
+            in your controller.</p>
+          </div>
+          <div id='context'>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

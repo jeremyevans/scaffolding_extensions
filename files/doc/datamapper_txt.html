@@ -1,0 +1,74 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>datamapper.txt</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='file' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>datamapper.txt</h1>
+        <div class='paths'>
+          doc/datamapper.txt
+        </div>
+        <div class='last-update'>
+          Last Update:
+          <span class='datetime'>2011-04-15 08:28:36 -0700</span>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            
+            <p>The DataMapper module has some quirks, mainly:</p>
+            <ol><li>
+            <p>For models that have the "storage_name" explicitly defined, the "has n,
+            :through =&gt; Resource" relation doesn&#39;t work well. Don&#39;t use
+            models, that have non-standard table names, or create the habtm resource by
+            hand (check the test application)</p>
+            </li><li>
+            <p>Because DataMapper uses a module instead of a superclass, you have to add
+            the appropriate scaffolding_extensions modules by hand. The simplest way is
+            to use the `add_scaffolding_methods` method in your controller, or
+            initialization script:</p>
+            
+            <p>class Dm &lt; Merb::Controller</p>
+            
+            <pre class="ruby"><span class="ruby-identifier">add_scaffolding_methods</span> [<span class="ruby-constant">DmOfficer</span>, <span class="ruby-constant">DmMeeting</span>, <span class="ruby-constant">DmEmployee</span>, <span class="ruby-constant">DmGroup</span>, <span class="ruby-constant">DmPosition</span>]&#x000A;<span class="ruby-identifier">scaffold</span> <span class="ruby-constant">DmOfficer</span>&#x000A;<span class="ruby-identifier">scaffold</span> <span class="ruby-constant">DmMeeting</span>&#x000A;<span class="ruby-identifier">scaffold_all_models</span> :<span class="ruby-identifier">only</span> =<span class="ruby-operator">&gt;</span>[<span class="ruby-constant">DmEmployee</span>, <span class="ruby-constant">DmGroup</span>, <span class="ruby-constant">DmPosition</span>]</pre>
+            
+            <p>end</p>
+            </li></ol>
+            
+            <p>You need dm-core, dm-validations, dm-transactions to use scaffolding
+            extensions with datamapper.  You also need do_sqlite3 in order to run the
+            test_suite for scaffolding_extensions with datamapper.</p>
+          </div>
+          <div id='context'>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,185 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>advanced.txt</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='file' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>advanced.txt</h1>
+        <div class='paths'>
+          doc/advanced.txt
+        </div>
+        <div class='last-update'>
+          Last Update:
+          <span class='datetime'>2008-10-18 19:13:56 -0700</span>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            
+            <p>Here are some advanced features of the plugin:</p>
+            
+            <h2 id="label-scaffold_session_value">scaffold_session_value</h2>
+            
+            <p>You can define this attribute in your model to control access to the
+            model&#39;s objects based on a session variable.  For example, if you want
+            to limit a users access via the scaffold to only objects that match his id,
+            you can set the following in the model:</p>
+            
+            <pre class="ruby"><span class="ruby-keyword">class</span> <span class="ruby-constant">Car</span> <span class="ruby-operator">&lt;</span> <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">Base</span>&#x000A;  <span class="ruby-ivar">@scaffold_session_value</span> = :<span class="ruby-identifier">user_id</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+            
+            <p>Make sure that the session value is set to :user_id when the user logs in:</p>
+            
+            <pre>session[:user_id] = User.id</pre>
+            
+            <p>Then, the user will only be able to see cars where car.user_id is equal to
+            <a target="_top" href="http://:user_id">session</a>.  Any cars the user creates via the
+            scaffolded forms will have user_id set correctly.</p>
+            
+            <p>You should make sure that :user_id is not in the @scaffold_fields for the
+            model (which it will be by default).</p>
+            
+            <h2 id="label-Eager+loading">Eager loading</h2>
+            
+            <p>You can eagerly load associations when loading multiple model objects, via
+            @scaffold_include. Here&#39;s an example scaffold_name (for an accounting
+            entry):</p>
+            
+            <pre class="ruby"><span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_name</span>&#x000A;  <span class="ruby-node">&quot;#{date.strftime(&#39;%Y-%m-%d&#39;)}-#{reference}-#{entity.name if entity}-#{debit_account.name if debit_account}-#{credit_account.name if credit_account}-#{money_amount}&quot;</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+            
+            <p>Without @scaffold_include, this will cause 3 queries for each model object
+            that calls scaffold_name.  However, if you add @scaffold_include to eagerly
+            load the associations, there won&#39;t be any additionally queries:</p>
+            
+            <pre>@scaffold_include = [:entity, :credit_account, :debit_account]</pre>
+            
+            <h2 id="label-Autocompleting">Autocompleting</h2>
+            
+            <p>Autocompleting is easy to set up in the model via:</p>
+            
+            <pre>@scaffold_use_auto_complete = true</pre>
+            
+            <p>Any time the scaffold would use a select box to show a group of objects, it
+            will instead use an autocompleting text box, allowing you to easily support
+            a much greater number of objects (select boxes aren&#39;t good for
+            collections with thousands of objects).  If the model doesn&#39;t have an
+            SQL column named "name", you&#39;ll need to specify how to construct the
+            SQL query for the object via:</p>
+            
+            <pre class="ruby"><span class="ruby-ivar">@scaffold_auto_complete_options</span> = {:<span class="ruby-identifier">sql_name=</span><span class="ruby-operator">&gt;</span><span class="ruby-string">&#39;LOWER(name)&#39;</span>, &#x000A;  :<span class="ruby-identifier">format_string=</span><span class="ruby-operator">&gt;</span>:<span class="ruby-identifier">substring</span>,  :<span class="ruby-identifier">search_operator=</span><span class="ruby-operator">&gt;</span><span class="ruby-string">&#39;LIKE&#39;</span>, &#x000A;  :<span class="ruby-identifier">results_limit=</span><span class="ruby-operator">&gt;</span><span class="ruby-value">10</span>, :<span class="ruby-identifier">phrase_modifier=</span><span class="ruby-operator">&gt;</span>:<span class="ruby-identifier">downcase</span>}</pre>
+            
+            <p>The defaults are shown.  You&#39;ll most likely need to change the
+            :sql_name.  If you are using PostgreSQL, you&#39;ll probably want to
+            include:</p>
+            
+            <pre class="ruby">{:<span class="ruby-identifier">sql_name=</span><span class="ruby-operator">&gt;</span><span class="ruby-string">&#39;name&#39;</span>, :<span class="ruby-identifier">search_operator=</span><span class="ruby-operator">&gt;</span><span class="ruby-string">&#39;ILIKE&#39;</span>, :<span class="ruby-identifier">phrase_modifier=</span><span class="ruby-operator">&gt;</span>:<span class="ruby-identifier">to_s</span>}</pre>
+            
+            <p>PostgreSQL can do case insensitive searching via ILIKE, and there is no
+            reason to force the attribute or the search phrase to lowercase.</p>
+            
+            <p>You can get quite advanced, incorporating other tables if you use
+            @scaffold_include.  Here&#39;s an example from an accounting application:</p>
+            
+            <pre class="ruby"><span class="ruby-ivar">@scaffold_select_order</span> = <span class="ruby-string">&#39;entries.date DESC, entities.name, accounts.name, debit_accounts_entries.name, entries.amount&#39;</span>&#x000A;<span class="ruby-ivar">@scaffold_include</span> = [:<span class="ruby-identifier">entity</span>, :<span class="ruby-identifier">credit_account</span>, :<span class="ruby-identifier">debit_account</span>]&#x000A;<span class="ruby-ivar">@scaffold_auto_complete_options</span> = {:<span class="ruby-identifier">sql_name=</span><span class="ruby-operator">&gt;</span><span class="ruby-string">&quot;reference || date::TEXT || entities.name ||  accounts.name || debit_accounts_entries.name || entries.amount::TEXT&quot;</span>, :<span class="ruby-identifier">search_operator=</span><span class="ruby-operator">&gt;</span><span class="ruby-string">&#39;ILIKE&#39;</span>, :<span class="ruby-identifier">phrase_modifier=</span><span class="ruby-operator">&gt;</span>:<span class="ruby-identifier">to_s</span>}</pre>
+            
+            <p>Note how :sql_name can pull in data from multiple tables, since they are
+            specified via @scaffold_include.  Note that the syntax might be database
+            specific (the accounting applation only supports PostreSQL).</p>
+            
+            <h2 id="label-Customization">Customization</h2>
+            
+            <p>Scaffolding Extensions is extremely customizable.  The database layer is
+            split from the presentation layer, and most of the interface between them
+            has support for overriding based on either the association or action given.</p>
+            
+            <p>For example, if you want different fields shown on the show page than on
+            the edit page (to make certain fields read only), you can define:</p>
+            
+            <pre>@scaffold_show_fields = [:name, :amount]&#x000A;@scaffold_edit_fields = [:name]</pre>
+            
+            <p>Each of the different pages (e.g. new, browse, search, etc.) can have a
+            different @scaffold_fields, @scaffold_select_order, or @scaffold_include
+            via the above method.  You can also override any of those variables for a
+            given association displayed on the edit page.  For example, let&#39;s say
+            you have an  Employee model which belongs_to a Position model.  When you
+            bring up the edit page for the employee, you will have a select box with
+            all of the positions shown by default (with the currently associated
+            position selected by default). This select box by default uses the
+            @scaffold_select_order and @scaffold_include of the Position model, but you
+            can override it just for its appearance on the employee&#39;s edit page
+            via:</p>
+            
+            <pre class="ruby"><span class="ruby-keyword">class</span> <span class="ruby-constant">Employee</span> <span class="ruby-operator">&lt;</span> <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">Base</span>&#x000A;  <span class="ruby-ivar">@scaffold_position_select_order_association</span> = <span class="ruby-operator">...</span>&#x000A;  <span class="ruby-ivar">@scaffold_position_include_association</span> = <span class="ruby-operator">...</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+            
+            <p>You can even change how the find is performed by defining a class method:</p>
+            
+            <pre class="ruby"><span class="ruby-keyword">class</span> <span class="ruby-constant">Employee</span> <span class="ruby-operator">&lt;</span> <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">Base</span>&#x000A;  <span class="ruby-keyword">def</span> <span class="ruby-keyword">self</span>.<span class="ruby-identifier">scaffold_position_association_find_objects</span>(<span class="ruby-identifier">options</span>)&#x000A;    <span class="ruby-comment"># This will be called to get the collection of positions</span>&#x000A;    <span class="ruby-comment"># for the select box.  The object on the edit page is in</span>&#x000A;    <span class="ruby-comment"># options[:object], in case you want to use that</span>&#x000A;    <span class="ruby-comment"># to filter the selection of possible objects</span>&#x000A;  <span class="ruby-keyword">end</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+            
+            <p>This barely scratches the surface of customization possibilities, see the
+            RDoc for details on which methods can be customized in this manner.</p>
+            
+            <h2 id="label-has_and_belongs_to_many+scaffolding">has_and_belongs_to_many scaffolding</h2>
+            
+            <p>Scaffolding Extensions scaffolds all has_and_belongs_to_many associations
+            via links on the edit page.  You can limit which associations are
+            scaffolded via the model&#39;s @scaffold_habtm_associations.  By default,
+            habtm scaffolding is enabled via a separate page with two select boxes, one
+            choosing objects not currently associated that can be added, and the other
+            showing currently associated objects that removed from the association.</p>
+            
+            <p>It is possible to change this to scaffold habtm associations on the edit
+            page via a couple of Ajax enabled controls.  This is set with the
+            model&#39;s @scaffold_habtm_with_ajax variable.  With that variable set,
+            directly under the main edit form for the model will be select boxes with
+            possible objects to associate (or autocompleting text boxes if the
+            association&#39;s model uses autocompleting), as well as a button that adds
+            those objects to the association via Ajax.  There is also a list of
+            currently associated objects that can be removed from the associated via
+            Ajax.  This allows for quick modification of habtm associations.</p>
+            
+            <h2 id="label-merge+scaffolding">merge scaffolding</h2>
+            
+            <p>By default, Scaffolding Extensions will produce a merge scaffold for every
+            model.  Merging object A into object B will take all of the has_many and
+            has_and_belongs_to_many association objects for object A and will instead
+            associated them with object B.  It will then delete object B.  This can be
+            used to fix issues caused by database denormalization.</p>
+            
+            <h2 id="label-search+scaffolding">search scaffolding</h2>
+            
+            <p>By default, Scaffolding Extensions will produce a simple search scaffold
+            for every model.  It will allow searching by substring for columns of type
+            :text or :string, and exact matches for other columns.</p>
+          </div>
+          <div id='context'>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>

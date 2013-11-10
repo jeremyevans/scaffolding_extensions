@@ -1,0 +1,444 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html lang='en'>
+  <head>
+    <title>ScaffoldingExtensions::MetaDataMapper</title>
+    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
+    <script type='text/javascript'>
+      //<![CDATA[
+        function popupCode(url) {
+          window.open(url, "Code", "resizable=yes,scrollbars=yes,toolbar=no,status=no,height=150,width=400")
+        }
+        
+        function toggleCode(id) {
+          var code = document.getElementById(id)
+        
+          code.style.display = code.style.display != 'block' ? 'block' : 'none'
+          return true
+        }
+        
+        // Make codeblocks hidden by default
+        document.writeln('<' + 'style type="text/css">.method .source pre { display: none }<\/style>')
+      //]]>
+    </script>
+  </head>
+  <body class='page'>
+    <div class='class' id='wrapper'>
+      <div class='header'>
+        <h1 class='name'>
+          <span class='type'>module</span>
+          ScaffoldingExtensions::MetaDataMapper
+        </h1>
+        <ol class='paths'>
+          <li>
+            <a target="docwin" href="../../files/lib/scaffolding_extensions/model/datamapper_rb.html">lib/scaffolding_extensions/model/datamapper.rb</a>
+          </li>
+        </ol>
+        <div class='parent'>
+          Parent:
+          <strong><a target="docwin" href="../ScaffoldingExtensions.html">ScaffoldingExtensions</a></strong>
+        </div>
+      </div>
+      <div id='content'>
+        <div id='text'>
+          <div id='description'>
+            
+            <p>Class methods added to DataMapper::Resource to allow it to work with
+            Scaffolding Extensions.</p>
+          </div>
+          <div id='method-list'>
+            <h2>Methods</h2>
+            <h3>Public Instance</h3>
+            <ol>
+              <li><a target="docwin" href="#method-i-scaffold_add_associated_object">scaffold_add_associated_object</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_all_associations">scaffold_all_associations</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_associated_class">scaffold_associated_class</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_associated_objects">scaffold_associated_objects</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_association">scaffold_association</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_association_type">scaffold_association_type</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_associations">scaffold_associations</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_destroy">scaffold_destroy</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_error_raised">scaffold_error_raised</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_fields">scaffold_fields</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_foreign_key">scaffold_foreign_key</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_get_object">scaffold_get_object</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_get_objects">scaffold_get_objects</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_habtm_reflection_options">scaffold_habtm_reflection_options</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_new_associated_object_values">scaffold_new_associated_object_values</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_primary_key">scaffold_primary_key</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_save">scaffold_save</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_table_column_type">scaffold_table_column_type</a></li>
+              <li><a target="docwin" href="#method-i-scaffold_table_name">scaffold_table_name</a></li>
+            </ol>
+          </div>
+          <div id='context'>
+          </div>
+          <div id='section'>
+            <div id='constants-list'>
+              <h2>Constants</h2>
+              <div class='name-list'>
+                <table summary='Constants'>
+                  <tr class='top-aligned-row context-row'>
+                    <td class='context-item-name'>SCAFFOLD_OPTIONS</td>
+                    <td>=</td>
+                    <td class='context-item-value'>::ScaffoldingExtensions::MetaModel::SCAFFOLD_OPTIONS</td>
+                    <td>&nbsp;</td>
+                    <td class='context-item-desc'></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+            <div id='methods'>
+              <h2>Public Instance methods</h2>
+              <div class='method public-instance' id='method-method-i-scaffold_add_associated_object'>
+                <a name='method-i-scaffold_add_associated_object'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_add_associated_object</span>
+                  <span class='arguments'>(association, object, associated_object)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>Add the associated object to the object&#39;s association</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_add_associated_object-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_add_associated_object-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 65</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_add_associated_object</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">object</span>, <span class="ruby-identifier">associated_object</span>)&#x000A;  <span class="ruby-identifier">ap</span> = <span class="ruby-identifier">object</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">association</span>)&#x000A;  <span class="ruby-identifier">ap</span> <span class="ruby-operator">&lt;&lt;</span> <span class="ruby-identifier">associated_object</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">ap</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">associated_object</span>)&#x000A;  <span class="ruby-identifier">object</span>.<span class="ruby-identifier">save</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_all_associations'>
+                <a name='method-i-scaffold_all_associations'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_all_associations</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>Array of all association reflections for this model only shows the
+                  associations that are scaffolding_enabled</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_all_associations-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_all_associations-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 73</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_all_associations</span>&#x000A;  <span class="ruby-identifier">relationships</span>.<span class="ruby-identifier">values</span>.<span class="ruby-identifier">select</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">v</span><span class="ruby-operator">|</span>&#x000A;    <span class="ruby-identifier">v</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:target_model</span>).<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:scaffold_name</span>)&#x000A;  }&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_associated_class'>
+                <a name='method-i-scaffold_associated_class'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_associated_class</span>
+                  <span class='arguments'>(association)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>The class that this model is associated with via the association</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_associated_class-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_associated_class-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 80</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_associated_class</span>(<span class="ruby-identifier">association</span>)&#x000A;  <span class="ruby-identifier">relationships</span>[<span class="ruby-identifier">association</span>].<span class="ruby-identifier">target_model</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_associated_objects'>
+                <a name='method-i-scaffold_associated_objects'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_associated_objects</span>
+                  <span class='arguments'>(association, object, options)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>All objects that are currently associated with the given object. This
+                  method does not check that the returned associated objects meet the
+                  associated class&#39;s scaffold_session_value constraint, as it is assumed
+                  that all objects currently assocated with the given object have already met
+                  the criteria.  If that is not the case, you should override this method.</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_associated_objects-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_associated_objects-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 149</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_associated_objects</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">object</span>, <span class="ruby-identifier">options</span>)&#x000A;  <span class="ruby-identifier">object</span>.<span class="ruby-identifier">send</span>(<span class="ruby-identifier">association</span>,<span class="ruby-value">:order</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">get_ordering_options</span>(<span class="ruby-identifier">scaffold_select_order_association</span>(<span class="ruby-identifier">association</span>)))&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_association'>
+                <a name='method-i-scaffold_association'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_association</span>
+                  <span class='arguments'>(association)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>The association reflection for this association</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_association-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_association-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 85</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_association</span>(<span class="ruby-identifier">association</span>)&#x000A;  <span class="ruby-identifier">relationships</span>[<span class="ruby-identifier">association</span>]&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_association_type'>
+                <a name='method-i-scaffold_association_type'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_association_type</span>
+                  <span class='arguments'>(association)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>The type of association, either :new for :one_to_many (as you can create
+                  new objects associated with the current object), :edit for :many_to_many
+                  (since you can edit the list of associated objects), or :one for
+                  :many_to_one.</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_association_type-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_association_type-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 92</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_association_type</span>(<span class="ruby-identifier">association</span>)&#x000A;  <span class="ruby-keyword">if</span> <span class="ruby-identifier">relationships</span>[<span class="ruby-identifier">association</span>].<span class="ruby-identifier">class</span> <span class="ruby-operator">==</span> <span class="ruby-constant">DataMapper</span><span class="ruby-operator">::</span><span class="ruby-constant">Associations</span><span class="ruby-operator">::</span><span class="ruby-constant">OneToMany</span><span class="ruby-operator">::</span><span class="ruby-constant">Relationship</span>&#x000A;      <span class="ruby-value">:new</span>&#x000A;  <span class="ruby-keyword">elsif</span> <span class="ruby-identifier">relationships</span>[<span class="ruby-identifier">association</span>].<span class="ruby-identifier">class</span> <span class="ruby-operator">==</span> <span class="ruby-constant">DataMapper</span><span class="ruby-operator">::</span><span class="ruby-constant">Associations</span><span class="ruby-operator">::</span><span class="ruby-constant">ManyToMany</span><span class="ruby-operator">::</span><span class="ruby-constant">Relationship</span>&#x000A;      <span class="ruby-value">:edit</span>&#x000A;  <span class="ruby-keyword">else</span>&#x000A;      <span class="ruby-value">:one</span>&#x000A;  <span class="ruby-keyword">end</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_associations'>
+                <a name='method-i-scaffold_associations'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_associations</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>List of symbols for associations to display on the scaffolded edit page.
+                  Defaults to all associations for which the scaffolding is enabled. Can be
+                  set with an instance variable.</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_associations-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_associations-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 104</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_associations</span>&#x000A;  <span class="ruby-ivar">@scaffold_associations</span> <span class="ruby-operator">||=</span> <span class="ruby-identifier">relationships</span>.<span class="ruby-identifier">keys</span>.<span class="ruby-identifier">select</span> { <span class="ruby-operator">|</span><span class="ruby-identifier">v</span><span class="ruby-operator">|</span>&#x000A;    <span class="ruby-identifier">relationships</span>[<span class="ruby-identifier">v</span>].<span class="ruby-identifier">send</span>(<span class="ruby-value">:target_model</span>).<span class="ruby-identifier">respond_to?</span>(<span class="ruby-value">:scaffold_name</span>)&#x000A;  }.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">name</span><span class="ruby-operator">|</span> <span class="ruby-identifier">name</span>.<span class="ruby-identifier">to_s</span>}&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_destroy'>
+                <a name='method-i-scaffold_destroy'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_destroy</span>
+                  <span class='arguments'>(object)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>Destroys the object</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_destroy-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_destroy-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 111</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_destroy</span>(<span class="ruby-identifier">object</span>)&#x000A;  <span class="ruby-identifier">object</span>.<span class="ruby-identifier">destroy</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_error_raised'>
+                <a name='method-i-scaffold_error_raised'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_error_raised</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>The error to raise, should match other errors raised by the underlying
+                  library.</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_error_raised-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_error_raised-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 116</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_error_raised</span>&#x000A;  <span class="ruby-constant">DataMapper</span><span class="ruby-operator">::</span><span class="ruby-constant">ObjectNotFoundError</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_fields'>
+                <a name='method-i-scaffold_fields'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_fields</span>
+                  <span class='arguments'>(action = :default)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>Returns the list of fields to display on the scaffolded forms. Defaults to
+                  displaying all columns with the exception of the primary key column. Also
+                  includes :many_to_one associations, replacing the foriegn keys with the
+                  association itself.  Can be set with an instance variable.</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_fields-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_fields-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 124</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_fields</span>(<span class="ruby-identifier">action</span> = <span class="ruby-value">:default</span>)&#x000A;  <span class="ruby-keyword">return</span> <span class="ruby-ivar">@scaffold_fields</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@scaffold_fields</span>&#x000A;  <span class="ruby-identifier">fields</span> = (<span class="ruby-identifier">properties</span>.<span class="ruby-identifier">map</span> {<span class="ruby-operator">|</span><span class="ruby-identifier">a</span><span class="ruby-operator">|</span> <span class="ruby-identifier">a</span>.<span class="ruby-identifier">name</span>}) <span class="ruby-operator">-</span> [<span class="ruby-identifier">scaffold_primary_key</span>]&#x000A;  <span class="ruby-identifier">scaffold_all_associations</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">reflection</span><span class="ruby-operator">|</span>&#x000A;    <span class="ruby-keyword">next</span> <span class="ruby-keyword">unless</span> <span class="ruby-identifier">reflection</span>.<span class="ruby-identifier">class</span> <span class="ruby-operator">==</span> <span class="ruby-constant">DataMapper</span><span class="ruby-operator">::</span><span class="ruby-constant">Associations</span><span class="ruby-operator">::</span><span class="ruby-constant">ManyToOne</span><span class="ruby-operator">::</span><span class="ruby-constant">Relationship</span>&#x000A;    <span class="ruby-identifier">fields</span>.<span class="ruby-identifier">delete</span>(<span class="ruby-identifier">get_key_array_safe</span>(<span class="ruby-identifier">reflection</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:child_key</span>)).<span class="ruby-identifier">name</span>)&#x000A;    <span class="ruby-identifier">fields</span>.<span class="ruby-identifier">push</span>(<span class="ruby-identifier">reflection</span>.<span class="ruby-identifier">name</span>)&#x000A;  <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-ivar">@scaffold_fields</span> = <span class="ruby-identifier">fields</span>.<span class="ruby-identifier">sort_by</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">to_s</span>}&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_foreign_key'>
+                <a name='method-i-scaffold_foreign_key'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_foreign_key</span>
+                  <span class='arguments'>(reflection)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>The foreign key for the given reflection</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_foreign_key-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_foreign_key-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 136</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_foreign_key</span>(<span class="ruby-identifier">reflection</span>)&#x000A;  <span class="ruby-identifier">get_key_array_safe</span>(<span class="ruby-identifier">reflection</span>.<span class="ruby-identifier">child_key</span>).<span class="ruby-identifier">name</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_get_object'>
+                <a name='method-i-scaffold_get_object'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_get_object</span>
+                  <span class='arguments'>(id)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>Retrieve a single model object given an id</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_get_object-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_get_object-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 141</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_get_object</span>(<span class="ruby-identifier">id</span>)&#x000A;  <span class="ruby-keyword">self</span>.<span class="ruby-identifier">get</span>(<span class="ruby-identifier">id</span>) <span class="ruby-operator">||</span> (<span class="ruby-identifier">raise</span> <span class="ruby-identifier">scaffold_error_raised</span>)&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_get_objects'>
+                <a name='method-i-scaffold_get_objects'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_get_objects</span>
+                  <span class='arguments'>(options)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>Retrieve multiple objects given a hash of options</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_get_objects-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_get_objects-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 154</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_get_objects</span>(<span class="ruby-identifier">options</span>)&#x000A;  <span class="ruby-identifier">optionshash</span> = {}&#x000A;  <span class="ruby-identifier">data</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">all</span>&#x000A;  <span class="ruby-keyword">if</span> <span class="ruby-identifier">options</span>[<span class="ruby-value">:conditions</span>]&#x000A;    <span class="ruby-identifier">conditions</span> = <span class="ruby-identifier">options</span>[<span class="ruby-value">:conditions</span>]&#x000A;    <span class="ruby-keyword">if</span> <span class="ruby-identifier">conditions</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-constant">Array</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">conditions</span> <span class="ruby-operator">&amp;&amp;</span> <span class="ruby-identifier">conditions</span>.<span class="ruby-identifier">length</span> <span class="ruby-operator">&gt;</span> <span class="ruby-value">0</span>&#x000A;      <span class="ruby-keyword">if</span> <span class="ruby-constant">String</span> <span class="ruby-operator">===</span> <span class="ruby-identifier">conditions</span>[<span class="ruby-value">0</span>]&#x000A;        <span class="ruby-identifier">data</span> = <span class="ruby-identifier">data</span>.<span class="ruby-identifier">all</span>(<span class="ruby-value">:conditions</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">conditions</span>)&#x000A;      <span class="ruby-keyword">else</span>&#x000A;        <span class="ruby-identifier">conditions</span>.<span class="ruby-identifier">each</span> <span class="ruby-keyword">do</span> <span class="ruby-operator">|</span><span class="ruby-identifier">cond</span><span class="ruby-operator">|</span>&#x000A;          <span class="ruby-keyword">next</span> <span class="ruby-keyword">if</span> <span class="ruby-identifier">cond</span>.<span class="ruby-identifier">nil?</span>&#x000A;          <span class="ruby-identifier">data</span> = <span class="ruby-keyword">case</span> <span class="ruby-identifier">cond</span>&#x000A;            <span class="ruby-keyword">when</span> <span class="ruby-constant">Hash</span>, <span class="ruby-constant">String</span> <span class="ruby-keyword">then</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">all</span>(<span class="ruby-value">:conditions</span> =<span class="ruby-operator">&gt;</span> [<span class="ruby-identifier">cond</span>.<span class="ruby-identifier">gsub</span>(<span class="ruby-string">&quot;NULL&quot;</span>,<span class="ruby-string">&quot;?&quot;</span>),<span class="ruby-keyword">nil</span>])&#x000A;            <span class="ruby-keyword">when</span> <span class="ruby-constant">Array</span> <span class="ruby-keyword">then</span> &#x000A;              <span class="ruby-keyword">if</span> <span class="ruby-identifier">cond</span>.<span class="ruby-identifier">length</span><span class="ruby-operator">==</span><span class="ruby-value">1</span>&#x000A;                <span class="ruby-identifier">data</span>.<span class="ruby-identifier">all</span>(<span class="ruby-value">:conditions</span> =<span class="ruby-operator">&gt;</span> [<span class="ruby-identifier">cond</span>[<span class="ruby-value">0</span>].<span class="ruby-identifier">gsub</span>(<span class="ruby-string">&quot;NULL&quot;</span>,<span class="ruby-string">&quot;?&quot;</span>),<span class="ruby-keyword">nil</span>])&#x000A;              <span class="ruby-keyword">else</span>&#x000A;                <span class="ruby-identifier">data</span>.<span class="ruby-identifier">all</span>(<span class="ruby-value">:conditions</span> =<span class="ruby-operator">&gt;</span> <span class="ruby-identifier">cond</span>)&#x000A;              <span class="ruby-keyword">end</span>&#x000A;            <span class="ruby-keyword">when</span> <span class="ruby-constant">Proc</span> <span class="ruby-keyword">then</span> <span class="ruby-identifier">data</span>.<span class="ruby-identifier">all</span>(&amp;<span class="ruby-identifier">cond</span>)&#x000A;          <span class="ruby-keyword">end</span>&#x000A;        <span class="ruby-keyword">end</span>&#x000A;      <span class="ruby-keyword">end</span>&#x000A;    <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-identifier">slice</span> = <span class="ruby-keyword">nil</span>&#x000A;  <span class="ruby-keyword">if</span> <span class="ruby-identifier">options</span>[<span class="ruby-value">:limit</span>]&#x000A;    <span class="ruby-identifier">startpos</span> = <span class="ruby-identifier">options</span>[<span class="ruby-value">:offset</span>] <span class="ruby-operator">||</span> <span class="ruby-value">0</span>&#x000A;    <span class="ruby-identifier">endpos</span> = <span class="ruby-identifier">options</span>[<span class="ruby-value">:limit</span>]&#x000A;    <span class="ruby-identifier">slice</span> = [<span class="ruby-identifier">startpos</span>,<span class="ruby-identifier">endpos</span>]&#x000A;  <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-comment"># TODO includes break SQL generation</span>&#x000A;  <span class="ruby-comment"># optionshash[:links] = options[:include] if options[:include]</span>&#x000A;  <span class="ruby-comment"># optionshash[:links] = [optionshash[:links]] unless optionshash[:links].is_a?(Array)</span>&#x000A;  <span class="ruby-keyword">if</span> <span class="ruby-identifier">options</span>[<span class="ruby-value">:order</span>] <span class="ruby-keyword">then</span>&#x000A;    <span class="ruby-identifier">optionshash</span>[<span class="ruby-value">:order</span>] = <span class="ruby-identifier">get_ordering_options</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:order</span>])&#x000A;  <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-keyword">if</span> <span class="ruby-identifier">slice</span> <span class="ruby-keyword">then</span>&#x000A;    <span class="ruby-identifier">q</span> = <span class="ruby-identifier">data</span>.<span class="ruby-identifier">all</span>(<span class="ruby-identifier">optionshash</span>).<span class="ruby-identifier">slice</span>(*<span class="ruby-identifier">slice</span>)&#x000A;  <span class="ruby-keyword">else</span>&#x000A;    <span class="ruby-identifier">q</span> = <span class="ruby-identifier">data</span>.<span class="ruby-identifier">all</span>(<span class="ruby-identifier">optionshash</span>)&#x000A;  <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-comment">#p repository.adapter.send(&quot;select_statement&quot;,q.query)</span>&#x000A;  <span class="ruby-identifier">q</span>.<span class="ruby-identifier">to_a</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_habtm_reflection_options'>
+                <a name='method-i-scaffold_habtm_reflection_options'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_habtm_reflection_options</span>
+                  <span class='arguments'>(association)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>Return the class, left foreign key, right foreign key, and join table for
+                  this habtm association</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_habtm_reflection_options-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_habtm_reflection_options-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 201</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_habtm_reflection_options</span>(<span class="ruby-identifier">association</span>)&#x000A;  <span class="ruby-identifier">habtm</span> = <span class="ruby-identifier">relationships</span>[<span class="ruby-identifier">association</span>]&#x000A;  [&#x000A;    <span class="ruby-identifier">habtm</span>.<span class="ruby-identifier">target_model</span>,&#x000A;    <span class="ruby-identifier">get_key_array_safe</span>(<span class="ruby-identifier">habtm</span>.<span class="ruby-identifier">through</span>.<span class="ruby-identifier">child_key</span>).<span class="ruby-identifier">name</span>,&#x000A;    <span class="ruby-identifier">get_key_array_safe</span>(<span class="ruby-identifier">habtm</span>.<span class="ruby-identifier">via</span>.<span class="ruby-identifier">child_key</span>).<span class="ruby-identifier">name</span>,&#x000A;    <span class="ruby-identifier">habtm</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:through_model</span>).<span class="ruby-identifier">storage_name</span>&#x000A;  ]&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_new_associated_object_values'>
+                <a name='method-i-scaffold_new_associated_object_values'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_new_associated_object_values</span>
+                  <span class='arguments'>(association, record)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>Returns a hash of values to be used as url parameters on the link to create
+                  a new :has_many associated object.  Defaults to setting the foreign key
+                  field to the record&#39;s primary key.</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_new_associated_object_values-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_new_associated_object_values-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 214</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_new_associated_object_values</span>(<span class="ruby-identifier">association</span>, <span class="ruby-identifier">record</span>)&#x000A;  {<span class="ruby-identifier">scaffold_foreign_key</span>(<span class="ruby-identifier">scaffold_association</span>(<span class="ruby-identifier">association</span>))=<span class="ruby-operator">&gt;</span><span class="ruby-identifier">record</span>.<span class="ruby-identifier">scaffold_id</span>}&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_primary_key'>
+                <a name='method-i-scaffold_primary_key'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_primary_key</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>The primary key for the given table</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_primary_key-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_primary_key-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 219</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_primary_key</span>&#x000A;  <span class="ruby-identifier">get_key_array_safe</span>(<span class="ruby-identifier">key</span>).<span class="ruby-identifier">name</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_save'>
+                <a name='method-i-scaffold_save'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_save</span>
+                  <span class='arguments'>(action, object)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>Saves the object.</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_save-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_save-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 224</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_save</span>(<span class="ruby-identifier">action</span>, <span class="ruby-identifier">object</span>)&#x000A;  <span class="ruby-identifier">object</span>.<span class="ruby-identifier">save</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_table_column_type'>
+                <a name='method-i-scaffold_table_column_type'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_table_column_type</span>
+                  <span class='arguments'>(c)</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>The column type for the given table column, or nil if it isn&#39;t a table
+                  column</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_table_column_type-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_table_column_type-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 229</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_table_column_type</span>(<span class="ruby-identifier">c</span>)&#x000A;  <span class="ruby-identifier">column</span> = <span class="ruby-keyword">self</span>.<span class="ruby-identifier">properties</span>[<span class="ruby-identifier">c</span>]&#x000A;  <span class="ruby-keyword">if</span> <span class="ruby-identifier">column</span> <span class="ruby-keyword">then</span>&#x000A;    <span class="ruby-keyword">if</span> <span class="ruby-identifier">column</span>.<span class="ruby-identifier">type</span> <span class="ruby-operator">==</span> <span class="ruby-constant">DataMapper</span><span class="ruby-operator">::</span><span class="ruby-constant">Property</span><span class="ruby-operator">::</span><span class="ruby-constant">Text</span>&#x000A;      <span class="ruby-value">:text</span>&#x000A;    <span class="ruby-keyword">else</span>&#x000A;      <span class="ruby-identifier">column</span>.<span class="ruby-identifier">class</span>.<span class="ruby-identifier">to_s</span>.<span class="ruby-identifier">split</span>(<span class="ruby-string">&quot;::&quot;</span>).<span class="ruby-identifier">last</span>.<span class="ruby-identifier">downcase</span>.<span class="ruby-identifier">intern</span>&#x000A;    <span class="ruby-keyword">end</span>&#x000A;  <span class="ruby-keyword">else</span>&#x000A;    <span class="ruby-keyword">nil</span>&#x000A;  <span class="ruby-keyword">end</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+              <div class='method public-instance' id='method-method-i-scaffold_table_name'>
+                <a name='method-i-scaffold_table_name'></a>
+                <div class='synopsis'>
+                  <span class='name'>scaffold_table_name</span>
+                  <span class='arguments'>()</span>
+                </div>
+                <div class='description'>
+                  
+                  <p>The name of the underlying table</p>
+                </div>
+                <div class='source'>
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-scaffold_table_name-source'); return false">
+                    [show source]
+                  </a>
+                  <pre id='method-i-scaffold_table_name-source'><span class="ruby-comment"># File lib/scaffolding_extensions/model/datamapper.rb, line 243</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">scaffold_table_name</span>&#x000A;  <span class="ruby-identifier">storage_name</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id='footer-push'></div>
+    </div>
+    <div id='footer'>
+      <a target="docwin" href="http://github.com/mislav/hanna/tree/master"><strong>Hanna</strong> RDoc template</a>
+    </div>
+  </body>
+</html>
