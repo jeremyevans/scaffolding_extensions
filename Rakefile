@@ -3,16 +3,10 @@ require 'rake'
 RDOC_OPTS = ["--line-numbers", "--inline-source", '--main', 'README']
 
 begin
-  # Sequel uses hanna-nouveau for the website RDoc.
-  # Due to bugs in older versions of RDoc, and the
-  # fact that hanna-nouveau does not support RDoc 4,
-  # a specific version of rdoc is required.
   gem 'rdoc', '= 3.12.2'
   gem 'hanna-nouveau'
   RDOC_OPTS.concat(['-f', 'hanna'])
-  true
 rescue Gem::LoadError
-  false
 end
 
 rdoc_task_class = begin
