@@ -1,22 +1,39 @@
 require 'rake'
+
+RDOC_OPTS = ["--line-numbers", "--inline-source", '--main', 'README']
+
 begin
-  require 'hanna/rdoctask'
+  # Sequel uses hanna-nouveau for the website RDoc.
+  # Due to bugs in older versions of RDoc, and the
+  # fact that hanna-nouveau does not support RDoc 4,
+  # a specific version of rdoc is required.
+  gem 'rdoc', '= 3.12.2'
+  gem 'hanna-nouveau'
+  RDOC_OPTS.concat(['-f', 'hanna'])
+  true
+rescue Gem::LoadError
+  false
+end
+
+rdoc_task_class = begin
+  require "rdoc/task"
+  RDoc::Task
 rescue LoadError
-  require 'rake/rdoctask'
+  begin
+    require "rake/rdoctask"
+    Rake::RDocTask
+  rescue LoadError, StandardError
+  end
 end
 
-Rake::RDocTask.new do |rdoc|
-  rdoc.rdoc_dir = "rdoc"
-  rdoc.options += ["--quiet", "--line-numbers", "--inline-source"]
-  rdoc.main = "README"
-  rdoc.title = "Scaffolding Extensions: Administrative database front-end for multiple web-frameworks and ORMs"
-  rdoc.rdoc_files.add ["README", "MIT-LICENSE", "lib/**/*.rb", "doc/*.txt"]
-end
-
-desc "Update docs and upload to rubyforge.org"
-task :website => [:rdoc]
-task :website do
-  sh %{rsync -rvt rdoc/* rubyforge.org:/var/www/gforge-projects/scaffolding-ext/}
+if rdoc_task_class
+  rdoc_task_class.new do |rdoc|
+    rdoc.rdoc_dir = "rdoc"
+    rdoc.options += RDOC_OPTS
+    rdoc.main = "README"
+    rdoc.title = "Scaffolding Extensions: Administrative database front-end for multiple web-frameworks and ORMs"
+    rdoc.rdoc_files.add ["README", "MIT-LICENSE", "lib/**/*.rb", "doc/*.txt"]
+  end
 end
 
 desc "Package Scaffolding Extensions"
