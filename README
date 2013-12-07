@@ -62,7 +62,7 @@ You can get Scaffolding Extensions via git or as a gem:
 
 * git: git://github.com/jeremyevans/scaffolding_extensions.git
 * gem: sudo gem install scaffolding_extensions
-* demo: http://se-demo.heroku.com
+* demo: http://scaf-ext-demo.jeremyevans.net
 * GitHub: http://github.com/jeremyevans/scaffolding_extensions
 * RDoc: http://scaf-ext.jeremyevans.net
 * Issues: http://github.com/jeremyevans/scaffolding_extensions/issues
