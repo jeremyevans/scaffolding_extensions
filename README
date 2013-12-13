@@ -1,4 +1,13 @@
-= ScaffoldingExtensions
+= Consider Migrating to AutoForme
+
+While Scaffolding Extensions is still supported, there is a replacement
+named AutoForme[1] that provides mostly the same features while being much
+more flexible.  It currently supports Rails/Sinatra and Sequel, so if you
+are using those, it is recommended that you consider using AutoForme instead.
+
+1. http://autoforme.jeremyevans.net
+
+= Scaffolding Extensions
 
 Scaffolding Extensions provides a powerful and simple to use administrative
 interface to perform common actions on models.  It has the following features:
