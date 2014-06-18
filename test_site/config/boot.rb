@@ -1,6 +1,6 @@
 require 'rubygems'
 if RUBY_VERSION > '1.9'
-  gem 'rails', '4.0.0'
+  gem 'rails', '4.0.2'
 else
   gem 'rails', '3.2.12'
 end
