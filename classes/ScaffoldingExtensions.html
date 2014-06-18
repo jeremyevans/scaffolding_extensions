@@ -2,7 +2,7 @@
 <html lang='en'>
   <head>
     <title>ScaffoldingExtensions</title>
-    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
     <link href='../css/style.css' media='screen' rel='stylesheet' type='text/css'>
     <script type='text/javascript'>
       //<![CDATA[
@@ -61,19 +61,33 @@
             <a target="docwin" href="../files/lib/scaffolding_extensions/meta_controller_rb.html">lib/scaffolding_extensions/meta_controller.rb</a>
           </li>
           <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/meta_model_rb.html">lib/scaffolding_extensions/meta_model.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/model_rb.html">lib/scaffolding_extensions/model.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/model/active_record_rb.html">lib/scaffolding_extensions/model/active_record.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/model/datamapper_rb.html">lib/scaffolding_extensions/model/datamapper.rb</a>
+          </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/model/sequel_rb.html">lib/scaffolding_extensions/model/sequel.rb</a>
+          </li>
+          <li class='other'>
             <a target="docwin" href="../files/lib/scaffolding_extensions/overridable_rb.html">lib/scaffolding_extensions/overridable.rb</a>
           </li>
           <li class='other'>
             <a target="docwin" href="../files/lib/scaffolding_extensions/prototype_helper_rb.html">lib/scaffolding_extensions/prototype_helper.rb</a>
           </li>
+          <li class='other'>
+            <a target="docwin" href="../files/lib/scaffolding_extensions/rails_test_help_rb.html">lib/scaffolding_extensions/rails_test_help.rb</a>
+          </li>
           <li>
             <a class='show' href='#' onclick='this.parentNode.parentNode.className += " expanded"; this.parentNode.removeChild(this); return false'>show all</a>
           </li>
         </ol>
-        <div class='parent'>
-          Parent:
-          <strong><a target="docwin" href="../files/lib/scaffolding_extensions/prototype_helper_rb.html">prototype_helper.rb</a></strong>
-        </div>
       </div>
       <div id='content'>
         <div id='text'>
@@ -90,10 +104,8 @@
             </li></ul>
             
             <p>If you include the contents of auto_complete.css in your stylesheet, set
-            "<a
-            href="ScaffoldingExtensions.html#attribute-c-auto_complete_skip_style">::auto_complete_skip_style</a>
-            = true", so the stylesheet isn&#39;t added for every autocompleting text
-            box.</p>
+            “auto_complete_skip_style = true”, so the stylesheet isn&#39;t added for
+            every autocompleting text box.</p>
             
             <p>Scaffolding Extensions attempts to determine which framework/ORM you are
             using and load the support for it (if it is supported).</p>
@@ -102,12 +114,15 @@
             <h2>Methods</h2>
             <h3>Public Class</h3>
             <ol>
-              <li><a target="docwin" href="#method-c-all_models">all_models</a></li>
               <li><a target="docwin" href="#attribute-c-all_models">all_models</a></li>
-              <li><a target="docwin" href="#method-c-auto_complete_css">auto_complete_css</a></li>
               <li><a target="docwin" href="#attribute-c-auto_complete_skip_style">auto_complete_skip_style</a></li>
-              <li><a target="docwin" href="#method-c-javascript_library-3D">javascript_library=</a></li>
               <li><a target="docwin" href="#attribute-c-model_files">model_files</a></li>
+            </ol>
+            <h3>Public Instance</h3>
+            <ol>
+              <li><a target="docwin" href="#method-i-all_models">all_models</a></li>
+              <li><a target="docwin" href="#method-i-auto_complete_css">auto_complete_css</a></li>
+              <li><a target="docwin" href="#method-i-javascript_library-3D">javascript_library=</a></li>
             </ol>
           </div>
           <div id='context'>
@@ -251,9 +266,9 @@
               </div>
             </div>
             <div id='methods'>
-              <h2>Public Class methods</h2>
-              <div class='method public-class' id='method-method-c-all_models'>
-                <a name='method-c-all_models'></a>
+              <h2>Public Instance methods</h2>
+              <div class='method public-instance' id='method-method-i-all_models'>
+                <a name='method-i-all_models'></a>
                 <div class='synopsis'>
                   <span class='name'>all_models</span>
                   <span class='arguments'>(options={})</span>
@@ -265,14 +280,14 @@
                   strings.</p>
                 </div>
                 <div class='source'>
-                  <a class='source-toggle' href='#' onclick="toggleCode('method-c-all_models-source'); return false">
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-all_models-source'); return false">
                     [show source]
                   </a>
-                  <pre id='method-c-all_models-source'><span class="ruby-comment"># File lib/scaffolding_extensions.rb, line 57</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">all_models</span>(<span class="ruby-identifier">options</span>={})&#x000A;  <span class="ruby-keyword">return</span> <span class="ruby-ivar">@all_models</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@all_models</span>&#x000A;  <span class="ruby-keyword">if</span> <span class="ruby-identifier">options</span>[<span class="ruby-value">:only</span>]&#x000A;    <span class="ruby-constant">Array</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:only</span>]).<span class="ruby-identifier">collect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>) <span class="ruby-operator">?</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">camelize</span>.<span class="ruby-identifier">constantize</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">f</span>}&#x000A;  <span class="ruby-keyword">else</span>&#x000A;    <span class="ruby-identifier">string_except</span>, <span class="ruby-identifier">except</span> = <span class="ruby-constant">Array</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:except</span>]).<span class="ruby-identifier">partition</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>)}&#x000A;    <span class="ruby-identifier">model_files</span>.<span class="ruby-identifier">collect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">file</span><span class="ruby-operator">|</span><span class="ruby-constant">File</span>.<span class="ruby-identifier">basename</span>(<span class="ruby-identifier">file</span>).<span class="ruby-identifier">sub</span>(<span class="ruby-regexp">/\.rb\z/</span>, <span class="ruby-string">&#39;&#39;</span>)}.&#x000A;     <span class="ruby-identifier">reject</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">string_except</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">f</span>)}.&#x000A;     <span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">camelize</span>.<span class="ruby-identifier">constantize</span>}.&#x000A;     <span class="ruby-identifier">reject</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">m</span><span class="ruby-operator">|</span> <span class="ruby-identifier">except</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-operator">||</span> <span class="ruby-operator">!</span><span class="ruby-constant">MODEL_SUPERCLASSES</span>.<span class="ruby-identifier">any?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span> <span class="ruby-identifier">m</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">klass</span>)}}&#x000A;  <span class="ruby-keyword">end</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                  <pre id='method-i-all_models-source'><span class="ruby-comment"># File lib/scaffolding_extensions.rb, line 57</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">all_models</span>(<span class="ruby-identifier">options</span>={})&#x000A;  <span class="ruby-keyword">return</span> <span class="ruby-ivar">@all_models</span> <span class="ruby-keyword">if</span> <span class="ruby-ivar">@all_models</span>&#x000A;  <span class="ruby-keyword">if</span> <span class="ruby-identifier">options</span>[<span class="ruby-value">:only</span>]&#x000A;    <span class="ruby-constant">Array</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:only</span>]).<span class="ruby-identifier">collect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>) <span class="ruby-operator">?</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">camelize</span>.<span class="ruby-identifier">constantize</span> <span class="ruby-operator">:</span> <span class="ruby-identifier">f</span>}&#x000A;  <span class="ruby-keyword">else</span>&#x000A;    <span class="ruby-identifier">string_except</span>, <span class="ruby-identifier">except</span> = <span class="ruby-constant">Array</span>(<span class="ruby-identifier">options</span>[<span class="ruby-value">:except</span>]).<span class="ruby-identifier">partition</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">is_a?</span>(<span class="ruby-constant">String</span>)}&#x000A;    <span class="ruby-identifier">model_files</span>.<span class="ruby-identifier">collect</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">file</span><span class="ruby-operator">|</span><span class="ruby-constant">File</span>.<span class="ruby-identifier">basename</span>(<span class="ruby-identifier">file</span>).<span class="ruby-identifier">sub</span>(<span class="ruby-regexp">/\.rb\z/</span>, <span class="ruby-string">&#39;&#39;</span>)}.&#x000A;     <span class="ruby-identifier">reject</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">string_except</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">f</span>)}.&#x000A;     <span class="ruby-identifier">map</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">f</span><span class="ruby-operator">|</span> <span class="ruby-identifier">f</span>.<span class="ruby-identifier">camelize</span>.<span class="ruby-identifier">constantize</span>}.&#x000A;     <span class="ruby-identifier">reject</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">m</span><span class="ruby-operator">|</span> <span class="ruby-identifier">except</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">m</span>) <span class="ruby-operator">||</span> <span class="ruby-operator">!</span><span class="ruby-constant">MODEL_SUPERCLASSES</span>.<span class="ruby-identifier">any?</span>{<span class="ruby-operator">|</span><span class="ruby-identifier">klass</span><span class="ruby-operator">|</span> <span class="ruby-identifier">m</span>.<span class="ruby-identifier">ancestors</span>.<span class="ruby-identifier">include?</span>(<span class="ruby-identifier">klass</span>)}}&#x000A;  <span class="ruby-keyword">end</span>&#x000A;<span class="ruby-keyword">end</span></pre>
                 </div>
               </div>
-              <div class='method public-class' id='method-method-c-auto_complete_css'>
-                <a name='method-c-auto_complete_css'></a>
+              <div class='method public-instance' id='method-method-i-auto_complete_css'>
+                <a name='method-i-auto_complete_css'></a>
                 <div class='synopsis'>
                   <span class='name'>auto_complete_css</span>
                   <span class='arguments'>()</span>
@@ -284,14 +299,14 @@
                   is true.</p>
                 </div>
                 <div class='source'>
-                  <a class='source-toggle' href='#' onclick="toggleCode('method-c-auto_complete_css-source'); return false">
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-auto_complete_css-source'); return false">
                     [show source]
                   </a>
-                  <pre id='method-c-auto_complete_css-source'><span class="ruby-comment"># File lib/scaffolding_extensions.rb, line 72</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">auto_complete_css</span>&#x000A;  <span class="ruby-identifier">auto_complete_skip_style</span> <span class="ruby-operator">?</span> <span class="ruby-string">&#39;&#39;</span> <span class="ruby-operator">:</span> <span class="ruby-constant">AUTO_COMPLETE_CSS</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+                  <pre id='method-i-auto_complete_css-source'><span class="ruby-comment"># File lib/scaffolding_extensions.rb, line 72</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">auto_complete_css</span>&#x000A;  <span class="ruby-identifier">auto_complete_skip_style</span> <span class="ruby-operator">?</span> <span class="ruby-string">&#39;&#39;</span> <span class="ruby-operator">:</span> <span class="ruby-constant">AUTO_COMPLETE_CSS</span>&#x000A;<span class="ruby-keyword">end</span></pre>
                 </div>
               </div>
-              <div class='method public-class' id='method-method-c-javascript_library-3D'>
-                <a name='method-c-javascript_library-3D'></a>
+              <div class='method public-instance' id='method-method-i-javascript_library-3D'>
+                <a name='method-i-javascript_library-3D'></a>
                 <div class='synopsis'>
                   <span class='name'>javascript_library=</span>
                   <span class='arguments'>(jslib)</span>
@@ -302,10 +317,10 @@
                   &#39;Prototype&#39;)</p>
                 </div>
                 <div class='source'>
-                  <a class='source-toggle' href='#' onclick="toggleCode('method-c-javascript_library-3D-source'); return false">
+                  <a class='source-toggle' href='#' onclick="toggleCode('method-i-javascript_library-3D-source'); return false">
                     [show source]
                   </a>
-                  <pre id='method-c-javascript_library-3D-source'><span class="ruby-comment"># File lib/scaffolding_extensions.rb, line 77</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">javascript_library=</span>(<span class="ruby-identifier">jslib</span>)&#x000A;  <span class="ruby-identifier">require</span> <span class="ruby-node">&quot;scaffolding_extensions/#{jslib.downcase}_helper&quot;</span>&#x000A;  <span class="ruby-constant">ScaffoldingExtensions</span><span class="ruby-operator">::</span><span class="ruby-constant">Helper</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:include</span>, <span class="ruby-identifier">const_get</span>(<span class="ruby-node">&quot;#{jslib}Helper&quot;</span>))&#x000A;<span class="ruby-keyword">end</span></pre>
+                  <pre id='method-i-javascript_library-3D-source'><span class="ruby-comment"># File lib/scaffolding_extensions.rb, line 77</span>&#x000A;<span class="ruby-keyword">def</span> <span class="ruby-identifier">javascript_library=</span>(<span class="ruby-identifier">jslib</span>)&#x000A;  <span class="ruby-identifier">require</span> <span class="ruby-node">&quot;scaffolding_extensions/#{jslib.downcase}_helper&quot;</span>&#x000A;  <span class="ruby-constant">ScaffoldingExtensions</span><span class="ruby-operator">::</span><span class="ruby-constant">Helper</span>.<span class="ruby-identifier">send</span>(<span class="ruby-value">:include</span>, <span class="ruby-identifier">const_get</span>(<span class="ruby-node">&quot;#{jslib}Helper&quot;</span>))&#x000A;<span class="ruby-keyword">end</span></pre>
                 </div>
               </div>
             </div>

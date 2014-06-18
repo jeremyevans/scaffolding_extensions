@@ -2,7 +2,7 @@
 <html lang='en'>
   <head>
     <title>advanced.txt</title>
-    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
     <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
     <script type='text/javascript'>
       //<![CDATA[
@@ -40,7 +40,7 @@
             
             <p>Here are some advanced features of the plugin:</p>
             
-            <h2 id="label-scaffold_session_value">scaffold_session_value</h2>
+            <h2 id="label-scaffold_session_value">scaffold_session_value<span><a href="#label-scaffold_session_value">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
             
             <p>You can define this attribute in your model to control access to the
             model&#39;s objects based on a session variable.  For example, if you want
@@ -54,13 +54,13 @@
             <pre>session[:user_id] = User.id</pre>
             
             <p>Then, the user will only be able to see cars where car.user_id is equal to
-            <a target="_top" href="http://:user_id">session</a>.  Any cars the user creates via the
+            <a href=":user_id">session</a>.  Any cars the user creates via the
             scaffolded forms will have user_id set correctly.</p>
             
             <p>You should make sure that :user_id is not in the @scaffold_fields for the
             model (which it will be by default).</p>
             
-            <h2 id="label-Eager+loading">Eager loading</h2>
+            <h2 id="label-Eager+loading">Eager loading<span><a href="#label-Eager+loading">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
             
             <p>You can eagerly load associations when loading multiple model objects, via
             @scaffold_include. Here&#39;s an example scaffold_name (for an accounting
@@ -74,7 +74,7 @@
             
             <pre>@scaffold_include = [:entity, :credit_account, :debit_account]</pre>
             
-            <h2 id="label-Autocompleting">Autocompleting</h2>
+            <h2 id="label-Autocompleting">Autocompleting<span><a href="#label-Autocompleting">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
             
             <p>Autocompleting is easy to set up in the model via:</p>
             
@@ -84,7 +84,7 @@
             will instead use an autocompleting text box, allowing you to easily support
             a much greater number of objects (select boxes aren&#39;t good for
             collections with thousands of objects).  If the model doesn&#39;t have an
-            SQL column named "name", you&#39;ll need to specify how to construct the
+            SQL column named “name”, you&#39;ll need to specify how to construct the
             SQL query for the object via:</p>
             
             <pre class="ruby"><span class="ruby-ivar">@scaffold_auto_complete_options</span> = {:<span class="ruby-identifier">sql_name=</span><span class="ruby-operator">&gt;</span><span class="ruby-string">&#39;LOWER(name)&#39;</span>, &#x000A;  :<span class="ruby-identifier">format_string=</span><span class="ruby-operator">&gt;</span>:<span class="ruby-identifier">substring</span>,  :<span class="ruby-identifier">search_operator=</span><span class="ruby-operator">&gt;</span><span class="ruby-string">&#39;LIKE&#39;</span>, &#x000A;  :<span class="ruby-identifier">results_limit=</span><span class="ruby-operator">&gt;</span><span class="ruby-value">10</span>, :<span class="ruby-identifier">phrase_modifier=</span><span class="ruby-operator">&gt;</span>:<span class="ruby-identifier">downcase</span>}</pre>
@@ -107,7 +107,7 @@
             specified via @scaffold_include.  Note that the syntax might be database
             specific (the accounting applation only supports PostreSQL).</p>
             
-            <h2 id="label-Customization">Customization</h2>
+            <h2 id="label-Customization">Customization<span><a href="#label-Customization">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
             
             <p>Scaffolding Extensions is extremely customizable.  The database layer is
             split from the presentation layer, and most of the interface between them
@@ -139,7 +139,7 @@
             <p>This barely scratches the surface of customization possibilities, see the
             RDoc for details on which methods can be customized in this manner.</p>
             
-            <h2 id="label-has_and_belongs_to_many+scaffolding">has_and_belongs_to_many scaffolding</h2>
+            <h2 id="label-has_and_belongs_to_many+scaffolding">has_and_belongs_to_many scaffolding<span><a href="#label-has_and_belongs_to_many+scaffolding">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
             
             <p>Scaffolding Extensions scaffolds all has_and_belongs_to_many associations
             via links on the edit page.  You can limit which associations are
@@ -158,7 +158,7 @@
             currently associated objects that can be removed from the associated via
             Ajax.  This allows for quick modification of habtm associations.</p>
             
-            <h2 id="label-merge+scaffolding">merge scaffolding</h2>
+            <h2 id="label-merge+scaffolding">merge scaffolding<span><a href="#label-merge+scaffolding">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
             
             <p>By default, Scaffolding Extensions will produce a merge scaffold for every
             model.  Merging object A into object B will take all of the has_many and
@@ -166,7 +166,7 @@
             associated them with object B.  It will then delete object B.  This can be
             used to fix issues caused by database denormalization.</p>
             
-            <h2 id="label-search+scaffolding">search scaffolding</h2>
+            <h2 id="label-search+scaffolding">search scaffolding<span><a href="#label-search+scaffolding">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
             
             <p>By default, Scaffolding Extensions will produce a simple search scaffold
             for every model.  It will allow searching by substring for columns of type

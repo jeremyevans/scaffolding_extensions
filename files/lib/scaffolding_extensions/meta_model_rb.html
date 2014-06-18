@@ -2,7 +2,7 @@
 <html lang='en'>
   <head>
     <title>meta_model.rb</title>
-    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
     <link href='../../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
     <script type='text/javascript'>
       //<![CDATA[
@@ -61,19 +61,19 @@
             one argument.</p>
             
             <p>The methods that are overridable by other methods are (without the
-            "scaffold_" prefix):  add_associated_objects, associated_objects,
+            “scaffold_” prefix):  add_associated_objects, associated_objects,
             association_find_object, association_find_objects, find_object,
             find_objects, new_associated_object_values, remove_associated_objects,
             save, unassociated_objects, and filter_attributes.</p>
             
             <p>The methods that are overridable by other methods or instance variables are
-            (again, without the "scaffold_" prefix): associated_human_name,
+            (again, without the “scaffold_” prefix): associated_human_name,
             association_use_auto_complete, fields, include, select_order, attributes,
             include_association, and select_order_association.</p>
             
             <p>Most methods that find objects check <a
-            href="http://:session">options</a>[scaffold_session_value] as a security
-            check if scaffold_session_value is set.</p>
+            href=":session">options</a>[scaffold_session_value] as a security check if
+            scaffold_session_value is set.</p>
             
             <p>There are some methods that are so similar that they are dynamically
             defined using define_method.  They are:</p>

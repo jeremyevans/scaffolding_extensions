@@ -2,7 +2,7 @@
 <html lang='en'>
   <head>
     <title>conversion.txt</title>
-    <meta content='text/html; charset=US-ASCII' http-equiv='Content-Type'>
+    <meta content='text/html; charset=UTF-8' http-equiv='Content-Type'>
     <link href='../../css/style.css' media='screen' rel='stylesheet' type='text/css'>
     <script type='text/javascript'>
       //<![CDATA[
@@ -62,8 +62,8 @@
             <p>The scaffold method has fewer options and now takes the model class.  The</p>
             </li></ul>
             
-            <p>only options available are :except and :only.  So instead of "scaffold
-            :album", you use "scaffold Album".  It automatically scaffolds all habtm
+            <p>only options available are :except and :only.  So instead of “scaffold
+            :album”, you use “scaffold Album”.  It automatically scaffolds all habtm
             associations for the model (though you can override that with the
             model&#39;s @scaffold_habtm_associations). You can no longer scaffold
             without a suffix, and the suffix used is set by the class&#39;s
@@ -72,8 +72,8 @@
             <p>The scaffold_habtm method no longer has options and now takes the model</p>
             </li></ul>
             
-            <p>class and the association as a symbol.  So instead of  "scaffold_habtm
-            :album, :artist" you use "scaffold_habtm Album, :artists". scaffold_habtm
+            <p>class and the association as a symbol.  So instead of  “scaffold_habtm
+            :album, :artist” you use “scaffold_habtm Album, :artists”. scaffold_habtm
             no longer scaffolds both ways, so you&#39;ll need two separate calls if you
             want it scaffolded in both directions.</p>
             <ul><li>
@@ -94,21 +94,18 @@
             definitely be defined are @scaffold_suffix, @scaffold_class, and
             @scaffold_options.</p>
             <ul><li>
-            <p>Overriding defaults for <a
-            href="../../classes/ActiveRecord.html">ActiveRecord</a> classes is now done
-            through</p>
+            <p>Overriding defaults for ActiveRecord classes is now done through</p>
             </li></ul>
             
-            <p>"::<a target="_top" href="http://option_name">ActiveRecord::Base::SCAFFOLD_OPTIONS</a>",
-            and the option names have changed.  Names for instance variables inside the
-            class should still work. See the RDoc for details.</p>
+            <p>“::<a href="option_name">ActiveRecord::Base::SCAFFOLD_OPTIONS</a>”, and the
+            option names have changed.  Names for instance variables inside the class
+            should still work. See the RDoc for details.</p>
             <ul><li>
             <p>Setting auto_complete_skip_style is now a singleton option and not a</p>
             </li></ul>
             
-            <p>per-model options.  It is set with "<a
-            href="../../classes/ScaffoldingExtensions.html#attribute-c-auto_complete_skip_style">ScaffoldingExtensions.auto_complete_skip_style</a>
-            = true".</p>
+            <p>per-model options.  It is set with
+            “ScaffoldingExtensions.auto_complete_skip_style = true”.</p>
             <ul><li>
             <p>Scaffolded methods are no longer prefixed with _ and then aliased.  If you</p>
             </li></ul>
@@ -144,8 +141,8 @@
             <p>take an argument now, specifying the action being used, though to make
             things easier the argument has a default (:default).</p>
             <ul><li>
-            <p>all_models is now a method of ScaffoldExtensions, not of <a
-            href="../../classes/ActiveRecord/Base.html">ActiveRecord::Base</a>,</p>
+            <p>all_models is now a method of ScaffoldExtensions, not of
+            ActiveRecord::Base,</p>
             </li></ul>
             
             <p>and it returns model classes, not model name strings.</p>
@@ -173,12 +170,12 @@
             <p>:size for a text area) no longer works.  You must specify html options
             (such as :cols and :rows) instead.</p>
             <ul><li>
-            <p>Fields named "password" are no longer set to be of input type password by</p>
+            <p>Fields named “password” are no longer set to be of input type password by</p>
             </li></ul>
             
             <p>default (that can be changed via @scaffold_column_types).</p>
             
-            <p>I recommend searching for "scaffold" inside all of your application&#39;s
+            <p>I recommend searching for “scaffold” inside all of your application&#39;s
             files, and making sure every usage conforms to the current version&#39;s
             API.</p>
             
