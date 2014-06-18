@@ -1,6 +1,12 @@
 #!/usr/bin/env ruby
 require 'rubygems'
-require 'test/unit'
+begin
+  require 'minitest/autorun'
+  TEST_CLASS = Minitest::Test
+rescue LoadError
+  require 'test/unit'
+  TEST_CLASS = Test::Unit::TestCase
+end
 require 'hpricot'
 require 'set'
 require 'open-uri'
@@ -23,7 +29,7 @@ CUSTOM_LAYOUT_CUSTOM_VIEW = [7979, 7976]
 CUSTOM_LAYOUT_SCAFFOLD_VIEW = [7979, 7976]
 SCAFFOLD_LAYOUT_CUSTOM_VIEW = [7976]
 
-class ScaffoldingExtensionsTest < Test::Unit::TestCase
+class ScaffoldingExtensionsTest < TEST_CLASS
   HOST='localhost'
   FIELD_NAMES={'employee'=>%w'Active Comment Name Password Position', 'position'=>%w'Name', 'group'=>%w'Name'}
   FIELDS={'employee'=>%w'active comment name password position_id', 'position'=>%w'name', 'group'=>%w'name'}
