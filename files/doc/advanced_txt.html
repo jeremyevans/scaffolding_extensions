@@ -51,7 +51,7 @@
             
             <p>Make sure that the session value is set to :user_id when the user logs in:</p>
             
-            <pre>session[:user_id] = User.id</pre>
+            <pre class="ruby"><span class="ruby-identifier">session</span>[:<span class="ruby-identifier">user_id</span>] = <span class="ruby-constant">User</span>.<span class="ruby-identifier">id</span></pre>
             
             <p>Then, the user will only be able to see cars where car.user_id is equal to
             <a href=":user_id">session</a>.  Any cars the user creates via the
@@ -72,13 +72,13 @@
             that calls scaffold_name.  However, if you add @scaffold_include to eagerly
             load the associations, there won&#39;t be any additionally queries:</p>
             
-            <pre>@scaffold_include = [:entity, :credit_account, :debit_account]</pre>
+            <pre class="ruby"><span class="ruby-ivar">@scaffold_include</span> = [:<span class="ruby-identifier">entity</span>, :<span class="ruby-identifier">credit_account</span>, :<span class="ruby-identifier">debit_account</span>]</pre>
             
             <h2 id="label-Autocompleting">Autocompleting<span><a href="#label-Autocompleting">&para;</a> <a href="#documentation">&uarr;</a></span></h2>
             
             <p>Autocompleting is easy to set up in the model via:</p>
             
-            <pre>@scaffold_use_auto_complete = true</pre>
+            <pre class="ruby"><span class="ruby-ivar">@scaffold_use_auto_complete</span> = <span class="ruby-keyword">true</span></pre>
             
             <p>Any time the scaffold would use a select box to show a group of objects, it
             will instead use an autocompleting text box, allowing you to easily support
@@ -116,7 +116,7 @@
             <p>For example, if you want different fields shown on the show page than on
             the edit page (to make certain fields read only), you can define:</p>
             
-            <pre>@scaffold_show_fields = [:name, :amount]&#x000A;@scaffold_edit_fields = [:name]</pre>
+            <pre class="ruby"><span class="ruby-ivar">@scaffold_show_fields</span> = [:<span class="ruby-identifier">name</span>, :<span class="ruby-identifier">amount</span>]&#x000A;<span class="ruby-ivar">@scaffold_edit_fields</span> = [:<span class="ruby-identifier">name</span>]</pre>
             
             <p>Each of the different pages (e.g. new, browse, search, etc.) can have a
             different @scaffold_fields, @scaffold_select_order, or @scaffold_include
@@ -130,7 +130,7 @@
             can override it just for its appearance on the employee&#39;s edit page
             via:</p>
             
-            <pre class="ruby"><span class="ruby-keyword">class</span> <span class="ruby-constant">Employee</span> <span class="ruby-operator">&lt;</span> <span class="ruby-constant">ActiveRecord</span><span class="ruby-operator">::</span><span class="ruby-constant">Base</span>&#x000A;  <span class="ruby-ivar">@scaffold_position_select_order_association</span> = <span class="ruby-operator">...</span>&#x000A;  <span class="ruby-ivar">@scaffold_position_include_association</span> = <span class="ruby-operator">...</span>&#x000A;<span class="ruby-keyword">end</span></pre>
+            <pre>class Employee &lt; ActiveRecord::Base&#x000A;  @scaffold_position_select_order_association = ...&#x000A;  @scaffold_position_include_association = ...&#x000A;end</pre>
             
             <p>You can even change how the find is performed by defining a class method:</p>
             

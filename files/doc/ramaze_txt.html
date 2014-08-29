@@ -45,13 +45,13 @@
             <p>If you want to use it without installing the gem, add this before requiring
             it:</p>
             
-            <pre>$:.unshift(&#39;scaffolding_extensions/lib&#39;)</pre>
+            <pre class="ruby"><span class="ruby-identifier">$:</span>.<span class="ruby-identifier">unshift</span>(<span class="ruby-string">&#39;scaffolding_extensions/lib&#39;</span>)</pre>
             
             <p>If your models are not located in model/, it is easiest to let Scaffolding
             Extensions know about them manually (this is only necessary if you are
             using scaffold_all_models without :only):</p>
             
-            <pre>ScaffoldingExtensions.all_models = [Model1, Model2, Model3]</pre>
+            <pre class="ruby"><span class="ruby-constant">ScaffoldingExtensions</span>.<span class="ruby-identifier">all_models</span> = [<span class="ruby-constant">Model1</span>, <span class="ruby-constant">Model2</span>, <span class="ruby-constant">Model3</span>]</pre>
             
             <p>You should add this code after your models have been loaded but before your
             controllers have been loaded.</p>
