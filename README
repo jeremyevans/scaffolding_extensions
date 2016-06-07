@@ -1,8 +1,8 @@
 = Consider Migrating to AutoForme
 
-While Scaffolding Extensions is still supported, there is a replacement
+Scaffolding Extensions is no longer supported. There is a replacement
 named AutoForme[1] that provides mostly the same features while being much
-more flexible.  It currently supports Rails/Sinatra and Sequel, so if you
+more flexible.  It currently supports Rails/Sinatra/Roda and Sequel, so if you
 are using those, it is recommended that you consider using AutoForme instead.
 
 1. http://autoforme.jeremyevans.net
